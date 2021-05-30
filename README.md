@@ -55,7 +55,7 @@ After the minimum working product is complete, the above components will be refi
 * Also return URL to article as well as direct URL to one picture of article.
 * ...
 
-## Volume Optimization Algorithm (*optimizers/volumeoptimizer.py*)
+## Volume Optimization Algorithm (`optimizers/volumeoptimizer.py`)
 * Receives list of package dimensions, weights and counts
 * Receives available volume
 * Optimizes stacking of packages in available volume
@@ -75,9 +75,9 @@ After the minimum working product is complete, the above components will be refi
     )]
 )] (list)
 ```
-* Available volume: 3-dimensional numpy array (see params.py)
+* Available volume: 3-dimensional numpy array (see `params.py`)
 ### Outputs
-* Filled volume: 3-dimensional numpy array (see params.py)
+* Filled volume: 3-dimensional numpy array (see `params.py`)
 * Article coordinates:
 ```
 [
@@ -95,17 +95,17 @@ After the minimum working product is complete, the above components will be refi
     * After initial fit test, sort packages by overall volume descending, then recursively fill space.
     * Consider using a loss function that minimizes the number of empty "pockets": More small pockets should produce a bigger penalty than one large one.
     * [This](https://docs.scipy.org/doc/scipy-0.14.0/reference/generated/scipy.ndimage.measurements.label.html) could maybe be used to identify and count pockets.
-    * Use parameters defined in *params.py* to assign space.
+    * Use parameters defined in `params.py` to assign space.
     * Algorithm efficiency will be key for speed - might have to minimize use of loops and rely as much as possible on numpy-native functions, where available.
-### Potential further improvements
+### Potential further enhancements
 * Train a machine learning model on a set of already-optimized configurations, eliminating the requirement for individual further optimizations.
 * Include weight as a factor - heavier items should sit near the bottom.
 
-## 3D Interactive Plot (*plotting/plotter.py*)
+## 3D Interactive Plot (`plotting/plotter.py`)
 * Receives 3D numeric representation of occupied space as well as article coordinates
 * Returns interactive 3D plot of packages
 ### Inputs
-* Filled volume: 3-dimensional numpy array (see params.py)
+* Filled volume: 3-dimensional numpy array (see `params.py`)
 * Article coordinates:
 ```
 [
@@ -120,17 +120,42 @@ After the minimum working product is complete, the above components will be refi
 * 3D interactive plot which can be displayed through user interface
 ### Minimum requirements:
 * Plot available space and individual packages inside.
-* Zoom and tilt must be available
+* Zoom and tilt must be available.
 * Potential ideas:
     * Consider using [voxels](https://matplotlib.org/3.1.0/gallery/mplot3d/voxels.html) for plotting.
     * Ideally packages would have distinct colors - create appropriate color map in *params.py*.
-### Potential further improvements
+### Potential further enhancements
 * Add hover labels to packages.
 * Add list next to plot. When user hovers over/clicks on article its location on plot is highlighted.
 * Hover labels - include article name, link to article and small preview picture (would have to be buffered).
 
 ## User interface
-* 
+```diff
+! Further alignment is needed in this section.
+```
+* Website interface allowing the following user interactions:
+    * User provides list and count of articles.
+    * User selects from a (short) list of pre-defined cars (whose trunk size is known).
+    * Interface returns visual representation of how packages would fit in trunk.
+### Inputs
+* By user:
+    * List of article numbers and count of each
+    * Car
+### Outputs
+* Article list and counts: ```{article_code (str): item_count (int)} (dict)```
+* Available volume: 3-dimensional numpy array (see `params.py`)
+### Minimum requirements
+* User can paste in a list of article numbers and respective counts, select a predefined car model and receives a plot in return.
+* To be deployed in English only.
+### Potential further enhancements
+* Article data collection:
+    * Instead of pasting in article data, allow user to upload printed PDF of shopping basket to parse using Regex.
+    * Log into IKEA website using user login details and extract shopping basket data directly.
+* Location/language selection:
+    * Offer interface in user language.
+    * Initially hardcoded (see `params.py`) but could be pre-populated based on user location/browser language, with user ability to change.
+* Car selection:
+    * Instead of picking from short list of car models (limited utility), expand range - will require implementing additional modules (see below).
 
 **The following module ideas are *enhancements*, to be tackled once minimum working product is deployable.**
 
