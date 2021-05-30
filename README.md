@@ -23,9 +23,9 @@ After the minimum working product is complete, the above components will be refi
 
 # Module Description
 ## IKEA Web Scraper (*scrapers/IKEA.py*)
-Receives list of article codes and article counts.  
-Navigates IKEA website to obtain package dimensions, weights and counts.  
-Returns list of package dimensions and weights.  
+Receives list of article codes and article counts.<br/>
+Navigates IKEA website to obtain package dimensions, weights and counts.<br/>
+Returns list of package dimensions and weights.<br/>
 ![IKEA sample image](/resources/IKEA_sample_image.PNG)
 
 # Change Log
