@@ -8,7 +8,7 @@ For the purposes of creating a minimum working product, the following components
 - [ ] 3D interactive plot
 After the minimum working product is complete, the above components will be refined further, both for speed and versatility. In addition, other potential components include (non-exhaustive list):
 - [ ] Web scraping module (text and images) for car dimensions
-- [ ] Machine Learning module to model car trunk size
+- [ ] Machine Learning module to estimate car trunk size
 - [ ] User interface enhancement allowing user to take photo of own vehicle (as opposed to manually inputing make and model)
 - [ ] Inclusion of providers other than IKEA
 
@@ -54,14 +54,99 @@ After the minimum working product is complete, the above components will be refi
 * Also return URL to article as well as direct URL to one picture of article.
 * ...
 
-## Volume Optimization Algorithm (*volume_optimizer.py*)
+## Volume Optimization Algorithm (*volumeoptimizer.py*)
 * Receives list of package dimensions, weights and counts
 * Receives available volume
 * Optimizes stacking of packages in available volume
-* Returns 3D numeric representation of occupied space
+* Returns 3D numeric representation of occupied space as well as article coordinates
 ### Inputs
-* List of package dimensions and weights as defined in 
+* List of package dimensions and weights:
+```
+[(
+    article_code (str),
+    item_count (int),
+    [(
+        package_id (int),
+        package_length (int),
+        package_width (int),
+        package_height (int),
+        package_weight (float)
+    )]
+)] (list)
+```
 * Available volume: 3-dimensional numpy array (see params.py)
+### Outputs
+* Filled volume: 3-dimensional numpy array (see params.py)
+* Article coordinates:
+```
+[
+    article_code (str),
+    article_id (int),
+    x_start (int),
+    y_start (int),
+    z_start (int)
+] (list)
+```
+### Minimum requirements:
+* First test if available volume is sufficient (vs. total volume of packages as well as in any single dimension vs. max value)
+* Efficiently distribute space from ```[0][0][0]``` (assume bottom left front corner of trunk)
+* Potential ideas:
+    * After initial fit test, sort packages by overall volume descending, then recursively fill space.
+    * Consider using a loss function that minimizes the number of empty "pockets": More small pockets should produce a bigger penalty than one large one.
+    * [This](https://docs.scipy.org/doc/scipy-0.14.0/reference/generated/scipy.ndimage.measurements.label.html) could maybe be used to identify and count pockets.
+    * Use parameters defined in *params.py* to assign space.
+    * Algorithm efficiency will be key for speed - might have to minimize use of loops and rely as much as possible on numpy-native functions, where available.
+### Potential further improvements
+* Train a machine learning model on a set of already-optimized configurations, eliminating the requirement for individual further optimizations.
+* Include weight as a factor - heavier items should sit near the bottom.
+
+## 3D Interactive Plot (*plotter.py*)
+* Receives 3D numeric representation of occupied space as well as article coordinates
+* Returns interactive 3D plot of packages
+### Inputs
+* Filled volume: 3-dimensional numpy array (see params.py)
+* Article coordinates:
+```
+[
+    article_code (str),
+    article_id (int),
+    x_start (int),
+    y_start (int),
+    z_start (int)
+] (list)
+```
+### Outputs
+* 3D interactive plot which can be displayed through user interface
+### Minimum requirements:
+* Plot available space and individual packages inside.
+* Zoom and tilt must be available
+* Potential ideas:
+    * Consider using [voxels](https://matplotlib.org/3.1.0/gallery/mplot3d/voxels.html) for plotting.
+    * Ideally packages would have distinct colors - create appropriate color map in *params.py*.
+### Potential further improvements
+* Add hover labels to packages.
+* Add list next to plot. When user hovers over/clicks on article its location on plot is highlighted.
+* Hover labels - include article name, link to article and small preview picture (would have to be buffered).
+
+## User interface
+* 
+
+**The following module ideas are *enhancements*, to be tackled once minimum working product is deployable.**
+
+## Web scraping module for car dimensions
+* Decide on best website, or combination of websites, to extract standardized car photos (side and back), exterior dimensions and trunk volume.
+* Creation of database.
+
+## Machine learning module to estimate trunk size
+* Infer trunk location from position of wheels and doors.
+* Use volume provided by manufacturer to validate model assumptions.
+
+## User interface enhancements
+* Allow user to take photo of car.
+* Deployment as an app.
+
+## Other scrapers
+* Wayfair, MediaMarkt, ...
 
 *Section last updated 30/05/2021*
 

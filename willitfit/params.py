@@ -3,8 +3,8 @@ Defines global variables
 '''
 
 # IKEA website scraper settings
-IKEA_COUNTRY_DOMAIN = "de"
-IKEA_WEBSITE_LANGUAGE = "de"
+IKEA_COUNTRY_DOMAIN = "de" # domain used 
+IKEA_WEBSITE_LANGUAGE = "de" # language used, often same as IKEA_COUNTRY_DOMAIN but may be different
 
 # Volume array settings
 VOL_UNAVAILABLE = -1
