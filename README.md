@@ -76,9 +76,9 @@ After the minimum working product is complete, the above components will be refi
     )]
 )] (list)
 ```
-* Available volume: 3-dimensional numpy array (see `params.py`)
+* Available volume: 3-dimensional numpy array, each element is 1cm (see `params.py`)
 ### Outputs
-* Filled volume: 3-dimensional numpy array (see `params.py`)
+* Filled volume: 3-dimensional numpy array, each element is 1cm (see `params.py`)
 * Article coordinates:
 ```
 [
@@ -106,7 +106,7 @@ After the minimum working product is complete, the above components will be refi
 * Receives 3D numeric representation of occupied space as well as article coordinates
 * Returns interactive 3D plot of packages
 ### Inputs
-* Filled volume: 3-dimensional numpy array (see `params.py`)
+* Filled volume: 3-dimensional numpy array, each element is 1cm (see `params.py`)
 * Article coordinates:
 ```
 [
