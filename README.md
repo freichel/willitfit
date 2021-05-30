@@ -22,13 +22,16 @@ After the minimum working product is complete, the above components will be refi
 *Section last updated 30/05/2021*
 
 # Module Description
-## User Interface
-### Minimum Requirements
-* 
+## IKEA Web Scraper (*scrapers/IKEA.py*)
+Receives list of article codes and article counts.
+Navigates IKEA website to obtain package dimensions, weights and counts.
+Returns list of package dimensions and weights.
+![IKEA sample image](/resources/IKEA_sample_image.PNG)
 
 # Change Log
 * 30/05/2021: Created initial document
 
+<span style="color:red">The below was auto-created...will selectively remove soon.</span>
 
 # Data analysis
 - Document here the project: willitfit
