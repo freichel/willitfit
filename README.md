@@ -6,7 +6,7 @@ For the purposes of creating a minimum working product, the following components
 - [ ] Web scraping module for IKEA package dimensions
 - [ ] Volume optimization algorithm
 - [ ] 3D interactive plot
-
+  
 After the minimum working product is complete, the above components will be refined further, both for speed and versatility. In addition, other potential components include (non-exhaustive list):
 - [ ] Web scraping module (text and images) for car dimensions
 - [ ] Machine Learning module to estimate car trunk size
