@@ -21,11 +21,11 @@ After the minimum working product is complete, the above components will be refi
 *Section last updated 30/05/2021*
 
 # Module Description
-## IKEA Web Scraper (*scrapers/IKEA.py*)
+## IKEA Web Scraper (`scrapers/IKEA.py`)
 * Receives list of article codes and article counts.
 * Scrapes IKEA website to obtain package dimensions (rounded up to next cm), weights (in kg rounded up 2 decimals) and counts.
 * Returns list of package dimensions and weights.
-</br>
+
 ![IKEA sample image](/resources/IKEA_sample_image.PNG)
 ### Inputs
 * Article list and counts: ```{article_code (str): item_count (int)} (dict)```
@@ -47,7 +47,7 @@ After the minimum working product is complete, the above components will be refi
 )] (list)
 ```
 ### Minimum requirements
-* Assume ```IKEA_COUNTRY_DOMAIN``` and ```IKEA_WEBSITE_LANGUAGE``` are static to begin with (set in params.py).
+* Assume ```IKEA_COUNTRY_DOMAIN``` and ```IKEA_WEBSITE_LANGUAGE``` are static to begin with (set in `params.py`).
 * Efficiently scrape relevant country website and return required outputs.
 ### Potential further enhancements
 * Ability to scrape other countries' websites.
@@ -55,7 +55,7 @@ After the minimum working product is complete, the above components will be refi
 * Also return URL to article as well as direct URL to one picture of article.
 * ...
 
-## Volume Optimization Algorithm (*volumeoptimizer.py*)
+## Volume Optimization Algorithm (*optimizers/volumeoptimizer.py*)
 * Receives list of package dimensions, weights and counts
 * Receives available volume
 * Optimizes stacking of packages in available volume
@@ -101,7 +101,7 @@ After the minimum working product is complete, the above components will be refi
 * Train a machine learning model on a set of already-optimized configurations, eliminating the requirement for individual further optimizations.
 * Include weight as a factor - heavier items should sit near the bottom.
 
-## 3D Interactive Plot (*plotter.py*)
+## 3D Interactive Plot (*plotting/plotter.py*)
 * Receives 3D numeric representation of occupied space as well as article coordinates
 * Returns interactive 3D plot of packages
 ### Inputs
