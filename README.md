@@ -141,7 +141,7 @@ After the minimum working product is complete, the above components will be refi
 ### Inputs
 * By user:
     * List of article numbers and count of each
-    * Car
+    * Car (from list)
 ### Outputs
 * Article list and counts: ```{article_code (str): item_count (int)} (dict)```
 * Available volume: 3-dimensional numpy array (see `params.py`)
