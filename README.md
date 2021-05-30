@@ -31,7 +31,7 @@ After the minimum working product is complete, the above components will be refi
 ### Inputs
 * Article list and counts: ```{article_code (str): item_count (int)} (dict)```
 * Country domain: ```IKEA_COUNTRY_DOMAIN (str)```
-* Website language ```IKEA_WEBSITE_LANGUAGE (str)```
+* Website language: ```IKEA_WEBSITE_LANGUAGE (str)```
 ### Outputs
 * List of package dimensions and weights:
 ```
