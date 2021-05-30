@@ -25,7 +25,8 @@ After the minimum working product is complete, the above components will be refi
 * Receives list of article codes and article counts.
 * Scrapes IKEA website to obtain package dimensions (rounded up to next cm), weights (in kg rounded up 2 decimals) and counts.
 * Returns list of package dimensions and weights.
-* ![IKEA sample image](/resources/IKEA_sample_image.PNG)
+</br>
+![IKEA sample image](/resources/IKEA_sample_image.PNG)
 ### Inputs
 * Article list and counts: ```{article_code (str): item_count (int)} (dict)```
 * Country domain: ```IKEA_COUNTRY_DOMAIN (str)```
@@ -153,7 +154,9 @@ After the minimum working product is complete, the above components will be refi
 # Change Log
 * 30/05/2021: Created initial document
 
-<span style="color:red">The below was auto-created...will selectively remove soon.</span>
+```
+- The below was auto-created...will selectively remove soon.
+```
 
 # Data analysis
 - Document here the project: willitfit
