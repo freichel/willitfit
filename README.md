@@ -154,7 +154,7 @@ After the minimum working product is complete, the above components will be refi
 # Change Log
 * 30/05/2021: Created initial document
 
-```
+```diff
 - The below was auto-created...will selectively remove soon.
 ```
 
