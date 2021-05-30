@@ -30,7 +30,8 @@ After the minimum working product is complete, the above components will be refi
 ### Inputs
 * Dict: ```{article_code (str): item_count (int)}```
 ### Outputs
-* List of tuples: ```
+* List of tuples:
+```
 [(
 article_code (str),
 item_count (int),
@@ -42,7 +43,7 @@ item_count (int),
     package_weight (float)
 )]
 )]
-    ```
+```
 
 # Change Log
 * 30/05/2021: Created initial document
