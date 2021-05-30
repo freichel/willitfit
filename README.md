@@ -1,5 +1,4 @@
 # Project Overview
-
 ## Project Description
 **Will It Fit?** starts as a group project for the Le Wagon Berlin Data Science Bootcamp, batch 606. The initial pitch can be found [here](https://docs.google.com/presentation/d/e/2PACX-1vQfbjkibq4NNs7WjbxE9bvqmIKx-KpdwnLLpAKy1qnAkRI3a2uxIX60CbqAtQXPNRaCWtsYwS38s-fd/pub?start=false&loop=true&delayms=60000#slide=id.gdc7fe3dba0_1_122).
 For the purposes of creating a minimum working product, the following components will be completed first (see more details below):
@@ -26,24 +25,45 @@ After the minimum working product is complete, the above components will be refi
 * Receives list of article codes and article counts.
 * Scrapes IKEA website to obtain package dimensions (rounded up to next cm), weights (in kg rounded up 2 decimals) and counts.
 * Returns list of package dimensions and weights.
-![IKEA sample image](/resources/IKEA_sample_image.PNG)
+* ![IKEA sample image](/resources/IKEA_sample_image.PNG)
 ### Inputs
-* Dict: ```{article_code (str): item_count (int)}```
+* Article list and counts: ```{article_code (str): item_count (int)} (dict)```
+* Country domain: ```IKEA_COUNTRY_DOMAIN (str)```
+* Website language ```IKEA_WEBSITE_LANGUAGE (str)```
 ### Outputs
-* List of tuples:
+* List of package dimensions and weights:
 ```
 [(
-article_code (str),
-item_count (int),
-[(
-    package_id (int),
-    package_length (int),
-    package_width (int),
-    package_height (int),
-    package_weight (float)
-)]
-)]
+    article_code (str),
+    item_count (int),
+    [(
+        package_id (int),
+        package_length (int),
+        package_width (int),
+        package_height (int),
+        package_weight (float)
+    )]
+)] (list)
 ```
+### Minimum requirements
+* Assume ```IKEA_COUNTRY_DOMAIN``` and ```IKEA_WEBSITE_LANGUAGE``` are static to begin with (set in params.py).
+* Efficiently scrape relevant country website and return required outputs.
+### Potential further enhancements
+* Ability to scrape other countries' websites.
+* Inch/cm and pound/kg conversions.
+* Also return URL to article as well as direct URL to one picture of article.
+* ...
+
+## Volume Optimization Algorithm (*volume_optimizer.py*)
+* Receives list of package dimensions, weights and counts
+* Receives available volume
+* Optimizes stacking of packages in available volume
+* Returns 3D numeric representation of occupied space
+### Inputs
+* List of package dimensions and weights as defined in 
+* Available volume: 3-dimensional numpy array (see params.py)
+
+*Section last updated 30/05/2021*
 
 # Change Log
 * 30/05/2021: Created initial document
