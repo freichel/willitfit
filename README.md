@@ -1,3 +1,35 @@
+# Project Overview
+
+## Project Description
+**Will It Fit?** starts as a group project for the Le Wagon Berlin Data Science Bootcamp, batch 606. The initial pitch can be found [here](https://docs.google.com/presentation/d/e/2PACX-1vQfbjkibq4NNs7WjbxE9bvqmIKx-KpdwnLLpAKy1qnAkRI3a2uxIX60CbqAtQXPNRaCWtsYwS38s-fd/pub?start=false&loop=true&delayms=60000#slide=id.gdc7fe3dba0_1_122).
+For the purposes of creating a minimum working product, the following components will be completed first (see more details below):
+- [ ] User interface
+- [ ] Web scraping module for IKEA package dimensions
+- [ ] Volume optimization algorithm
+- [ ] 3D interactive plot
+After the minimum working product is complete, the above components will be refined further, both for speed and versatility. In addition, other potential components include (non-exhaustive list):
+- [ ] Web scraping module (text and images) for car dimensions
+- [ ] Machine Learning module to model car trunk size
+- [ ] User interface enhancement allowing user to take photo of own vehicle (as opposed to manually inputing make and model)
+- [ ] Inclusion of providers other than IKEA
+
+## Team Members
+* [Katarzyna Cieslik](https://github.com/KasiaCieslik)
+* [Tzu-Fan Tang](https://github.com/proxvision)
+* [Dominik Wagner](https://github.com/domzae)
+* [Florian Reichel](https://github.com/freichel)
+
+*Section last updated 30/05/2021*
+
+# Module Description
+## User Interface
+### Minimum Requirements
+* 
+
+# Change Log
+* 30/05/2021: Created initial document
+
+
 # Data analysis
 - Document here the project: willitfit
 - Description: Project Description
