@@ -157,8 +157,10 @@ After the minimum working product is complete, the above components will be refi
     * Initially hardcoded (see `params.py`) but could be pre-populated based on user location/browser language, with user ability to change.
 * Car selection:
     * Instead of picking from short list of car models (limited utility), expand range - will require implementing additional modules (see below).
-
-**The following module ideas are *enhancements*, to be tackled once minimum working product is deployable.**
+  
+  
+  
+**The following module ideas are *enhancements*, to be tackled once the minimum working product is deployable.**
 
 ## Web scraping module for car dimensions
 * Decide on best website, or combination of websites, to extract standardized car photos (side and back), exterior dimensions and trunk volume.
@@ -178,7 +180,8 @@ After the minimum working product is complete, the above components will be refi
 *Section last updated 30/05/2021*
 
 # Change Log
-* 30/05/2021: Created initial document
+* 31/05/2021: Added space separators (freichel)
+* 30/05/2021: Created initial document (freichel)
 
 ```diff
 - The below was auto-created...will selectively remove soon.
