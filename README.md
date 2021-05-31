@@ -98,6 +98,7 @@ After the minimum working product is complete, the above components will be refi
     * [This](https://docs.scipy.org/doc/scipy-0.14.0/reference/generated/scipy.ndimage.measurements.label.html) could maybe be used to identify and count pockets.
     * Use parameters defined in `params.py` to assign space.
     * Algorithm efficiency will be key for speed - might have to minimize use of loops and rely as much as possible on numpy-native functions, where available.
+    * Consider [threading](https://realpython.com/intro-to-python-threading/) to run multiple possible solutions in parallel
 ### Potential further enhancements
 * Train a machine learning model on a set of already-optimized configurations, eliminating the requirement for individual further optimizations.
 * Include weight as a factor - heavier items should sit near the bottom.
@@ -177,10 +178,10 @@ After the minimum working product is complete, the above components will be refi
 ## Other scrapers
 * Wayfair, MediaMarkt, ...
 
-*Section last updated 30/05/2021*
+*Section last updated 31/05/2021*
 
 # Change Log
-* 31/05/2021: Added space separators (freichel)
+* 31/05/2021: Added space separators and additional info on optimizer (freichel)
 * 30/05/2021: Created initial document (freichel)
 
 ```diff
