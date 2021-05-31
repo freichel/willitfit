@@ -13,18 +13,25 @@ After the minimum working product is complete, the above components will be refi
 - [ ] User interface enhancement allowing user to take photo of own vehicle (as opposed to manually inputing make and model)
 - [ ] Inclusion of providers other than IKEA
 
+## Links
+* [Trello Board](https://trello.com/b/XFtR8y8M/willitfit)
+
 ## Team Members
 * [Katarzyna Cieslik](https://github.com/KasiaCieslik)
 * [Tzu-Fan Tang](https://github.com/proxvision)
 * [Dominik Wagner](https://github.com/domzae)
 * [Florian Reichel](https://github.com/freichel)
 
-*Section last updated 30/05/2021*
+*Section last updated 31/05/2021*
 
 # Module Description
 ## IKEA Web Scraper (`scrapers/IKEA.py`)
 * Receives list of article codes and article counts.
-* Scrapes IKEA website to obtain package dimensions (rounded up to next cm), weights (in kg rounded up 2 decimals) and counts.
+* For existing articles:
+  * Obtain relevant data from database.
+* For new articles:
+  * Scrapes IKEA website to obtain package dimensions (rounded up to next cm), weights (in kg rounded up 2 decimals) and counts.
+  * Exports new articles into database.
 * Returns list of package dimensions and weights.
 
 ![IKEA sample image](/resources/IKEA_sample_image.PNG)
@@ -49,7 +56,7 @@ After the minimum working product is complete, the above components will be refi
 ```
 ### Minimum requirements
 * Assume ```IKEA_COUNTRY_DOMAIN``` and ```IKEA_WEBSITE_LANGUAGE``` are static to begin with (set in `params.py`).
-* Efficiently scrape relevant country website and return required outputs.
+* Efficiently (do not re-scrape existing ones, use database) scrape relevant country website and return required outputs.
 ### Potential further enhancements
 * Ability to scrape other countries' websites.
 * Inch/cm and pound/kg conversions.
