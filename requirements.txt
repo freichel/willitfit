@@ -27,3 +27,11 @@ six>=1.14
 joblib
 memoized-property
 termcolor
+
+# framework/web-server
+streamlit
+heroku
+
+# pdf to text
+pdfminer.six
+beautifulsoup4
