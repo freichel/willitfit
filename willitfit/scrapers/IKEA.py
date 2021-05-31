@@ -8,4 +8,5 @@ from willitfit.params import IKEA_COUNTRY_DOMAIN, IKEA_WEBSITE_LANGUAGE
 import requests
 from bs4 import BeautifulSoup
 
-IKEA_URL = "https://www.ikea.IKEA_COUNTRY_DOMAIN/IKEA_WEBSITE_LANGUAGE"
+IKEA_URL = "https://www.ikea.com/IKEA_COUNTRY_DOMAIN/IKEA_WEBSITE_LANGUAGE"
+IKEA_SEARCH_URL = "/search/products/?q=ARTICLE_CODE"
