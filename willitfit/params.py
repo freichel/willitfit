@@ -15,3 +15,5 @@ VOL_EMPTY = 0
 
 # Dummy data for volume array
 VOLUME_SPACE = np.zeros((40,40,40), dtype=int)
+COORDS = [["article1",0,0,0,0,10,15,10],
+          ["article2",1,10,0,0,15,10,5]]
