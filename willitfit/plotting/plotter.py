@@ -21,7 +21,7 @@ def generate_cuboids(article_coords):
     meshes = []
 
     for item in article_coords:
-        # corners for each face
+        # coordinates of each article
         x1 = item[2] # x_start
         x2 = item[5] # x_end
         y1 = item[3] # y_start
