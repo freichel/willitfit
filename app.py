@@ -9,62 +9,61 @@ import pandas as pd
 
 
 MY_URL = ""
-catalog = []
 
 generic_cars = ['Subaru saloon 2018', 'Toyota hatch 2015', 'BMW coup 2019']
+def main():
+    # Render initial app instructions
+    with open('app_instructions.md', 'r') as f:
+        contents = f.read()
+        st.header(contents)
 
-# Render initial app instructions
-with open('app_instructions.md', 'r') as f:
-    contents = f.read()
-    st.header(contents)
+    # Sidebar
+    st.sidebar.markdown("""
+        ## Enter your data:
+        """)
 
-# Sidebar
-st.sidebar.markdown("""
-    ## Enter your data:
-    """)
+    # Car model selector
+    car_model = st.sidebar.selectbox(
+        'Select car model:', 
+        generic_cars
+        )
+    st.sidebar.markdown("""
+        ---
+        """)
 
-# Car model selector
-car_model = st.sidebar.selectbox(
-    'Select car model:', 
-    generic_cars
-    )
-st.sidebar.markdown("""
-    ---
-    """)
+    # Upload pdf
+    uploaded_pdf = st.sidebar.file_uploader('(Recommended) On the IKEA website, export your wishlist as a PDF and upload it here:')
+    st.sidebar.markdown("""
+        or
+        """)
 
-# Upload pdf
-uploaded_pdf = st.sidebar.file_uploader('(Recommended) On the IKEA website, export your wishlist as a PDF and upload it here:')
-st.sidebar.markdown("""
-    or
-    """)
+    # Article number list
+    form = st.sidebar.form('Add your items individually:')
+    articles_list = form.text_area(
+        'List your Article Numbers:', 
+        help='Delimited by commas. If more than 1 of the same article, denote in brackets as shown. Format: XXX.XXX.XX (>1), '
+        )
+    form.form_submit_button('Submit your list')
 
-# Article number list
-form = st.sidebar.form('Add your items individually:')
-articles_list = form.text_area(
-    'List your Article Numbers:', 
-    help='Delimited by commas. If more than 1 of the same article, denote in brackets as shown. Format: XXX.XXX.XX (>1), '
-    )
-form.form_submit_button('Submit your list')
-
-st.sidebar.markdown("""
-    ---
-    """)
+    st.sidebar.markdown("""
+        ---
+        """)
 
 
 
-## Generate plot
-if st.sidebar.button('Generate'):
-    # Parsing uploaded_pdf to POST
-    if uploaded_pdf:
-        dict_ = pdf_to_dict(uploaded_pdf)
-        dict_['vol'] = get_volume_space(car_model)
-        response = requests.post(MY_URL, dict_)
+    ## Generate plot
+    if st.sidebar.button('Generate'):
+        # Parsing uploaded_pdf to POST
+        if uploaded_pdf:
+            dict_ = pdf_to_dict(uploaded_pdf)
+            dict_['vol'] = get_volume_space(car_model)
+            response = requests.post(MY_URL, dict_)
 
-    # Build df from form to POST
-    if articles_list:
-        dict_ = form_to_dict(articles_list)
-        dict_['vol'] = get_volume_space(car_model)
-        response = requests.post(MY_URL, dict_)
+        # Build df from form to POST
+        if articles_list:
+            dict_ = form_to_dict(articles_list)
+            dict_['vol'] = get_volume_space(car_model)
+            response = requests.post(MY_URL, dict_)
 
 # response = requests.post(MY_URL, df)
 # response_dict = response.json()

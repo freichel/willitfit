@@ -17,4 +17,5 @@ def _parse_line(line):
 
 def get_data(CAR_PATH):
     data = pd.read_csv(CAR_PATH)
+    data.set_index('car_model', inplace=True)
     return data
