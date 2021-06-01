@@ -1,9 +1,8 @@
 import streamlit as st
 import requests
-from pdfminer.high_level import extract_text_to_fp
-from pdfminer.layout import LAParams
-from io import StringIO
-from bs4 import BeautifulSoup
+from willitfit.app_utils.pdf_parser import pdf_to_df
+from willitfit.app_utils.form_transformer import form_to_df
+import pandas as pd
 
 #import plotly.graph_objects as go
 
@@ -33,38 +32,36 @@ st.sidebar.markdown("""
     """)
 
 # Upload pdf
-basket_pdf = st.sidebar.file_uploader('(Optional) Upload your wishlist PDF here:')
-
+uploaded_pdf = st.sidebar.file_uploader('(Recommended) On the IKEA website, export your wishlist as a PDF and upload it here:')
 st.sidebar.markdown("""
     or
     """)
 
 # Article number list
 form = st.sidebar.form('Add your items individually:')
-article_numbers = form.text_area('Article numbers:', help='Article numbers in the format XXX.XXX.XXX, delimited by commas')
-form.form_submit_button('Submit your article numbers list')
+articles_list = form.text_area(
+    'List your Article Numbers:', 
+    help='Delimited by commas. If more than 1 of the same article, denote in brackets as shown. Format: XXX.XXX.XX (>1), '
+    )
+form.form_submit_button('Submit your list')
 
 st.sidebar.markdown("""
     ---
     """)
 
-# Parsing data to params
-## PDF to text
-basket_html = extract_text_to_fp(fin, StringIO(), laparams=LAParams(), 
-                       output_type='html', codec=None)
 
 
-
-
-# params=dict(
-#     car_model=car_model,
-#     basket=basket
-# )
-
-
-# Generate plot
+## Generate plot
 st.sidebar.button('Generate')
-# response = requests.get(MY_URL, params=params)
+# Parsing uploaded_pdf to POST
+if uploaded_pdf:
+    df = pdf_to_df(uploaded_pdf)
+
+# Build df from form to POST
+if articles_list:
+    df = form_to_df(articles_list)
+    
+# response = requests.post(MY_URL, df)
 # response_dict = response.json()
 
     # if response.status_code == 200:
