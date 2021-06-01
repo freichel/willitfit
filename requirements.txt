@@ -29,5 +29,12 @@ joblib
 memoized-property
 termcolor
 
+# framework/web-server
+streamlit
+
+# pdf to text
+pdfminer.six
+
+# plotter
 ipywidgets>=7.5
 plotly
