@@ -8,6 +8,7 @@ wheel>=0.29
 numpy
 pandas
 scikit-learn
+scikit-image
 
 # tests/linter
 black
@@ -22,6 +23,8 @@ google-cloud-storage
 mlflow
 s3fs
 bs4
+fastapi
+uvicorn
 
 # utilities
 six>=1.14
