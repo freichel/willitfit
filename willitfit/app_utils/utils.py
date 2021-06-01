@@ -1,4 +1,8 @@
-## Parse line function
+import pandas as pd
+
+CAR_PATH='raw_data/'
+
+
 def _parse_line(line):
     """
     Do a regex search against all defined regexes and
@@ -10,3 +14,7 @@ def _parse_line(line):
             return key, match
     # if there are no matches
     return None, None
+
+def get_data(CAR_PATH):
+    data = pd.read_csv(CAR_PATH)
+    return data

@@ -4,7 +4,7 @@ import re
 import pandas as pd
 from willitfit.app_utils.utils import _parse_line
 
-def pdf_to_df(uploaded_pdf):
+def pdf_to_dict(uploaded_pdf):
     ## Setup pdf layout params
     laparams = LAParams(
         line_overlap=0.1, 
@@ -19,7 +19,7 @@ def pdf_to_df(uploaded_pdf):
 
     ## Setup regex dict
     rx_dict = {
-        'n_pieces': re.compile(r'(?P<n_pieces>\d*)\spcs'),
+        'n_pieces': re.compile(r'(?P<n_pieces>\d*)\sSt\.'),
         'article_num': re.compile(r'(?P<article_num>\d{3}\.\d{3}\.\d{2,})')
         }
 
@@ -31,8 +31,9 @@ def pdf_to_df(uploaded_pdf):
         if match:
             pdf_dict[key].append(match[0])
 
-    submission = pd.DataFrame(pdf_dict)
-
-    submission['n_pieces'] = submission['n_pieces'].astype(int)
+    df = pd.DataFrame(pdf_dict)
     # Make sure n_pieces column is integer type
-    return submission
+    df['n_pieces'] = df['n_pieces'].astype(int)
+    # Transform back to key, list pairs
+    return df.set_index('article_num').T.to_dict('list')
+    

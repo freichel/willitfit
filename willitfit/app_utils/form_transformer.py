@@ -1,7 +1,7 @@
 import pandas as pd
 import re
 
-def form_to_df(articles_list):
+def form_to_dict(articles_list):
     """
     Transform form submitted on app to dataframe 
     """
@@ -26,8 +26,8 @@ def form_to_df(articles_list):
             df_dict['n_pieces'].append(1)
             df_dict['article_num'].append(item)
 
-    submission = pd.DataFrame(df_dict)
+    df = pd.DataFrame(df_dict)
     # Make sure n_pieces column is integer type
-    submission['n_pieces'] = submission['n_pieces'].astype(int)
-    
-    return submission
+    df['n_pieces'] = df['n_pieces'].astype(int)
+    # Transform back to key, list pairs
+    return df.set_index('article_num').T.to_dict('list')

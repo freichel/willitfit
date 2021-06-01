@@ -65,8 +65,14 @@ heroku_login:
 	-@heroku login
 
 heroku_create_app:
-	-@heroku create willitfit
+	-@heroku create will-it-fit
 
 deploy_heroku:
 	-@git push heroku master
 	-@heroku ps:scale web=1
+
+# ----------------------------------
+#			UVICORN
+# ----------------------------------
+run_api:
+	@uvicorn api.fast:app --reload

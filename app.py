@@ -1,7 +1,8 @@
 import streamlit as st
 import requests
-from willitfit.app_utils.pdf_parser import pdf_to_df
-from willitfit.app_utils.form_transformer import form_to_df
+from willitfit.app_utils.pdf_parser import pdf_to_dict
+from willitfit.app_utils.form_transformer import form_to_dict
+from willitfit.app_utils.trunk_dimensions import get_volume_space
 import pandas as pd
 
 #import plotly.graph_objects as go
@@ -9,8 +10,8 @@ import pandas as pd
 
 MY_URL = ""
 catalog = []
-trunk_sizes = {'Generic Sedan': 0.4, 'Generic Hatchback': 0.3, 'Generic Compact SUV': 0.4, 'Generic Mid-size SUV': 0.5}
-generic_cars = ['Generic Sedan', 'Generic Hatchback', 'Generic Compact SUV', 'Generic Mid-size SUV']
+
+generic_cars = ['Subaru saloon 2018', 'Toyota hatch 2015', 'BMW coup 2019']
 
 # Render initial app instructions
 with open('app_instructions.md', 'r') as f:
@@ -52,15 +53,19 @@ st.sidebar.markdown("""
 
 
 ## Generate plot
-st.sidebar.button('Generate')
-# Parsing uploaded_pdf to POST
-if uploaded_pdf:
-    df = pdf_to_df(uploaded_pdf)
+if st.sidebar.button('Generate'):
+    # Parsing uploaded_pdf to POST
+    if uploaded_pdf:
+        dict_ = pdf_to_dict(uploaded_pdf)
+        dict_['vol'] = get_volume_space(car_model)
+        response = requests.post(MY_URL, dict_)
 
-# Build df from form to POST
-if articles_list:
-    df = form_to_df(articles_list)
-    
+    # Build df from form to POST
+    if articles_list:
+        dict_ = form_to_dict(articles_list)
+        dict_['vol'] = get_volume_space(car_model)
+        response = requests.post(MY_URL, dict_)
+
 # response = requests.post(MY_URL, df)
 # response_dict = response.json()
 
