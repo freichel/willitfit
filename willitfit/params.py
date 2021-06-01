@@ -16,3 +16,4 @@ VOL_EMPTY = 0
 INSUFFICIENT_SPACE = "Not enough space for packages in chosen trunk."
 INSUFFICIENT_DIMENSION = "At least one package dimension exceeds trunk dimension."
 OPT_INSUFFICIENT_SPACE = "Optimizer could not place this package (internal return code)."
+OPT_UNSUCCESSFUL = "Optimizer was unable to place all packages."
