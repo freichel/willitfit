@@ -10,7 +10,7 @@ def get_split_indexes(arr):
     '''
 
     # get difference of each set of coordinates
-    diffs = np.diff(arr,1)
+    diffs = np.diff(arr,axis=1)
     diff_min = np.min(abs(diffs),0)
 
     # apply a mask, to find which indexes are not connected

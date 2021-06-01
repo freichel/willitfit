@@ -120,9 +120,9 @@ def get_unavailable_meshes(fitted_array):
     # split coords based on their shapes
     split_indexes = get_split_indexes(unavail_coords)
     coords_split = split_array_by_index(unavail_coords, split_indexes)
-
+    print(split_indexes)
     meshes = generate_mesh3d_from_coords(coords_split)
-
+    print(len(meshes))
     return meshes
 
 
