@@ -91,6 +91,7 @@ After the minimum working product is complete, the above components will be refi
 [
     article_code (str),
     article_id (int),
+    package_id (int)
     x_start (int),
     y_start (int),
     z_start (int),
@@ -123,6 +124,7 @@ After the minimum working product is complete, the above components will be refi
 [
     article_code (str),
     article_id (int),
+    package_id (int),
     x_start (int),
     y_start (int),
     z_start (int),
