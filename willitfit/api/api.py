@@ -4,9 +4,9 @@ DOCSTRING to come
 
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from willitfit.params import ERRORS_OPTIMIZER, ERRORS_SCRAPER
+from willitfit.params import ERRORS_OPTIMIZER, ERRORS_SCRAPER, ERRORS_INTERFACE
 from willitfit.optimizers.volumeoptimizer import generate_optimizer
-from willitfit.plotting.plotter import plot_all
+#from willitfit.plotting.plotter import plot_all
 import numpy as np
 
 # Initialize API

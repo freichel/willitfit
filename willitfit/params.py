@@ -13,6 +13,7 @@ VOL_INTERIOR = -2
 VOL_EMPTY = 0
 
 # Function return codes
+# Optimizer
 INSUFFICIENT_SPACE = "Not enough space for packages in chosen trunk."
 INSUFFICIENT_DIMENSION = "At least one package dimension exceeds trunk dimension."
 OPT_INSUFFICIENT_SPACE = "Optimizer could not place this package (internal return code)."
@@ -24,6 +25,18 @@ ERRORS_OPTIMIZER = [INSUFFICIENT_SPACE, INSUFFICIENT_DIMENSION, OPT_INSUFFICIENT
 Scraper section
 Please modify/enhance those error codes as needed
 '''
+# Scraper
 WEBSITE_UNAVAILABLE = "Website temporarily unavailable."
 ARTICLE_NOT_FOUND = "One or mor articles do not exist."
 ERRORS_SCRAPER = [WEBSITE_UNAVAILABLE, ARTICLE_NOT_FOUND]
+
+#TODO
+'''
+Interface section
+Please modify/enhance those error codes as needed
+'''
+# Interface
+NOT_PDF = "Document is not a PDF."
+PDF_UNREADABLE = "Unexpected format."
+API_CALL_ERROR = "Back-end offline."
+ERRORS_INTERFACE = [NOT_PDF, PDF_UNREADABLE, API_CALL_ERROR]
