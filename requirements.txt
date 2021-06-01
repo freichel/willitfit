@@ -31,3 +31,16 @@ six>=1.14
 joblib
 memoized-property
 termcolor
+
+# ikea_scraper
+selenium
+
+# framework/web-server
+streamlit
+
+# pdf to text
+pdfminer.six
+
+# plotter
+ipywidgets>=7.5
+plotly

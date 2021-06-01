@@ -94,7 +94,10 @@ After the minimum working product is complete, the above components will be refi
     package_id (int)
     x_start (int),
     y_start (int),
-    z_start (int)
+    z_start (int),
+    x_end (int),
+    y_end (int),
+    z_end (int)
 ] (list)
 ```
 ### Minimum requirements:
@@ -124,7 +127,10 @@ After the minimum working product is complete, the above components will be refi
     package_id (int),
     x_start (int),
     y_start (int),
-    z_start (int)
+    z_start (int),
+    x_end (int),
+    y_end (int),
+    z_end (int)
 ] (list)
 ```
 ### Outputs
