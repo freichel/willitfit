@@ -29,6 +29,9 @@ joblib
 memoized-property
 termcolor
 
+# ikea_scraper
+selenium
+
 # framework/web-server
 streamlit
 
