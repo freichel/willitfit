@@ -21,6 +21,7 @@ gcsfs
 google-cloud-storage
 mlflow
 s3fs
+bs4
 
 # utilities
 six>=1.14
@@ -28,7 +29,9 @@ joblib
 memoized-property
 termcolor
 
+# ikea_scraper
 requests
-BeautifulSoup
 json
 selenium
+ipywidgets>=7.5
+plotly
