@@ -8,6 +8,7 @@ wheel>=0.29
 numpy
 pandas
 scikit-learn
+scikit-image
 
 # tests/linter
 black
@@ -21,6 +22,9 @@ gcsfs
 google-cloud-storage
 mlflow
 s3fs
+bs4
+fastapi
+uvicorn
 
 # utilities
 six>=1.14
@@ -28,7 +32,15 @@ joblib
 memoized-property
 termcolor
 
-requests
-BeautifulSoup
-json
+# ikea_scraper
 selenium
+
+# framework/web-server
+streamlit
+
+# pdf to text
+pdfminer.six
+
+# plotter
+ipywidgets>=7.5
+plotly
