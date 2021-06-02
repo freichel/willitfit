@@ -13,7 +13,7 @@ import plotly.graph_objects as go
 def generate_cuboids(article_coords):
     '''Convert article start & end coords info into a list of plotly.go.Mesh3d objects
     Args:
-        article_coords - a list of articles and their start/end coordinates: [[article_code, article_id, x_start, y_start, z_start, x_end, y_end, z_end]]
+        article_coords - a list of articles and their start/end coordinates: [[article_code, article_id, package_id, x_start, y_start, z_start, x_end, y_end, z_end]]
         unavailable_space - (optional: default=False) denotes whether the generated cuboids should be treated as unavailable space
     Returns:
         meshes - a list of cuboids as Mesh3d objects
@@ -22,12 +22,12 @@ def generate_cuboids(article_coords):
 
     for item in article_coords:
         # coordinates of each article
-        x1 = item[2] # x_start
-        x2 = item[5] # x_end
-        y1 = item[3] # y_start
-        y2 = item[6] # y_end
-        z1 = item[4] # z_start
-        z2 = item[7] # z_end
+        x1 = item[3] # x_start
+        x2 = item[6] # x_end
+        y1 = item[4] # y_start
+        y2 = item[7] # y_end
+        z1 = item[5] # z_start
+        z2 = item[8] # z_end
 
         mesh = go.Mesh3d(
             name=item[0],
