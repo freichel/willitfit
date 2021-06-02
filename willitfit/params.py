@@ -28,7 +28,7 @@ Please modify/enhance those error codes as needed
 '''
 # Scraper
 WEBSITE_UNAVAILABLE = "Website temporarily unavailable."
-ARTICLE_NOT_FOUND = "One or mor articles do not exist."
+ARTICLE_NOT_FOUND = "One or more articles do not exist."
 ERRORS_SCRAPER = [WEBSITE_UNAVAILABLE, ARTICLE_NOT_FOUND]
 
 #TODO
