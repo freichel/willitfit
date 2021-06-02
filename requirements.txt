@@ -34,6 +34,8 @@ termcolor
 
 # ikea_scraper
 selenium
+chromedriver-binary==77.0.3865.40.0
+webdriver-manager
 
 # framework/web-server
 streamlit
