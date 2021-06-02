@@ -9,14 +9,17 @@ from bs4 import BeautifulSoup
 from selenium import webdriver
 from selenium.webdriver.chrome.options import Options
 from webdriver_manager.chrome import ChromeDriverManager
+from pathlib import Path 
 
+import os
 import requests
 import pandas as pd
 import chromedriver_binary
-
+ 
 
 IKEA_URL = f"https://www.ikea.com/{IKEA_COUNTRY_DOMAIN}/{IKEA_WEBSITE_LANGUAGE}"
 IKEA_SEARCH_URL = f"/search/products/?q="
+DATABASE_PATH = os.path.join(Path(os.path.abspath(__file__)).parents[1],'data/ikea_database/ikea_database.csv')
 
 
 def chrome_settings():
@@ -33,7 +36,7 @@ def chrome_settings():
 def scrap_product(article_code, item_count):
     
     driver = webdriver.Chrome(ChromeDriverManager().install(),options=chrome_settings())
-    driver.get(IKEA_URL+IKEA_SEARCH_URL+f'{article_code}')
+    driver.get(os.path.join(IKEA_URL,IKEA_SEARCH_URL,article_code))
     important_part_of_page = driver.find_element_by_class_name('results__list')
     tag = important_part_of_page.find_element_by_tag_name('a')
     #https://stackoverflow.com/questions/48665001/can-not-click-on-a-element-elementclickinterceptedexception-in-splinter-selen
@@ -74,7 +77,7 @@ def packages_dimensions_weights(page):
         
     return pd.DataFrame(list_of_products)
 
-def product_info_and_update_csv_database(article_code,path_to_csv):
+def product_info_and_update_csv_database(article_code,path_to_csv=DATABASE_PATH):
     
     ikea_database = pd.read_csv(path_to_csv,index_col = [0])
     all_ordered_product_df = pd.DataFrame()
@@ -92,4 +95,5 @@ def product_info_and_update_csv_database(article_code,path_to_csv):
             
     ikea_database = ikea_database.append(new_product_for_database)
     ikea_database.to_csv(path_to_csv)
+    
     return all_ordered_product_df
