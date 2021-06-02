@@ -52,11 +52,11 @@ def draw_3d_plot(meshes, volume_dimensions=VOLUME_SPACE.shape):
         volume_dimensions - a tuple of 3 integers (x,y,z) referring to the dimensions of the volume
     Returns:
         fig - a plotly.go.Figure
-    Returns:
     '''
     x_max = volume_dimensions[0]
     y_max = volume_dimensions[1]
     z_max = volume_dimensions[2]
+
     layout = go.Layout(
         scene = dict(
             aspectmode='cube',
@@ -84,6 +84,7 @@ def draw_3d_plot(meshes, volume_dimensions=VOLUME_SPACE.shape):
         )
     )
     fig = go.Figure(data=meshes, layout=layout)
+
     return fig
 
 
@@ -127,20 +128,23 @@ def get_unavailable_meshes(fitted_array):
     return meshes
 
 
-def plot_all(fitted_array=VOLUME_SPACE, article_coords=COORDS):
+def plot_all(fitted_array=VOLUME_SPACE, article_coords=COORDS, plot_unavailable=False):
     '''Primary function for generating 3D plot
     Args:
         fitted_array - 3D numpy array with optimally fit packages
-        article_coords - list of articles and their start/end coordinates
+        article_coords - list of articles and their start/end coordinates, produced by optimizers.volumeoptimizer
+        plot_unavailable - bool(default=False). If true, also plot unavailable space
+    Returns:
+        fig = plotly.go.Figure object
     '''
 
     volume_dimensions = fitted_array.shape
     package_meshes = generate_cuboids(article_coords)
+    meshes = package_meshes
 
-    # For now, don't plot unavailable mesh
-    # unavailable_meshes = get_unavailable_meshes(fitted_array)
-
-    meshes = package_meshes # + unavaialable_meshes
+    if plot_unavailable:
+        unavailable_meshes = get_unavailable_meshes(fitted_array)
+        meshes += unavailable_meshes
 
     fig = draw_3d_plot(meshes, volume_dimensions)
 
