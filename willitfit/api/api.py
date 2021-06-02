@@ -8,6 +8,7 @@ from pydantic import BaseModel
 from willitfit.params import ERRORS_OPTIMIZER, ERRORS_SCRAPER, ERRORS_INTERFACE
 from willitfit.optimizers.volumeoptimizer import generate_optimizer
 from willitfit.plotting.plotter import plot_all
+from willitfit.scrapers.IKEA import product_info_and_update_csv_database
 import numpy as np
 import matplotlib.pyplot as plt
 import plotly
@@ -53,7 +54,7 @@ def input_output(request_text: RequestText):
     '''
     Find car trunk dimensions for given car_id
     '''
-    #TODO
+    df = product_info_and_update_csv_database(article_code) #input:list of article, return dataframe
     # Placeholder for now
     volume_space = np.zeros((100,100,100), dtype=int)
             
