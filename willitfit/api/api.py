@@ -9,10 +9,11 @@ from willitfit.params import ERRORS_OPTIMIZER, ERRORS_SCRAPER, ERRORS_INTERFACE
 from willitfit.optimizers.volumeoptimizer import generate_optimizer
 from willitfit.plotting.plotter import plot_all
 import numpy as np
+import matplotlib.pyplot as plt
+import plotly
 
 # Initialize API
 app = FastAPI()
-
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],  # Allows all origins
@@ -21,9 +22,9 @@ app.add_middleware(
     allow_headers=["*"],  # Allows all headers
 )
 
-# Class to capture user interface inputs
+# Class to capture user interface inputs parsed via POST
 class RequestText(BaseModel):
-    article_list: list
+    article_dict: list
     car_id: str
     IKEA_country: str
     IKEA_language: str
@@ -44,7 +45,7 @@ def input_output(request_text: RequestText):
     - IKEA website location and language (see params.py too)
     '''
     request_dict = dict(request_text)
-    article_list = request_dict["article_list"]
+    article_dict = request_dict["article_dict"]
     car_id = request_dict["car_id"]
     IKEA_COUNTRY_DOMAIN = request_dict["IKEA_country"]
     IKEA_WEBSITE_LANGUAGE = request_dict["IKEA_language"]
@@ -67,18 +68,22 @@ def input_output(request_text: RequestText):
         pass
     else:
         return scraper_return
+    article_list = article_dict
+    
     '''
-    Call optimizer with package list and volume array.
+    Call optimizer with article list and volume array.
     Receive package coordinates and filled volume array.
     '''
-    optimizer_return = generate_optimizer(article_list, np.copy(volume_space), generator_random_lists=0, optimizer_max_attempts=2)
+    optimizer_return = generate_optimizer(article_list, np.copy(volume_space), generator_random_lists=2, optimizer_max_attempts=5)
     if optimizer_return not in ERRORS_OPTIMIZER:
         filled_space, package_coordinates = optimizer_return
     else:
         return optimizer_return
+    
     '''
     Call plotter with package coordinates and filled volume array.
     Receive plot
     '''
     plotter_return = plot_all(filled_space, package_coordinates)
-    return str(plotter_return)
+    to_interface = plotly.io.to_json(plotter_return)
+    return to_interface

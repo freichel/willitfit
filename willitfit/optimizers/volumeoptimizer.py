@@ -223,7 +223,7 @@ def score_space(volume_space, article_list):
     - Linear penalty for each empty space
     - Log penalty for how much largest empty space is smaller than maximum possible
     '''
-    score = number_spaces + np.log(max_largest_volume - largest_volume)
+    score = number_spaces + np.log(max(max_largest_volume - largest_volume,0.001))
     return score
 
 
@@ -305,10 +305,8 @@ def generate_package_lists(article_list, sorters = ["volume|ascending", "volume|
         # Check if this particular permutation exists already by looking at hashes
         if hash_list([new_list])[0] not in hash_list(package_lists):
             package_lists.append(new_list)
-        else:
-            print("duplicate")
         # Check if length requirement (smaller of pre-defined lists + random_lists and max_permut) is fulfilled
-        if len(package_lists) == min(len(sorters) + random_lists, max_permut):
+        if len(package_lists) == min(len(sorters) + random_lists, max_permut-2):
             break
     return package_lists
 
