@@ -1,4 +1,4 @@
-from pdfminer.high_level import extract_pages
+from pdfminer.high_level import extract_text
 from pdfminer.layout import LAParams
 import re
 import pandas as pd
