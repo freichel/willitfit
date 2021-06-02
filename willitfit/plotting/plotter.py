@@ -45,6 +45,28 @@ def generate_cuboids(article_coords):
     return meshes
 
 
+def generate_mesh3d_from_coords(coords_arr):
+    '''Generate plotly.go.mesh3d objects from arrays of coords
+    Args:
+        coords_arr - list of 3 by n np.arrays, with coordinates for each vertex
+    Returns:
+        meshes - list of plotly.go.mesh3d objects
+    '''
+    meshes = []
+    for arr in coords_arr:
+        x,y,z = arr
+        meshes.append(go.Mesh3d(x=x,
+                                y=y,
+                                z=z,
+                                alphahull=0,
+                                color='grey',
+                                flatshading=True,
+                                hoverinfo='none',
+                                ))
+
+    return meshes
+
+
 def draw_3d_plot(meshes, volume_dimensions=VOLUME_SPACE.shape):
     '''Draw a 3D plotly.go plot of cuboids
     Args:
@@ -86,26 +108,6 @@ def draw_3d_plot(meshes, volume_dimensions=VOLUME_SPACE.shape):
     fig = go.Figure(data=meshes, layout=layout)
 
     return fig
-
-
-def generate_mesh3d_from_coords(coords_arr):
-    '''Generate plotly.go.mesh3d objects from arrays of coords
-    Args:
-        coords_arr - list of 3 by n np.arrays, with coordinates for each vertex
-    Returns:
-        meshes - list of plotly.go.mesh3d objects
-    '''
-    meshes = []
-    for arr in coords_arr:
-        x,y,z = arr
-        meshes.append(go.Mesh3d(x=x,
-                                y=y,
-                                z=z,
-                                alphahull=0,
-                                color='grey',
-                                flatshading=True))
-
-    return meshes
 
 
 def get_unavailable_meshes(fitted_array):
