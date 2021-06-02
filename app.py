@@ -3,14 +3,18 @@ import requests
 from willitfit.app_utils.pdf_parser import pdf_to_dict
 from willitfit.app_utils.form_transformer import form_to_dict
 from willitfit.app_utils.trunk_dimensions import get_volume_space
+from willitfit.app_utils.utils import get_data, gen_make_dict, gen_make_list
+from willitfit.params import IKEA_WEBSITE_LANGUAGE, IKEA_COUNTRY_DOMAIN
 import pandas as pd
+import os
+from pathlib import Path
 
-#import plotly.graph_objects as go
+MY_URL = "http://127.0.0.1:8000/collect"
+CSV_PATH = Path(os.path.abspath(os.getcwd())).absolute()/"willitfit/data/cars_clean.csv"
+data = pd.read_csv(CSV_PATH)
+MAKE_LIST = gen_make_list(data)
+MAKE_DICT = gen_make_dict(data)
 
-
-MY_URL = ""
-
-generic_cars = ['Subaru saloon 2018', 'Toyota hatch 2015', 'BMW coup 2019']
 def main():
     # Render initial app instructions
     with open('app_instructions.md', 'r') as f:
@@ -19,54 +23,70 @@ def main():
 
     # Sidebar
     st.sidebar.markdown("""
-        ## Enter your data:
+        #### Enter your data:
         """)
 
     # Car model selector
-    car_model = st.sidebar.selectbox(
-        'Select car model:', 
-        generic_cars
+    car_make = st.sidebar.selectbox(
+        'Select car brand:', 
+        MAKE_LIST
+        )
+    if car_make:
+        car_model = st.sidebar.selectbox(
+        'Select model:',
+        MAKE_DICT[car_make]
         )
     st.sidebar.markdown("""
         ---
         """)
 
     # Upload pdf
-    uploaded_pdf = st.sidebar.file_uploader('(Recommended) On the IKEA website, export your wishlist as a PDF and upload it here:')
+    uploaded_pdf = st.sidebar.file_uploader('Upload PDF:')
     st.sidebar.markdown("""
-        or
+        ##### or
         """)
 
     # Article number list
-    form = st.sidebar.form('Add your items individually:')
-    articles_list = form.text_area(
+    form = st.sidebar.form('Add your items manually:')
+    articles_str = form.text_area(
         'List your Article Numbers:', 
         help='Delimited by commas. If more than 1 of the same article, denote in brackets as shown. Format: XXX.XXX.XX (>1), '
         )
     form.form_submit_button('Submit your list')
 
     st.sidebar.markdown("""
+        Click 'Generate' below!
         ---
         """)
 
-
-
     ## Generate plot
-    if st.sidebar.button('Generate'):
-        # Parsing uploaded_pdf to POST
+    if st.button('Generate'):
+        # Parsing uploaded_pdf to dict_ to POST
         if uploaded_pdf:
             dict_ = pdf_to_dict(uploaded_pdf)
-            dict_['vol'] = get_volume_space(car_model)
-            response = requests.post(MY_URL, dict_)
+            params = {
+                "article_dict": dict_,
+                "car_model": car_model,
+                "IKEA_country": IKEA_COUNTRY_DOMAIN,
+                "IKEA_language": IKEA_WEBSITE_LANGUAGE
+                    }
 
-        # Build df from form to POST
-        if articles_list:
-            dict_ = form_to_dict(articles_list)
-            dict_['vol'] = get_volume_space(car_model)
-            response = requests.post(MY_URL, dict_)
+            # dict_['vol'] = get_volume_space(car_model, data=data)
+            response = requests.post(MY_URL, json=params)
 
-# response = requests.post(MY_URL, df)
-# response_dict = response.json()
+        # Build dict_ from form to POST
+        if articles_str:
+            dict_ = form_to_dict(articles_str)
+            params = {
+                "article_dict": dict_,
+                "car_model": car_model,
+                "IKEA_country": IKEA_COUNTRY_DOMAIN,
+                "IKEA_language": IKEA_WEBSITE_LANGUAGE
+                    }
+            # dict_['vol'] = get_volume_space(car_model, data=data)
+            response = requests.post(MY_URL, json=params)
+        
+        st.error('Please upload wishlist PDF or add Article Numbers!')
 
     # if response.status_code == 200:
     #     print("API call success")
