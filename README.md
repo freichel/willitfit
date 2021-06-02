@@ -147,9 +147,6 @@ After the minimum working product is complete, the above components will be refi
 * Hover labels - include article name, link to article and small preview picture (would have to be buffered).
 
 ## User interface
-```diff
-! Further alignment is needed in this section.
-```
 * Website interface allowing the following user interactions:
     * User provides list and count of articles.
     * User selects from a (short) list of pre-defined cars (whose trunk size is known).
@@ -196,84 +193,6 @@ After the minimum working product is complete, the above components will be refi
 *Section last updated 31/05/2021*
 
 # Change Log
+* 02/06/2021: Removed superfluous sections
 * 31/05/2021: Added space separators and additional info on optimizer (freichel)
 * 30/05/2021: Created initial document (freichel)
-
-```diff
-- The below was auto-created...will selectively remove soon.
-```
-
-# Data analysis
-- Document here the project: willitfit
-- Description: Project Description
-- Data Source:
-- Type of analysis:
-
-Please document the project the better you can.
-
-# Startup the project
-
-The initial setup.
-
-Create virtualenv and install the project:
-```bash
-sudo apt-get install virtualenv python-pip python-dev
-deactivate; virtualenv ~/venv ; source ~/venv/bin/activate ;\
-    pip install pip -U; pip install -r requirements.txt
-```
-
-Unittest test:
-```bash
-make clean install test
-```
-
-Check for willitfit in gitlab.com/{group}.
-If your project is not set please add it:
-
-- Create a new project on `gitlab.com/{group}/willitfit`
-- Then populate it:
-
-```bash
-##   e.g. if group is "{group}" and project_name is "willitfit"
-git remote add origin git@github.com:{group}/willitfit.git
-git push -u origin master
-git push -u origin --tags
-```
-
-Functionnal test with a script:
-
-```bash
-cd
-mkdir tmp
-cd tmp
-willitfit-run
-```
-
-# Install
-
-Go to `https://github.com/{group}/willitfit` to see the project, manage issues,
-setup you ssh public key, ...
-
-Create a python3 virtualenv and activate it:
-
-```bash
-sudo apt-get install virtualenv python-pip python-dev
-deactivate; virtualenv -ppython3 ~/venv ; source ~/venv/bin/activate
-```
-
-Clone the project and install it:
-
-```bash
-git clone git@github.com:{group}/willitfit.git
-cd willitfit
-pip install -r requirements.txt
-make clean install test                # install and test
-```
-Functionnal test with a script:
-
-```bash
-cd
-mkdir tmp
-cd tmp
-willitfit-run
-```

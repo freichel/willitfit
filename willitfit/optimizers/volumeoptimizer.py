@@ -16,6 +16,7 @@ generate_optimizer(
 
 from willitfit.params import VOL_INTERIOR, VOL_UNAVAILABLE, VOL_BORDER, VOL_EMPTY, INSUFFICIENT_SPACE, INSUFFICIENT_DIMENSION, OPT_INSUFFICIENT_SPACE, OPT_UNSUCCESSFUL
 import numpy as np
+import math
 from scipy.ndimage.measurements import label
 from threading import Thread
 from queue import Queue
@@ -105,7 +106,7 @@ def calculate_package_volume(package):
     '''
     Returns volume in cm cubed for package
     '''
-    return np.prod(package)
+    return math.prod(package)
 
 
 def find_total_package_volume(article_list):
@@ -244,10 +245,10 @@ def sort_packages(article_list, sort_by="volume", direction="descending"):
             # Loop through packages
             for package in article[2]:
                 # So far only sorting by volume has been implemented.
-                if sort_by == "volume":      
-                    return_list.append((article[0], article_id+1, package[0], calculate_package_volume(package)))
+                if sort_by == "volume":
+                    return_list.append([article[0], article_id+1, package[0], calculate_package_volume(package)])
     # Turn into a numpy array for easier sorting
-    return_list = np.array(return_list)
+    return_list = np.array(return_list, dtype="str")
     # Sort by volume (4th column)
     return_list = return_list[return_list[:,3].astype(int).argsort()]
     # This gives an ascending order. Reverse if needed
@@ -276,7 +277,6 @@ def generate_package_lists(article_list, sorters = ["volume|ascending", "volume|
     - if random_lists is larger than maximum number of permutations, just use permutations directly
     - other sorting options
     '''
-        
     package_lists = []
     # First generate pre-defined lists
     sorters = set(sorters)
@@ -284,7 +284,6 @@ def generate_package_lists(article_list, sorters = ["volume|ascending", "volume|
         # Split by delimiter
         sort_by, direction = sorter.split("|")
         package_lists.append(sort_packages(article_list, sort_by=sort_by, direction=direction))
-    
     # Add random lists
     # But first check if any are needed
     if random_lists == 0:
@@ -398,7 +397,6 @@ def optimizer(package_list, article_list, volume_space, queue=None, max_attempts
     package_counter = 0
     # Package coordinates
     package_coordinates = []
-    
     # Loop while there are still packages to place
     while True:
         # Pick up first package
@@ -435,7 +433,6 @@ def optimizer(package_list, article_list, volume_space, queue=None, max_attempts
                 package_coordinates = []
                 volume_space = np.copy(empty_space)
                 continue
-        
         # Increase counter to move to next package
         package_counter += 1
         # Once all packages have been placed
@@ -464,13 +461,13 @@ def generate_optimizer(article_list, volume_space, generator_sorters = ["volume|
         return INSUFFICIENT_DIMENSION
     # Generate list of package lists
     package_lists = generate_package_lists(article_list, sorters=generator_sorters, random_lists=generator_random_lists)
-    
     # Set up threads
     threads = []
     queue = Queue()
     return_vals = []
     # Call optimizer function for each package list
     for package_list in package_lists:
+        #return_vals.append(optimizer(package_list, article_list, np.copy(volume_space), None, optimizer_max_attempts))
         # Set up new thread
         optimizer_thread = Thread(target=optimizer, args=(package_list, article_list, np.copy(volume_space), queue, optimizer_max_attempts))
         # Append to thread list
@@ -479,11 +476,12 @@ def generate_optimizer(article_list, volume_space, generator_sorters = ["volume|
         optimizer_thread.start()
         response = queue.get()
         return_vals.append(response)
+
     # Receive return values back for each thread
     for idx, thread in enumerate(threads):
         thread.join()
     # Find lowest score
     scores = [return_val[0] for return_val in return_vals]
     score_index = scores.index(min(scores))
-    # Return 
+    # Return
     return return_vals[score_index][2:]

@@ -101,3 +101,6 @@ def main():
 
 # # Plot
 # st.plotly_chart(fig)
+
+if __name__ == "__main__":
+    main()
