@@ -61,18 +61,39 @@ pypi:
 streamlit:
 	-@streamlit run app.py
 
-heroku_login:
-	-@heroku login
+#heroku_login:
+#	-@heroku login
 
-heroku_create_app:
-	-@heroku create will-it-fit
+#heroku_create_app:
+#	-@heroku create will-it-fit
 
-deploy_heroku:
-	-@git push heroku master
-	-@heroku ps:scale web=1
+#deploy_heroku:
+#	-@git push heroku master
+#	-@heroku ps:scale web=1
 
 # ----------------------------------
-#			UVICORN
+#			   API
 # ----------------------------------
 run_api:
-	@uvicorn api.fast:app --reload
+	@uvicorn willitfit.api.api:app --reload
+
+# ----------------------------------
+#			GOOGLE CLOUD
+# ----------------------------------
+PROJECT_ID=willitfit
+BUCKET_NAME=willitfit-bucket
+BUCKET_FOLDER=data
+REGION=europe-west3
+PYTHON_VERSION=3.8.6
+PACKAGE_NAME=willitfit
+#FRAMEWORK=scikit-learn
+#RUNTIME_VERSION=2.2
+
+set_project:
+	-@gcloud config set project ${PROJECT_ID}
+
+create_bucket:
+	-@gsutil mb -l ${REGION} -p ${PROJECT_ID} gs://${BUCKET_NAME}
+
+upload_data:
+	-@gsutil cp ${LOCAL_PATH} gs://${BUCKET_NAME}/${BUCKET_FOLDER}/${BUCKET_FILE_NAME}

@@ -4,14 +4,16 @@ DOCSTRING to come
 
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+from pydantic import BaseModel
 from willitfit.params import ERRORS_OPTIMIZER, ERRORS_SCRAPER, ERRORS_INTERFACE
 from willitfit.optimizers.volumeoptimizer import generate_optimizer
-#from willitfit.plotting.plotter import plot_all
+from willitfit.plotting.plotter import plot_all
 import numpy as np
+import matplotlib.pyplot as plt
+import plotly
 
 # Initialize API
 app = FastAPI()
-
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],  # Allows all origins
@@ -20,14 +22,16 @@ app.add_middleware(
     allow_headers=["*"],  # Allows all headers
 )
 
+# Class to capture user interface inputs parsed via POST
+class RequestText(BaseModel):
+    article_dict: list
+    car_id: str
+    IKEA_country: str
+    IKEA_language: str
+
 # Decorator for interface call to API
 @app.post("/collect")
-def input_output(*args):
-    #TODO
-    # This section is for testing only
-    return args
-    
-    
+def input_output(request_text: RequestText):
     '''
     Receives user input from front end.
     Calls relevant functions to process user input.
@@ -36,26 +40,41 @@ def input_output(*args):
     
     '''
     Unpack the following arguments
-    - article list as dict
-    - volume array
-    - IKEA website location and language (see params.py)
+    - Article list as dict
+    - Car ID
+    - IKEA website location and language (see params.py too)
     '''
+    request_dict = dict(request_text)
+    article_dict = request_dict["article_dict"]
+    car_id = request_dict["car_id"]
+    IKEA_COUNTRY_DOMAIN = request_dict["IKEA_country"]
+    IKEA_WEBSITE_LANGUAGE = request_dict["IKEA_language"]
     
+    '''
+    Find car trunk dimensions for given car_id
+    '''
+    #TODO
+    # Placeholder for now
+    volume_space = np.zeros((100,100,100), dtype=int)
+            
     '''
     Call scraper with article list and website location/language.
     Receive list of package dimensions and weights.
     '''
+    #TODO
+    # Placeholder code
     scraper_return = "TBD"
     if scraper_return not in ERRORS_SCRAPER:
         pass
     else:
         return scraper_return
+    article_list = article_dict
     
     '''
-    Call optimizer with package list and volume array.
+    Call optimizer with article list and volume array.
     Receive package coordinates and filled volume array.
     '''
-    optimizer_return = generate_optimizer(article_list, np.copy(volume_space))
+    optimizer_return = generate_optimizer(article_list, np.copy(volume_space), generator_random_lists=2, optimizer_max_attempts=5)
     if optimizer_return not in ERRORS_OPTIMIZER:
         filled_space, package_coordinates = optimizer_return
     else:
@@ -66,4 +85,5 @@ def input_output(*args):
     Receive plot
     '''
     plotter_return = plot_all(filled_space, package_coordinates)
-    return plotter_return
+    to_interface = plotly.io.to_json(plotter_return)
+    return to_interface
