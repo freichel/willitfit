@@ -45,17 +45,18 @@ def generate_cuboids(article_coords):
     return meshes
 
 
-def draw_3d_plot(meshes):
+def draw_3d_plot(meshes, volume_dimensions=VOLUME_SPACE.shape):
     '''Draw a 3D plotly.go plot of cuboids
     Args:
         meshes - a list of cuboids as Mesh3d objects
+        volume_dimensions - a tuple of 3 integers (x,y,z) referring to the dimensions of the volume
     Returns:
         fig - a plotly.go.Figure
     Returns:
     '''
-    x_max = VOLUME_SPACE.shape[0]
-    y_max = VOLUME_SPACE.shape[1]
-    z_max = VOLUME_SPACE.shape[2]
+    x_max = volume_dimensions[0]
+    y_max = volume_dimensions[1]
+    z_max = volume_dimensions[2]
     layout = go.Layout(
         scene = dict(
             aspectmode='cube',
@@ -120,9 +121,9 @@ def get_unavailable_meshes(fitted_array):
     # split coords based on their shapes
     split_indexes = get_split_indexes(unavail_coords)
     coords_split = split_array_by_index(unavail_coords, split_indexes)
-    print(split_indexes)
+
     meshes = generate_mesh3d_from_coords(coords_split)
-    print(len(meshes))
+
     return meshes
 
 
@@ -132,9 +133,15 @@ def plot_all(fitted_array=VOLUME_SPACE, article_coords=COORDS):
         fitted_array - 3D numpy array with optimally fit packages
         article_coords - list of articles and their start/end coordinates
     '''
-    package_meshes = generate_cuboids(article_coords)
-    unavailable_meshes = get_unavailable_meshes(fitted_array)
 
-    fig = draw_3d_plot(unavailable_meshes + package_meshes)
+    volume_dimensions = fitted_array.shape
+    package_meshes = generate_cuboids(article_coords)
+
+    # For now, don't plot unavailable mesh
+    # unavailable_meshes = get_unavailable_meshes(fitted_array)
+
+    meshes = package_meshes # + unavaialable_meshes
+
+    fig = draw_3d_plot(meshes, volume_dimensions)
 
     return fig
