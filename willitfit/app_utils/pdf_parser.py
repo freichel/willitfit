@@ -32,8 +32,10 @@ def pdf_to_dict(uploaded_pdf):
             pdf_dict[key].append(match[0])
 
     df = pd.DataFrame(pdf_dict)
-    # Make sure n_pieces column is integer type
-    df['n_pieces'] = df['n_pieces'].astype(int)
+    # Strip article dots
+    df['article_num'] = df['article_num'].str.replace('.', '')
+    # Convert all columns to int
+    df = df.astype(int)
     # Transform back to key, list pairs
     return df.set_index('article_num').T.to_dict('list')
     

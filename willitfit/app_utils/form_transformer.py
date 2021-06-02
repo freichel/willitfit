@@ -27,7 +27,9 @@ def form_to_dict(articles_list):
             df_dict['article_num'].append(item)
 
     df = pd.DataFrame(df_dict)
-    # Make sure n_pieces column is integer type
-    df['n_pieces'] = df['n_pieces'].astype(int)
+    # Strip article dots
+    df['article_num'] = df['article_num'].str.replace('.', '')
+    # Convert all columns to int
+    df = df.astype(int)
     # Transform back to key, list pairs
     return df.set_index('article_num').T.to_dict('list')
