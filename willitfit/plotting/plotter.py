@@ -13,7 +13,7 @@ import plotly.graph_objects as go
 def generate_cuboids(article_coords):
     '''Convert article start & end coords info into a list of plotly.go.Mesh3d objects
     Args:
-        article_coords - a list of articles and their start/end coordinates: [[article_code, article_id, x_start, y_start, z_start, x_end, y_end, z_end]]
+        article_coords - a list of articles and their start/end coordinates: [[article_code, article_id, package_id, x_start, y_start, z_start, x_end, y_end, z_end]]
         unavailable_space - (optional: default=False) denotes whether the generated cuboids should be treated as unavailable space
     Returns:
         meshes - a list of cuboids as Mesh3d objects
@@ -22,12 +22,12 @@ def generate_cuboids(article_coords):
 
     for item in article_coords:
         # coordinates of each article
-        x1 = item[2] # x_start
-        x2 = item[5] # x_end
-        y1 = item[3] # y_start
-        y2 = item[6] # y_end
-        z1 = item[4] # z_start
-        z2 = item[7] # z_end
+        x1 = item[3] # x_start
+        x2 = item[6] # x_end
+        y1 = item[4] # y_start
+        y2 = item[7] # y_end
+        z1 = item[5] # z_start
+        z2 = item[8] # z_end
 
         mesh = go.Mesh3d(
             name=item[0],
@@ -45,6 +45,28 @@ def generate_cuboids(article_coords):
     return meshes
 
 
+def generate_mesh3d_from_coords(coords_arr):
+    '''Generate plotly.go.mesh3d objects from arrays of coords
+    Args:
+        coords_arr - list of 3 by n np.arrays, with coordinates for each vertex
+    Returns:
+        meshes - list of plotly.go.mesh3d objects
+    '''
+    meshes = []
+    for arr in coords_arr:
+        x,y,z = arr
+        meshes.append(go.Mesh3d(x=x,
+                                y=y,
+                                z=z,
+                                alphahull=0,
+                                color='grey',
+                                flatshading=True,
+                                hoverinfo='none',
+                                ))
+
+    return meshes
+
+
 def draw_3d_plot(meshes, volume_dimensions=VOLUME_SPACE.shape):
     '''Draw a 3D plotly.go plot of cuboids
     Args:
@@ -52,11 +74,11 @@ def draw_3d_plot(meshes, volume_dimensions=VOLUME_SPACE.shape):
         volume_dimensions - a tuple of 3 integers (x,y,z) referring to the dimensions of the volume
     Returns:
         fig - a plotly.go.Figure
-    Returns:
     '''
     x_max = volume_dimensions[0]
     y_max = volume_dimensions[1]
     z_max = volume_dimensions[2]
+
     layout = go.Layout(
         scene = dict(
             aspectmode='cube',
@@ -84,27 +106,8 @@ def draw_3d_plot(meshes, volume_dimensions=VOLUME_SPACE.shape):
         )
     )
     fig = go.Figure(data=meshes, layout=layout)
+
     return fig
-
-
-def generate_mesh3d_from_coords(coords_arr):
-    '''Generate plotly.go.mesh3d objects from arrays of coords
-    Args:
-        coords_arr - list of 3 by n np.arrays, with coordinates for each vertex
-    Returns:
-        meshes - list of plotly.go.mesh3d objects
-    '''
-    meshes = []
-    for arr in coords_arr:
-        x,y,z = arr
-        meshes.append(go.Mesh3d(x=x,
-                                y=y,
-                                z=z,
-                                alphahull=0,
-                                color='grey',
-                                flatshading=True))
-
-    return meshes
 
 
 def get_unavailable_meshes(fitted_array):
@@ -127,20 +130,23 @@ def get_unavailable_meshes(fitted_array):
     return meshes
 
 
-def plot_all(fitted_array=VOLUME_SPACE, article_coords=COORDS):
+def plot_all(fitted_array=VOLUME_SPACE, article_coords=COORDS, plot_unavailable=False):
     '''Primary function for generating 3D plot
     Args:
         fitted_array - 3D numpy array with optimally fit packages
-        article_coords - list of articles and their start/end coordinates
+        article_coords - list of articles and their start/end coordinates, produced by optimizers.volumeoptimizer
+        plot_unavailable - bool(default=False). If true, also plot unavailable space
+    Returns:
+        fig = plotly.go.Figure object
     '''
 
     volume_dimensions = fitted_array.shape
     package_meshes = generate_cuboids(article_coords)
+    meshes = package_meshes
 
-    # For now, don't plot unavailable mesh
-    # unavailable_meshes = get_unavailable_meshes(fitted_array)
-
-    meshes = package_meshes # + unavaialable_meshes
+    if plot_unavailable:
+        unavailable_meshes = get_unavailable_meshes(fitted_array)
+        meshes += unavailable_meshes
 
     fig = draw_3d_plot(meshes, volume_dimensions)
 
