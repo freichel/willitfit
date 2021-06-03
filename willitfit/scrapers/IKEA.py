@@ -57,7 +57,10 @@ def scrap_product(article_code,country_domain = IKEA_COUNTRY_DOMAIN,website_lang
     driver = webdriver.Chrome(ChromeDriverManager().install(),options=chrome_settings())
     driver.get(os.path.join(IKEA_URL,IKEA_SEARCH_URL,article_code))
     important_part_of_page = driver.find_element_by_class_name('results__list')
-    tag = important_part_of_page.find_element_by_tag_name('a')
+    try:
+        tag = important_part_of_page.find_element_by_tag_name('a')
+    except:
+        return ARTICLE_NOT_FOUND
     #https://stackoverflow.com/questions/48665001/can-not-click-on-a-element-elementclickinterceptedexception-in-splinter-selen
     driver.execute_script("arguments[0].click();", tag)
     soup = BeautifulSoup(driver.page_source, 'html.parser')  
@@ -148,6 +151,8 @@ def product_info_and_update_csv_database(article_code,path_to_csv=DATABASE_PATH,
             page = scrap_product(x,country_domain = IKEA_COUNTRY_DOMAIN,website_language = IKEA_WEBSITE_LANGUAGE)
             if page == WEBSITE_UNAVAILABLE:
                 return WEBSITE_UNAVAILABLE
+            if page == ARTICLE_NOT_FOUND:
+                return ARTICLE_NOT_FOUND
             df = packages_dimensions_weights(page)
             df['article_code'] = article_code[i]
             all_ordered_product_df = all_ordered_product_df.append(df)
