@@ -18,10 +18,11 @@ VOL_EMPTY = 0
 
 # Deployment variables
 API_URL = "http://127.0.0.1:8000/collect"
+PROJECT_DIR = Path(os.path.abspath(__file__)).parent.parent.absolute()
 PROJECT_NAME = "willitfit"
 DATA_FOLDER = "data"
 CAR_DATABASE = "cars_clean.csv"
-PROJECT_DIR = Path(os.path.abspath(__file__)).parent.parent.absolute()
+ARTICLE_DATABASE = "ikea_database.csv"
 
 # Google Cloud variables
 PROJECT_ID = PROJECT_NAME

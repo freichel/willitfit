@@ -4,14 +4,14 @@ from willitfit.app_utils.pdf_parser import pdf_to_dict
 from willitfit.app_utils.form_transformer import form_to_dict
 from willitfit.app_utils.trunk_dimensions import get_volume_space
 from willitfit.app_utils.utils import gen_make_dict, gen_make_list
-from willitfit.params import IKEA_WEBSITE_LANGUAGE, IKEA_COUNTRY_DOMAIN, API_URL, CAR_DATABASE, NO_DATA_PROVIDED, ERRORS_SCRAPER, ERRORS_OPTIMIZER
+from willitfit.params import IKEA_WEBSITE_LANGUAGE, IKEA_COUNTRY_DOMAIN, API_URL, CAR_DATABASE, NO_DATA_PROVIDED, ERRORS_SCRAPER, ERRORS_OPTIMIZER, PROJECT_NAME, PROJECT_DIR, DATA_FOLDER
 import pandas as pd
 import os
 from pathlib import Path
 import plotly
 import json
 
-CSV_PATH = Path(os.path.abspath(os.getcwd())).absolute()/CAR_DATABASE
+CSV_PATH = PROJECT_DIR/PROJECT_NAME/DATA_FOLDER/CAR_DATABASE
 data = pd.read_csv(CSV_PATH)
 MAKE_LIST = gen_make_list(data)
 MAKE_DICT = gen_make_dict(data)
@@ -101,7 +101,8 @@ def main():
             if return_val in ERRORS_OPTIMIZER:
                 st.error(return_val)
             # Successful
-            st.plotly_chart(plotly.io.from_json(json.loads(return_val)))
+            st.write(return_val)
+            #st.plotly_chart(plotly.io.from_json(json.loads(return_val)))
         else:
             st.error(f"Unspecified error {response.status_code}")
             
