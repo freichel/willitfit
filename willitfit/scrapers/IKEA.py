@@ -18,7 +18,8 @@ import chromedriver_binary
  
 
 
-DATABASE_PATH = '../willitfit/data/ikea_database/ikea_database.csv'
+DATABASE_PATH = Path(os.path.abspath(os.getcwd())).parents[0]/"data/ikea_database/ikea_database.csv"
+
 
 
 def chrome_settings():
@@ -85,13 +86,6 @@ def packages_dimensions_weights(page):
         
     return pd.DataFrame(list_of_products)
 
-def check_if_articel_exist_in_database(article_code,path_to_csv=DATABASE_PATH):
-    df = pd.DataFrame()
-    ikea_database = pd.read_csv(path_to_csv,index_col = [0])
-    for i,x in enumerate(article_code):
-        if ikea_database.shape[0]>0 and (ikea_database['article_code'] == x).any():
-            df = df.append(ikea_database[ikea_database['article_code'] == x])
-            return df
 
 def df_to_list(df):
     return_list = []
@@ -129,6 +123,6 @@ def product_info_and_update_csv_database(article_code,path_to_csv=DATABASE_PATH,
     return_list = df_to_list(all_ordered_product_df)
     ikea_database = ikea_database.append(new_product_for_database)
     ikea_database.to_csv(path_to_csv)
-    
+    print(path_to_csv)
     return return_list
 
