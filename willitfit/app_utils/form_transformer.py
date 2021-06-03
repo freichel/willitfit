@@ -7,7 +7,7 @@ def form_to_dict(articles_list):
     """
     ## Setup regex
     rx_dict = {
-    'n_pieces': re.compile(r'\((\d*)\)'),
+    'n_pieces': re.compile(r'\((\d+)\)'),
     'article_num': re.compile(r'(\d{3}\.\d{3}\.\d{2,})')
     }
     ## Split Form string delimited by comma to list
