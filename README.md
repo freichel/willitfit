@@ -153,26 +153,26 @@ After the minimum working product is complete, the above components will be refi
     * Interface returns visual representation of how packages would fit in trunk.
 ### Inputs
 * By user:
+    * Car make and model from selection box 
+    * Upload user's IKEA wishlist pdf
     * List of article numbers and count of each
-    * Car (from list)
 ### Outputs
 * Article list and counts: ```{article_code (str): item_count (int)} (dict)```
-* Available volume: 3-dimensional numpy array (see `params.py`)
+
 ### Minimum requirements
 * User can paste in a list of article numbers and respective counts, select a predefined car model and receives a plot in return.
 * To be deployed in English only.
 ### Potential further enhancements
 * Article data collection:
-    * Instead of pasting in article data, allow user to upload printed PDF of shopping basket to parse using Regex.
     * Log into IKEA website using user login details and extract shopping basket data directly.
-* Location/language selection:
+* Language selection:
     * Offer interface in user language.
     * Initially hardcoded (see `params.py`) but could be pre-populated based on user location/browser language, with user ability to change.
 * Car selection:
-    * Instead of picking from short list of car models (limited utility), expand range - will require implementing additional modules (see below).
+    * Instead of picking from scraped list of car models (limited utility), expand range - will require implementing additional modules (see below).
   
   
-  
+
 **The following module ideas are *enhancements*, to be tackled once the minimum working product is deployable.**
 
 ## Web scraping module for car dimensions
@@ -193,6 +193,7 @@ After the minimum working product is complete, the above components will be refi
 *Section last updated 31/05/2021*
 
 # Change Log
+* 03/06/2021: User interface section updated (proxvision)
 * 02/06/2021: Removed superfluous sections
 * 31/05/2021: Added space separators and additional info on optimizer (freichel)
 * 30/05/2021: Created initial document (freichel)
