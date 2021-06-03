@@ -1,5 +1,15 @@
 '''
-DOCSTRING to come
+Back-end to connect user interface with various modules.
+Receives user inputs via POST request on /collect:
+- List of IKEA articles
+- Car model
+- Website location and language
+Receives car trunk dimensions for chose car model.
+Feeds list of IKEA articles into scraper and receives list of packages for each article.
+Updates this list with article counts.
+Feeds trunk dimensions and package lists to optimizer, receives optimal stacking of packages.
+Feeds package coordinates and filled trunk dimensions to plotter, receives plot.
+Returns plot to user interface.
 '''
 
 from fastapi import FastAPI
@@ -36,9 +46,7 @@ class RequestText(BaseModel):
 @app.post("/collect")
 def input_output(request_text: RequestText):
     '''
-    Receives user input from front end.
-    Calls relevant functions to process user input.
-    Returns output to front end.
+    See moddule docstring for detailed information.
     '''
 
     '''
@@ -61,7 +69,7 @@ def input_output(request_text: RequestText):
 
     '''
     Call scraper with article list and website location/language.
-    Receive list of package dimensions and weights.
+    Receive list of package dimensions and weights for each article.
     '''
 
     #TODO
@@ -72,6 +80,14 @@ def input_output(request_text: RequestText):
     else:
         return scraper_return
 
+    '''
+    Update list with actual article counts
+    '''
+    # Create copy of returned list
+    article_list = scraper_return.copy()
+    for idx, article in enumerate(scraper_return):
+        # Update article count based on dictionary value
+        article_list[idx][1] = article_dict[article[0]]
 
     # Placeholder code
     article_list = [(
@@ -126,7 +142,6 @@ def input_output(request_text: RequestText):
                 1
             )]
         )]
-
 
     '''
     Call optimizer with article list and volume array.

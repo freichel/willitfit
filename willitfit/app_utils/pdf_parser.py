@@ -3,8 +3,9 @@ from pdfminer.layout import LAParams
 import re
 import pandas as pd
 from willitfit.app_utils.utils import _parse_line
+from willitfit.params import IKEA_WEBSITE_LANGUAGE
 
-def pdf_to_dict(uploaded_pdf):
+def pdf_to_dict(uploaded_pdf, ):
     ## Setup pdf layout params
     laparams = LAParams(
         line_overlap=0.1, 
@@ -34,8 +35,8 @@ def pdf_to_dict(uploaded_pdf):
     df = pd.DataFrame(pdf_dict)
     # Strip article dots
     df['article_num'] = df['article_num'].str.replace('.', '')
-    # Convert all columns to int
-    df = df.astype(int)
+    # Convert n_pieces column to int
+    df['n_pieces'] = df['n_pieces'].astype(int)
     # Transform back to key, list pairs
     return df.set_index('article_num').T.to_dict('list')
     

@@ -17,9 +17,10 @@ import pandas as pd
 import chromedriver_binary
  
 
-IKEA_URL = f"https://www.ikea.com/{IKEA_COUNTRY_DOMAIN}/{IKEA_WEBSITE_LANGUAGE}/"
-IKEA_SEARCH_URL = f"search/products/?q="
-DATABASE_PATH = '../willitfit/data/ikea_database/ikea_database.csv'
+
+DATABASE_PATH = Path(os.path.abspath(__file__)).parents[1]/"data/ikea_database/ikea_database.csv"
+
+
 
 def chrome_settings():
     """
@@ -35,9 +36,11 @@ def chrome_settings():
     return chrome_options
 
 
-def scrap_product(article_code, item_count):
+def scrap_product(article_code,country_domain = IKEA_COUNTRY_DOMAIN,website_language = IKEA_WEBSITE_LANGUAGE):
     """
     """
+    IKEA_URL = f"https://www.ikea.com/{country_domain}/{website_language}/"
+    IKEA_SEARCH_URL = f"search/products/?q="
     driver = webdriver.Chrome(ChromeDriverManager().install(),options=chrome_settings())
     driver.get(os.path.join(IKEA_URL,IKEA_SEARCH_URL,article_code))
     important_part_of_page = driver.find_element_by_class_name('results__list')
@@ -83,7 +86,17 @@ def packages_dimensions_weights(page):
         
     return pd.DataFrame(list_of_products)
 
-def product_info_and_update_csv_database(article_code,path_to_csv=DATABASE_PATH):
+
+def df_to_list(df):
+    return_list = []
+    item_count = 1 
+    for num_code in df['article_code'].unique():  
+        for i,row in enumerate(df[df['article_code']==num_code].iterrows()):
+            for j,x in enumerate(range(int(row[1]['packeges']))):
+                return_list.append([row[1]['article_code'],item_count,[j,row[1]['length'],row[1]['width'],row[1]['high'],row[1]['weight']]])            
+    return return_list 
+
+def product_info_and_update_csv_database(article_code,path_to_csv=DATABASE_PATH,item_count=1):
     """
     """
     if not os.path.exists(path_to_csv):
@@ -95,19 +108,19 @@ def product_info_and_update_csv_database(article_code,path_to_csv=DATABASE_PATH)
     ikea_database = pd.read_csv(path_to_csv,index_col = [0])
     all_ordered_product_df = pd.DataFrame()
     new_product_for_database = pd.DataFrame()
+    return_list = []
     
     for i,x in enumerate(article_code):
         if ikea_database.shape[0]>0 and (ikea_database['article_code'] == x).any():
             all_ordered_product_df = all_ordered_product_df.append(ikea_database[ikea_database['article_code'] == x])
         else:
-            page = scrap_product(x,item_count=None)
+            page = scrap_product(x,country_domain = IKEA_COUNTRY_DOMAIN,website_language = IKEA_WEBSITE_LANGUAGE)
             df = packages_dimensions_weights(page)
             df['article_code'] = article_code[i]
             all_ordered_product_df = all_ordered_product_df.append(df)
             new_product_for_database = new_product_for_database.append(df)
-            
+
+    return_list = df_to_list(all_ordered_product_df)
     ikea_database = ikea_database.append(new_product_for_database)
-    ikea_database.to_csv(path_to_csv)
-    
-    return all_ordered_product_df
+    return return_list
 
