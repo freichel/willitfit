@@ -8,6 +8,7 @@ from willitfit.params import COORDS, VOL_INTERIOR, VOL_UNAVAILABLE, VOL_BORDER, 
 from willitfit.plotting.plot_helper import get_split_indexes, split_array_by_index
 import numpy as np
 import plotly.graph_objects as go
+from scipy.ndimage import convolve
 
 
 def generate_cuboids(article_coords):
@@ -61,7 +62,7 @@ def generate_mesh3d_from_coords(coords_arr):
                                 alphahull=0,
                                 color='grey',
                                 flatshading=True,
-                                hoverinfo='none',
+                                #hoverinfo='none',
                                 ))
 
     return meshes
@@ -117,15 +118,36 @@ def get_unavailable_meshes(fitted_array):
     Returns:
         meshes - a list of plotly.go.Mesh3d objects
     '''
-
+    ### LEGACY
     # get all coords which are 'unavailable'
-    unavail_coords = np.argwhere(fitted_array == VOL_UNAVAILABLE).T
+    # unavail_coords = np.argwhere(fitted_array == VOL_UNAVAILABLE).T
 
-    # split coords based on their shapes
-    split_indexes = get_split_indexes(unavail_coords)
-    coords_split = split_array_by_index(unavail_coords, split_indexes)
+    # # split coords based on their shapes
+    # split_indexes = get_split_indexes(unavail_coords)
+    # coords_split = split_array_by_index(unavail_coords, split_indexes)
+    ###
 
-    meshes = generate_mesh3d_from_coords(coords_split)
+    # Binarize unavailable space
+    fitted_array = np.isin(fitted_array, -1).astype(np.uint8)
+
+    # Kernal for convolve function
+    kernel =  [[[0,0,0],
+                [0,1,0],
+                [0,0,0]],
+               [[0,1,0],
+                [1,1,1],
+                [0,1,0]],
+               [[0,0,0],
+                [0,1,0],
+                [0,0,0]]]
+
+    kernel = np.array(kernel)
+
+    convolved = convolve(fitted_array,kernel, mode='constant', cval=0.0)
+
+    edge_coords = np.argwhere((convolved < 6) & (convolved > 3))
+
+    meshes = generate_mesh3d_from_coords([edge_coords.T])
 
     return meshes
 
