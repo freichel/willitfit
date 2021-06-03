@@ -4,7 +4,7 @@ Scrapes IKEA website to obtain package dimensions (rounded up to next cm), weigh
 Returns list of package dimensions and weights.
 '''
 
-from willitfit.params import IKEA_COUNTRY_DOMAIN, IKEA_WEBSITE_LANGUAGE
+from willitfit.params import IKEA_COUNTRY_DOMAIN, IKEA_WEBSITE_LANGUAGE,WEBSITE_UNAVAILABLE,ARTICLE_NOT_FOUND
 from bs4 import BeautifulSoup
 from selenium import webdriver
 from selenium.webdriver.chrome.options import Options
@@ -38,9 +38,22 @@ def chrome_settings():
 
 def scrap_product(article_code,country_domain = IKEA_COUNTRY_DOMAIN,website_language = IKEA_WEBSITE_LANGUAGE):
     """
+    Scrap the artikle from Ikea website
+    Filter out part of the site with important informations.  
+    When we run the test first time, 
+    latest version of chromedriver binary is downloaded and saved in cache 
+    and it is reused every time we run tests. 
+    If your browser auto updates the version, 
+    then the respective chromedriver is auto downloaded 
+    and updated when running tests.
     """
+    #Ikea url
     IKEA_URL = f"https://www.ikea.com/{country_domain}/{website_language}/"
     IKEA_SEARCH_URL = f"search/products/?q="
+    r = requests.get(os.path.join(IKEA_URL,IKEA_SEARCH_URL,article_code))
+    if r.status_code == 404:
+        return WEBSITE_UNAVAILABLE
+        
     driver = webdriver.Chrome(ChromeDriverManager().install(),options=chrome_settings())
     driver.get(os.path.join(IKEA_URL,IKEA_SEARCH_URL,article_code))
     important_part_of_page = driver.find_element_by_class_name('results__list')
@@ -54,6 +67,8 @@ def scrap_product(article_code,country_domain = IKEA_COUNTRY_DOMAIN,website_lang
 
 def extract_numeric_product_to_dict(product_features):
     """
+    Extract features from string and save it in dict
+    with following keys ['width','high','length','weight','packeges']
     """
     info_dict = {}
     new_columns_name = ['width','high','length','weight','packeges']
@@ -71,6 +86,7 @@ def extract_numeric_product_to_dict(product_features):
 
 def packages_dimensions_weights(page):
     """
+    Create data frame with information about subartickles
     """
     info = page.find_all('div',  {"class": 'range-revamp-product-details__container'})
     number = page.find_all('span',  {"class": 'range-revamp-product-identifier__value'})
@@ -88,6 +104,20 @@ def packages_dimensions_weights(page):
 
 
 def df_to_list(df):
+    """
+    Prepare output for API from data frame.
+    [(
+    article_code (str),
+    item_count (int),
+    [(
+        package_id (int),
+        package_length (int),
+        package_width (int),
+        package_height (int),
+        package_weight (float)
+    )]
+)]
+    """
     return_list = []
     item_count = 1 
     for num_code in df['article_code'].unique():  
@@ -98,6 +128,7 @@ def df_to_list(df):
 
 def product_info_and_update_csv_database(article_code,path_to_csv=DATABASE_PATH,item_count=1):
     """
+    Check if article exists in database, if not scrap it and update
     """
     if not os.path.exists(path_to_csv):
         df = pd.DataFrame(columns = ['width', 'high', 'length', 'weight', 'packeges',
@@ -115,12 +146,16 @@ def product_info_and_update_csv_database(article_code,path_to_csv=DATABASE_PATH,
             all_ordered_product_df = all_ordered_product_df.append(ikea_database[ikea_database['article_code'] == x])
         else:
             page = scrap_product(x,country_domain = IKEA_COUNTRY_DOMAIN,website_language = IKEA_WEBSITE_LANGUAGE)
+            if page == WEBSITE_UNAVAILABLE:
+                return WEBSITE_UNAVAILABLE
             df = packages_dimensions_weights(page)
             df['article_code'] = article_code[i]
             all_ordered_product_df = all_ordered_product_df.append(df)
             new_product_for_database = new_product_for_database.append(df)
+   
 
     return_list = df_to_list(all_ordered_product_df)
     ikea_database = ikea_database.append(new_product_for_database)
+    ikea_database.to_csv(path_to_csv)
     return return_list
 
