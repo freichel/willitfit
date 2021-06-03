@@ -1,12 +1,17 @@
 import numpy as np
 import pandas as pd
-from willitfit.params import VOL_EMPTY, VOL_UNAVAILABLE
+from willitfit.params import CAR_DATABASE, VOL_EMPTY, VOL_UNAVAILABLE
+from willitfit.app_utils.utils import get_car_data
 
-def get_volume_space(car_model, data, ratio_door=0.2):
+
+def get_volume_space(car_model, ratio_door=0.2):
     """
     Returns available volume for a specific car_model.
     Use ratio_door to tweak estimated unavailable space caused by 45-degree trunk-door slope.
     """
+    # Get dataframe
+    data = get_car_data()
+    
     # Isolate dimension cols
     dim_cols = ['depth', 'height', 'width']
 

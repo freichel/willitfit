@@ -3,14 +3,15 @@ import requests
 from willitfit.app_utils.pdf_parser import pdf_to_dict
 from willitfit.app_utils.form_transformer import form_to_dict
 from willitfit.app_utils.trunk_dimensions import get_volume_space
-from willitfit.app_utils.utils import get_data, gen_make_dict, gen_make_list
-from willitfit.params import IKEA_WEBSITE_LANGUAGE, IKEA_COUNTRY_DOMAIN
+from willitfit.app_utils.utils import gen_make_dict, gen_make_list
+from willitfit.params import IKEA_WEBSITE_LANGUAGE, IKEA_COUNTRY_DOMAIN, API_URL, CAR_DATABASE, NO_DATA_PROVIDED, ERRORS_SCRAPER, ERRORS_OPTIMIZER
 import pandas as pd
 import os
 from pathlib import Path
+import plotly
+import json
 
-MY_URL = "http://127.0.0.1:8000/collect"
-CSV_PATH = Path(os.path.abspath(os.getcwd())).absolute()/"willitfit/data/cars_clean.csv"
+CSV_PATH = Path(os.path.abspath(os.getcwd())).absolute()/CAR_DATABASE
 data = pd.read_csv(CSV_PATH)
 MAKE_LIST = gen_make_list(data)
 MAKE_DICT = gen_make_dict(data)
@@ -50,7 +51,8 @@ def main():
     form = st.sidebar.form('Add your items manually:')
     articles_str = form.text_area(
         'List your Article Numbers:', 
-        help='Delimited by commas. If more than 1 of the same article, denote in brackets as shown. Format: XXX.XXX.XX (>1), '
+        help='Delimited by commas. If more than 1 of the same article, denote in brackets as shown. Format: XXX.XXX.XX (>1), ',
+        value="691.285.67 (2)"
         )
     form.form_submit_button('Submit your list')
 
@@ -72,10 +74,10 @@ def main():
                     }
 
             # dict_['vol'] = get_volume_space(car_model, data=data)
-            response = requests.post(MY_URL, json=params)
+            response = requests.post(API_URL, json=params)
 
         # Build dict_ from form to POST
-        if articles_str:
+        elif articles_str:
             dict_ = form_to_dict(articles_str)
             params = {
                 "article_dict": dict_,
@@ -84,11 +86,25 @@ def main():
                 "IKEA_language": IKEA_WEBSITE_LANGUAGE
                     }
             # dict_['vol'] = get_volume_space(car_model, data=data)
-            response = requests.post(MY_URL, json=params)
+            response = requests.post(API_URL, json=params)
         
-        st.error('Please upload wishlist PDF or add Article Numbers!')
+        else:
+            st.error(NO_DATA_PROVIDED)
 
-    # if response.status_code == 200:
+        print(response.status_code)
+        if response.status_code == 200:
+            return_val = response.text
+            # Scraper error
+            if return_val in ERRORS_SCRAPER:
+                st.error(return_val)
+            # Optimizer error
+            if return_val in ERRORS_OPTIMIZER:
+                st.error(return_val)
+            # Successful
+            st.plotly_chart(plotly.io.from_json(json.loads(return_val)))
+        else:
+            st.error(f"Unspecified error {response.status_code}")
+            
     #     print("API call success")
     #     if response_dict['Viable'] == 1:
     #         st.write("Yes, it all fits perfectly!")

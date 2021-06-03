@@ -1,14 +1,34 @@
 # ----------------------------------
+#           PARAMETERS
+# ----------------------------------
+
+# General
+PROJECT_FOLDER=willitfit
+
+# Google
+PROJECT_ID=willitfit
+BUCKET_NAME=willitfit-bucket
+BUCKET_FOLDER=data
+REGION=europe-west3
+PYTHON_VERSION=3.8.6
+PACKAGE_NAME=willitfit
+
+# Streamlit/API
+FRONT_END_FILE=willitfit/frontend/app.py
+BACK_END_FILE=api.api
+BACK_END_APP=app
+
+# ----------------------------------
 #          INSTALL & TEST
 # ----------------------------------
 install_requirements:
 	@pip install -r requirements.txt
 
 check_code:
-	@flake8 scripts/* willitfit/*.py
+	@flake8 scripts/* ${PROJECT_FOLDER}/*.py
 
 black:
-	@black scripts/* willitfit/*.py
+	@black scripts/* ${PROJECT_FOLDER}/*.py
 
 test:
 	@coverage run -m pytest tests/*.py
@@ -22,8 +42,8 @@ clean:
 	@rm -f .coverage
 	@rm -fr */__pycache__ */*.pyc __pycache__
 	@rm -fr build dist
-	@rm -fr willitfit-*.dist-info
-	@rm -fr willitfit.egg-info
+	@rm -fr ${PROJECT_FOLDER}-*.dist-info
+	@rm -fr ${PROJECT_FOLDER}.egg-info
 
 install:
 	@pip install . -U
@@ -42,52 +62,21 @@ count_lines:
 	@echo ''
 
 # ----------------------------------
-#      UPLOAD PACKAGE TO PYPI
-# ----------------------------------
-PYPI_USERNAME=<AUTHOR>
-build:
-	@python setup.py sdist bdist_wheel
-
-pypi_test:
-	@twine upload -r testpypi dist/* -u $(PYPI_USERNAME)
-
-pypi:
-	@twine upload dist/* -u $(PYPI_USERNAME)
-
-# ----------------------------------
-#         HEROKU COMMANDS
+#            STREAMLIT/API
 # ----------------------------------
 
-streamlit:
-	-@streamlit run app.py
+run_streamlit:
+	-@streamlit run ${FRONT_END_FILE}
 
-#heroku_login:
-#	-@heroku login
-
-#heroku_create_app:
-#	-@heroku create will-it-fit
-
-#deploy_heroku:
-#	-@git push heroku master
-#	-@heroku ps:scale web=1
-
-# ----------------------------------
-#			   API
-# ----------------------------------
 run_api:
-	@uvicorn willitfit.api.api:app --reload
+	@uvicorn ${PROJECT_FOLDER}.${BACK_END_FILE}:${BACK_END_APP} --reload
 
+# Run with -j2 flag to execute simultaneously
+run_full_interface: run_streamlit run_api
+	
 # ----------------------------------
 #			GOOGLE CLOUD
 # ----------------------------------
-PROJECT_ID=willitfit
-BUCKET_NAME=willitfit-bucket
-BUCKET_FOLDER=data
-REGION=europe-west3
-PYTHON_VERSION=3.8.6
-PACKAGE_NAME=willitfit
-#FRAMEWORK=scikit-learn
-#RUNTIME_VERSION=2.2
 
 set_project:
 	-@gcloud config set project ${PROJECT_ID}

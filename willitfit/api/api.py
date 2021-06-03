@@ -9,9 +9,11 @@ from willitfit.params import ERRORS_OPTIMIZER, ERRORS_SCRAPER, ERRORS_INTERFACE
 from willitfit.optimizers.volumeoptimizer import generate_optimizer
 from willitfit.plotting.plotter import plot_all
 from willitfit.scrapers.IKEA import product_info_and_update_csv_database
+from willitfit.app_utils.trunk_dimensions import get_volume_space
 import numpy as np
 import matplotlib.pyplot as plt
 import plotly
+import pandas as pd
 
 # Initialize API
 app = FastAPI()
@@ -25,8 +27,8 @@ app.add_middleware(
 
 # Class to capture user interface inputs parsed via POST
 class RequestText(BaseModel):
-    article_dict: list
-    car_id: str
+    article_dict: dict
+    car_model: str
     IKEA_country: str
     IKEA_language: str
 
@@ -47,29 +49,84 @@ def input_output(request_text: RequestText):
     '''
     request_dict = dict(request_text)
     article_dict = request_dict["article_dict"]
-    car_id = request_dict["car_id"]
+    car_id = request_dict["car_model"]
     IKEA_COUNTRY_DOMAIN = request_dict["IKEA_country"]
     IKEA_WEBSITE_LANGUAGE = request_dict["IKEA_language"]
     
     '''
     Find car trunk dimensions for given car_id
     '''
-    df = product_info_and_update_csv_database(article_code) #input:list of article, return dataframe
-    # Placeholder for now
-    volume_space = np.zeros((100,100,100), dtype=int)
+    volume_space = get_volume_space(car_id)
+    #volume_space = np.zeros((100,100,100), dtype=int)
             
     '''
     Call scraper with article list and website location/language.
     Receive list of package dimensions and weights.
     '''
+    
     #TODO
-    # Placeholder code
     scraper_return = "TBD"
+    #scraper_return = product_info_and_update_csv_database([*article_dict])
     if scraper_return not in ERRORS_SCRAPER:
         pass
     else:
         return scraper_return
-    article_list = article_dict
+    
+       
+    # Placeholder code
+    article_list = [(
+            "cube_1",
+            1,
+            [(
+                1,
+                10,
+                10,
+                10,
+                1
+            )]
+        ),
+        (
+            "cube_2",
+            1,
+            [(
+                1,
+                15,
+                15,
+                15,
+                2
+            )]
+        )
+        ,
+        (
+            "cuboid_1",
+            1,
+            [(
+                1,
+                15,
+                30,
+                30,
+                2
+            )]
+        ),
+        (
+            "cuboid_2",
+            1,
+            [(
+                1,
+                15,
+                30,
+                30,
+                1
+            ),
+            (
+                2,
+                5,
+                5,
+                10,
+                1
+            )]
+        )]
+
     
     '''
     Call optimizer with article list and volume array.
@@ -81,6 +138,7 @@ def input_output(request_text: RequestText):
     else:
         return optimizer_return
     
+     
     '''
     Call plotter with package coordinates and filled volume array.
     Receive plot
