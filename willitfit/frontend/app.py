@@ -65,7 +65,7 @@ def main():
     if st.button('Generate'):
         # Parsing uploaded_pdf to dict_ to POST
         if uploaded_pdf:
-            dict_ = pdf_to_dict(uploaded_pdf)
+            dict_ = pdf_to_dict(uploaded_pdf, IKEA_WEBSITE_LANGUAGE)
             params = {
                 "article_dict": dict_,
                 "car_model": car_model,

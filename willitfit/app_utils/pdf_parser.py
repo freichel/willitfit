@@ -42,7 +42,7 @@ def pdf_to_dict(uploaded_pdf, IKEA_WEBSITE_LANGUAGE):
 
     ## Setup regex dict
     rx_dict = {
-        'n_pieces': re.compile(r'(?P<n_pieces>\d+)\sSt\.'),
+        'n_pieces': re.compile(rf"(?P<n_pieces>\d+)\s{lang_dict[IKEA_WEBSITE_LANGUAGE]}"),
         'article_num': re.compile(r'(?P<article_num>\d{3}\.\d{3}\.\d{2,})')
         }
 
