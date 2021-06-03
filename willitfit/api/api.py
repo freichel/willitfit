@@ -40,7 +40,7 @@ def input_output(request_text: RequestText):
     Calls relevant functions to process user input.
     Returns output to front end.
     '''
-    
+
     '''
     Unpack the following arguments
     - Article list as dict
@@ -52,18 +52,18 @@ def input_output(request_text: RequestText):
     car_id = request_dict["car_model"]
     IKEA_COUNTRY_DOMAIN = request_dict["IKEA_country"]
     IKEA_WEBSITE_LANGUAGE = request_dict["IKEA_language"]
-    
+
     '''
     Find car trunk dimensions for given car_id
     '''
     volume_space = get_volume_space(car_id)
     #volume_space = np.zeros((100,100,100), dtype=int)
-            
+
     '''
     Call scraper with article list and website location/language.
     Receive list of package dimensions and weights.
     '''
-    
+
     #TODO
     scraper_return = "TBD"
     #scraper_return = product_info_and_update_csv_database([*article_dict])
@@ -71,8 +71,8 @@ def input_output(request_text: RequestText):
         pass
     else:
         return scraper_return
-    
-       
+
+
     # Placeholder code
     article_list = [(
             "cube_1",
@@ -127,7 +127,7 @@ def input_output(request_text: RequestText):
             )]
         )]
 
-    
+
     '''
     Call optimizer with article list and volume array.
     Receive package coordinates and filled volume array.
@@ -137,12 +137,12 @@ def input_output(request_text: RequestText):
         filled_space, package_coordinates = optimizer_return
     else:
         return optimizer_return
-    
-     
+
+
     '''
     Call plotter with package coordinates and filled volume array.
     Receive plot
     '''
-    plotter_return = plot_all(filled_space, package_coordinates)
+    plotter_return = plot_all(filled_space, package_coordinates, plot_unavailable=False)
     to_interface = plotly.io.to_json(plotter_return)
     return to_interface
