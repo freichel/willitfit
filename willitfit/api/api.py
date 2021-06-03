@@ -57,6 +57,9 @@ def input_output(request_text: RequestText):
     '''
     request_dict = dict(request_text)
     article_dict = request_dict["article_dict"]
+    #TODO
+    # Value in dict is passed as list, should be int
+    article_dict = {key: sum(value) for key,value in article_dict.items()}
     car_id = request_dict["car_model"]
     IKEA_COUNTRY_DOMAIN = request_dict["IKEA_country"]
     IKEA_WEBSITE_LANGUAGE = request_dict["IKEA_language"]
@@ -64,6 +67,7 @@ def input_output(request_text: RequestText):
     '''
     Find car trunk dimensions for given car_id
     '''
+    
     volume_space = get_volume_space(car_id)
     #volume_space = np.zeros((100,100,100), dtype=int)
             
@@ -72,76 +76,13 @@ def input_output(request_text: RequestText):
     Receive list of package dimensions and weights for each article.
     '''
     
+    
     #TODO
-    scraper_return = "TBD"
-    #scraper_return = product_info_and_update_csv_database([*article_dict])
+    scraper_return = product_info_and_update_csv_database(article_dict)
     if scraper_return not in ERRORS_SCRAPER:
-        pass
+        article_list = scraper_return
     else:
         return scraper_return
-    
-    '''
-    Update list with actual article counts
-    '''
-    # Create copy of returned list
-    article_list = scraper_return.copy()
-    for idx, article in enumerate(scraper_return):
-        # Update article count based on dictionary value
-        article_list[idx][1] = article_dict[article[0]]
-       
-    # Placeholder code
-    article_list = [(
-            "cube_1",
-            1,
-            [(
-                1,
-                10,
-                10,
-                10,
-                1
-            )]
-        ),
-        (
-            "cube_2",
-            1,
-            [(
-                1,
-                15,
-                15,
-                15,
-                2
-            )]
-        )
-        ,
-        (
-            "cuboid_1",
-            1,
-            [(
-                1,
-                15,
-                30,
-                30,
-                2
-            )]
-        ),
-        (
-            "cuboid_2",
-            1,
-            [(
-                1,
-                15,
-                30,
-                30,
-                1
-            ),
-            (
-                2,
-                5,
-                5,
-                10,
-                1
-            )]
-        )]
     
     '''
     Call optimizer with article list and volume array.
@@ -152,6 +93,8 @@ def input_output(request_text: RequestText):
         filled_space, package_coordinates = optimizer_return
     else:
         return optimizer_return
+    
+    return optimizer_return
     
      
     '''

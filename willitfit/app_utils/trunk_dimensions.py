@@ -3,13 +3,16 @@ import pandas as pd
 from willitfit.params import CAR_DATABASE, VOL_EMPTY, VOL_UNAVAILABLE
 from willitfit.app_utils.utils import get_car_data
 
-def get_volume_space(car_model, data, ratio_height=0.5, slant=1):
+def get_volume_space(car_model, ratio_height=0.5, slant=1):
     """
     Returns available volume for a specific car_model.
     Use ratio_height to tweak estimated unavailable space caused by 45-degree trunk-door slope.
     """
     # Isolate dimension cols
     dim_cols = ['depth', 'height', 'width']
+    
+    # Load car data
+    data = get_car_data()
 
     # Trunk dimensions
     model_row = data[data['car_model'] == car_model]
