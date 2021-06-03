@@ -234,14 +234,10 @@ def generate_package_lists(article_list, sorters = ["volume|ascending", "volume|
         starter_list = sort_packages(article_list)
     else:
         starter_list = np.copy(package_lists[0])
-    
+
     # What is the actual maximum number of unique lists?
     max_permut = np.math.factorial(len(starter_list))
 
-    # Set maximum attempts for adding random lists
-    # TODO better solution for this
-    max_attempts = 20
-    max_attempts_counter = 0
 
     # Now add as many random lists as needed
     while True:
@@ -252,13 +248,8 @@ def generate_package_lists(article_list, sorters = ["volume|ascending", "volume|
         if hash_list([new_list])[0] not in hash_list(package_lists):
             package_lists.append(new_list)
         # Check if length requirement (smaller of pre-defined lists + random_lists and max_permut) is fulfilled
-        if len(package_lists) == min(len(sorters) + random_lists, max_permut-2):
+        if len(package_lists) >= min(len(sorters) + random_lists, max_permut-2):
             break
-
-        # Break out of loop after
-        if max_attempts_counter > max_attempts:
-            break
-        max_attempts_counter += 1
 
     return package_lists
 

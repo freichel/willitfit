@@ -52,7 +52,7 @@ def main():
     articles_str = form.text_area(
         'List your Article Numbers:',
         help='Delimited by commas. If more than 1 of the same article, denote in brackets as shown. Format: XXX.XXX.XX (>1), ',
-        value="691.285.67 (2)"
+        value="904.990.66 (2)"
         )
     form.form_submit_button('Submit your list')
 
@@ -91,22 +91,24 @@ def main():
         else:
             st.error(NO_DATA_PROVIDED)
 
-        print(response.status_code)
         if response.status_code == 200:
             return_val = response.text
 
             # Scraper error
-            if return_val in ERRORS_SCRAPER:
-                st.error(return_val)
+            if return_val.strip("\"") in ERRORS_SCRAPER:
+                st.error(return_val.strip("\""))
+                st.stop()
             # Optimizer error
-            if return_val in ERRORS_OPTIMIZER:
-                st.error(return_val)
+            if return_val.strip("\"") in ERRORS_OPTIMIZER:
+                st.error(return_val.strip("\""))
+                st.stop()
             # Successful
             st.write("Solution found! Visualisation loading...")
             st.write(return_val)
             st.plotly_chart(plotly.io.from_json(json.loads(return_val)))
         else:
             st.error(f"Unspecified error {response.status_code}")
+            st.stop()
 
     #     print("API call success")
     #     if response_dict['Viable'] == 1:
