@@ -42,7 +42,7 @@ def pdf_to_dict(uploaded_pdf, IKEA_WEBSITE_LANGUAGE):
 
     ## Setup regex dict
     rx_dict = {
-        'n_pieces': re.compile(r'(?P<n_pieces>\d+)\s{unit}'.format(unit=lang_dict[IKEA_WEBSITE_LANGUAGE])),
+        'n_pieces': re.compile(r'(?P<n_pieces>\d+)\sSt\.'),
         'article_num': re.compile(r'(?P<article_num>\d{3}\.\d{3}\.\d{2,})')
         }
 
@@ -56,9 +56,10 @@ def pdf_to_dict(uploaded_pdf, IKEA_WEBSITE_LANGUAGE):
 
     df = pd.DataFrame(pdf_dict)
     # Strip article dots
-    df['article_num'] = df['article_num'].str.replace('.', '')
+
+    df['article_num'] = df['article_num'].str.replace('.', '', regex=True)
     # Convert n_pieces column to int
     df['n_pieces'] = df['n_pieces'].astype(int)
-    # Transform back to key, list pairs
-    return df.set_index('article_num').T.to_dict('list')
-    
+
+    return df.set_index('article_num').T.to_dict('index')['n_pieces']
+
