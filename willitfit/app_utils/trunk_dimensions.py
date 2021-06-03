@@ -9,8 +9,8 @@ def get_volume_space(car_model, ratio_height=0.5, slant=1):
     Use ratio_height to tweak estimated unavailable space caused by 45-degree trunk-door slope.
     """
     # Isolate dimension cols
-    dim_cols = ['depth', 'height', 'width']
-    
+    dim_cols = ['depth', 'width', 'height']
+
     # Load car data
     data = get_car_data()
 
@@ -22,7 +22,7 @@ def get_volume_space(car_model, ratio_height=0.5, slant=1):
     volume_space = np.full(trunk_dims, VOL_EMPTY, dtype=int)
 
     # Unavailable space
-    height_block = int(trunk_dims[1]*ratio_height)
+    height_block = int(trunk_dims[2]*ratio_height)
     for i in range(height_block):
-        volume_space[i,height_block+(slant*i):,:] = VOL_UNAVAILABLE
+        volume_space[trunk_dims[0]-(i+1),:,height_block+(slant*i):] = VOL_UNAVAILABLE
     return volume_space

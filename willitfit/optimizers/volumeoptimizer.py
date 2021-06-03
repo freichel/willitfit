@@ -103,7 +103,7 @@ def find_longest_space_dimension(volume_space):
     structure_x = np.rot90(structure_y, axes=(1,2))
     structure_z = np.rot90(structure_y, axes=(0,1))
     structures = [structure_x, structure_y, structure_z]
-    
+
     # Run along each dimension
     results = []
     for structure in structures:
@@ -191,7 +191,7 @@ def sort_packages(article_list, sort_by="volume", direction="descending"):
     # Turn into a numpy array for easier sorting
     return_list = np.array(return_list, dtype="str")
     # Sort by volume (4th column)
-    return_list = return_list[return_list[:,3].astype(int).argsort()]
+    return_list = return_list[return_list[:,3].astype(float).astype(int).argsort()]
     # This gives an ascending order. Reverse if needed
     if direction == "descending":
         return_list = np.flip(return_list, axis=0)
@@ -211,7 +211,7 @@ def generate_package_lists(article_list, sorters = ["volume|ascending", "volume|
     Returns list of package lists for the optimizer.
     Lists can be pre-defined or randomized.
     '''
-    
+
     #TODO
     '''
     IMPROVEMENT OPTIONS:
@@ -238,7 +238,12 @@ def generate_package_lists(article_list, sorters = ["volume|ascending", "volume|
     # What is the actual maximum number of unique lists?
     max_permut = np.math.factorial(len(starter_list))
 
-    # Now add as many random lists as needed    
+    # Set maximum attempts for adding random lists
+    # TODO better solution for this
+    max_attempts = 20
+    max_attempts_counter = 0
+
+    # Now add as many random lists as needed
     while True:
         # Shuffle starter list and copy data
         np.random.shuffle(starter_list)
@@ -249,6 +254,12 @@ def generate_package_lists(article_list, sorters = ["volume|ascending", "volume|
         # Check if length requirement (smaller of pre-defined lists + random_lists and max_permut) is fulfilled
         if len(package_lists) == min(len(sorters) + random_lists, max_permut-2):
             break
+
+        # Break out of loop after
+        if max_attempts_counter > max_attempts:
+            break
+        max_attempts_counter += 1
+
     return package_lists
 
 
@@ -276,7 +287,12 @@ def find_first_space(package_x, package_y, package_z, volume_space):
     template_shape[1,1,1] = 1.01
     # Use skimage's match_template to process a sliding window over bin_space...
     # ...and find the first location of zero, which indicates the starting point
-    result = np.where(match_template(bin_space, template_shape) == 0)
+
+    try:
+        result = np.where(match_template(bin_space, template_shape) == 0)
+    except ValueError:
+        return OPT_INSUFFICIENT_SPACE
+
     # From here we can extract the coordinates
     for i, _ in enumerate(result[0]):
         if bin_space[result[0][i], result[1][i], result[2][i]] == 1:
@@ -320,7 +336,7 @@ def place_package(package_dimensions, volume_space):
     volume_space[x+package_x-1, y:y+package_y, z:z+package_z] = VOL_BORDER
     # Fill interior area
     volume_space[x+1:x+package_x-1, y+1:y+package_y-1, z+1:z+package_z-1] = VOL_INTERIOR
-    
+
     return volume_space, x, y, z, x+package_x-1, y+package_y-1, z+package_z-1
 
 
@@ -351,10 +367,10 @@ def optimizer(package_list, article_list, volume_space, queue=None, max_attempts
         package_length, package_width, package_height = pkg[1], pkg[2], pkg[3]
         # Obtain package orientation (random)
         package_dimensions = choose_orientation(package_length, package_width, package_height)
-        
+
         # Attempt to place package in space
         placement_result = place_package(package_dimensions, volume_space)
-        
+
         # Check if placement was successful
         if placement_result != OPT_INSUFFICIENT_SPACE:
             # Extract return variables and append to package_coordinates
@@ -384,8 +400,8 @@ def optimizer(package_list, article_list, volume_space, queue=None, max_attempts
             if queue is not None:
                 queue.put((score, attempts_counter, volume_space, package_coordinates))
             return score, attempts_counter, volume_space, package_coordinates
-        
-        
+
+
 def generate_optimizer(article_list, volume_space, generator_sorters = ["volume|ascending", "volume|descending"], generator_random_lists = 10, optimizer_max_attempts = 10):
     '''
     Main function to run this module.

@@ -84,6 +84,7 @@ def input_output(request_text: RequestText):
     else:
         return scraper_return
 
+
     '''
     Call optimizer with article list and volume array.
     Receive package coordinates and filled volume array.
@@ -93,8 +94,6 @@ def input_output(request_text: RequestText):
         filled_space, package_coordinates = optimizer_return
     else:
         return optimizer_return
-
-    return optimizer_return
 
 
     '''
