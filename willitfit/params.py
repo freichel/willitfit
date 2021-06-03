@@ -13,6 +13,10 @@ VOL_BORDER = 1
 VOL_INTERIOR = -2
 VOL_EMPTY = 0
 
+# Deployment variables
+API_URL = "http://127.0.0.1:8000/collect"
+CAR_DATABASE = "willitfit/data/cars_clean.csv"
+
 # Function return codes
 # Optimizer
 INSUFFICIENT_SPACE = "Not enough space for packages in chosen trunk."
@@ -40,7 +44,8 @@ Please modify/enhance those error codes as needed
 NOT_PDF = "Document is not a PDF."
 PDF_UNREADABLE = "Unexpected format."
 API_CALL_ERROR = "Back-end offline."
-ERRORS_INTERFACE = [NOT_PDF, PDF_UNREADABLE, API_CALL_ERROR]
+NO_DATA_PROVIDED = "Please upload wishlist PDF or add Article Numbers!"
+ERRORS_INTERFACE = [NOT_PDF, PDF_UNREADABLE, API_CALL_ERROR, NO_DATA_PROVIDED]
 
 # Dummy data for volume array
 COORDS = [["article1",0,1,0,0,0,10,15,10],

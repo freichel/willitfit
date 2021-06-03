@@ -1,5 +1,8 @@
 import pandas as pd
 import os
+from willitfit.params import CAR_DATABASE
+from pathlib import Path
+import os
 
 def _parse_line(line):
     """
@@ -13,12 +16,12 @@ def _parse_line(line):
     # if there are no matches
     return None, None
 
-def get_data(CAR_PATH):
+def get_car_data():
     """
     Read CSV into DataFrame
     """
     data = pd.read_csv(
-        os.path.join(os.path.dirname(os.path.dirname(os.getcwd())), CAR_PATH)
+        Path(os.path.abspath(__file__)).parent.parent.parent.absolute()/CAR_DATABASE
         )
     
     return data
