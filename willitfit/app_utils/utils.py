@@ -1,6 +1,6 @@
 import pandas as pd
 import os
-from willitfit.params import CAR_DATABASE
+from willitfit.params import CAR_DATABASE, PROJECT_DIR
 from pathlib import Path
 import os
 
@@ -21,7 +21,7 @@ def get_car_data():
     Read CSV into DataFrame
     """
     data = pd.read_csv(
-        Path(os.path.abspath(__file__)).parent.parent.parent.absolute()/CAR_DATABASE
+        PROJECT_DIR/CAR_DATABASE
         )
     
     return data

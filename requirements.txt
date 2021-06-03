@@ -47,3 +47,6 @@ pdfminer.six
 # plotter
 ipywidgets>=7.5
 plotly
+
+# Protection
+python-dotenv

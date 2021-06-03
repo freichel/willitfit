@@ -23,67 +23,6 @@ from queue import Queue
 from skimage.feature import match_template
 
 '''
-The following are just dummy data sets to run the algorithm
-'''
-
-article_list = [(
-    "cube_1",
-    2,
-    [(
-        1,
-        10,
-        10,
-        10,
-        1
-    )]
-),
-(
-    "cube_2",
-    2,
-    [(
-        1,
-        15,
-        15,
-        15,
-        2
-    )]
-),
-(
-    "cuboid_1",
-    1,
-    [(
-        1,
-        15,
-        30,
-        30,
-        2
-    )]
-),
-(
-    "cuboid_2",
-    1,
-    [(
-        1,
-        15,
-        30,
-        30,
-        1
-    ),
-    (
-        2,
-        5,
-        5,
-        10,
-        1
-    )]
-)]
-
-volume_space = np.full((80,80,80), VOL_EMPTY, dtype=int)
-volume_space[0,:,:] = VOL_UNAVAILABLE
-volume_space[:,0:2,:] = VOL_UNAVAILABLE
-volume_space[:,:,0] = VOL_UNAVAILABLE
-
-'''
 General functions
 '''
 
@@ -362,6 +301,8 @@ def place_package(package_dimensions, volume_space):
     # Check available space - there need to be as many zeros as the package_volume for it to fit
     available_space = volume_space[x:x+package_x, y:y+package_y, z:z+package_z]
     # If the package cannot be placed, return
+    #TODO
+    # Investigate if binarize_space should be called twice on available_space first - I think it should
     if package_volume != available_space.size - np.count_nonzero(available_space):
         return OPT_INSUFFICIENT_SPACE
     # Otherwise populate the array
