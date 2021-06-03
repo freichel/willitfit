@@ -4,7 +4,7 @@ Scrapes IKEA website to obtain package dimensions (rounded up to next cm), weigh
 Returns list of package dimensions and weights.
 '''
 
-from willitfit.params import IKEA_COUNTRY_DOMAIN, IKEA_WEBSITE_LANGUAGE, PROJECT_DIR, PROJECT_NAME, DATA_FOLDER, ARTICLE_DATABASE
+from willitfit.params import IKEA_COUNTRY_DOMAIN, IKEA_WEBSITE_LANGUAGE, WEBSITE_UNAVAILABLE, ARTICLE_NOT_FOUND, PROJECT_DIR, PROJECT_NAME, DATA_FOLDER, ARTICLE_DATABASE
 from bs4 import BeautifulSoup
 from selenium import webdriver
 from selenium.webdriver.chrome.options import Options
@@ -35,13 +35,29 @@ def chrome_settings():
 
 def scrape_product(article_code, country_domain = IKEA_COUNTRY_DOMAIN, website_language = IKEA_WEBSITE_LANGUAGE):
     """
+    Scrap the artikle from Ikea website
+    Filter out part of the site with important informations.  
+    When we run the test first time, 
+    latest version of chromedriver binary is downloaded and saved in cache 
+    and it is reused every time we run tests. 
+    If your browser auto updates the version, 
+    then the respective chromedriver is auto downloaded 
+    and updated when running tests.
     """
+    #Ikea url
     IKEA_URL = f"https://www.ikea.com/{country_domain}/{website_language}/"
     IKEA_SEARCH_URL = f"search/products/?q="
+    r = requests.get(os.path.join(IKEA_URL,IKEA_SEARCH_URL,article_code))
+    if r.status_code == 404:
+        return WEBSITE_UNAVAILABLE
+        
     driver = webdriver.Chrome(ChromeDriverManager().install(),options=chrome_settings())
     driver.get(os.path.join(IKEA_URL,IKEA_SEARCH_URL,article_code))
     important_part_of_page = driver.find_element_by_class_name('results__list')
-    tag = important_part_of_page.find_element_by_tag_name('a')
+    try:
+        tag = important_part_of_page.find_element_by_tag_name('a')
+    except:
+        return ARTICLE_NOT_FOUND
     #https://stackoverflow.com/questions/48665001/can-not-click-on-a-element-elementclickinterceptedexception-in-splinter-selen
     driver.execute_script("arguments[0].click();", tag)
     soup = BeautifulSoup(driver.page_source, 'html.parser')  
@@ -51,6 +67,8 @@ def scrape_product(article_code, country_domain = IKEA_COUNTRY_DOMAIN, website_l
 
 def extract_numeric_product_to_dict(product_features):
     """
+    Extract features from string and save it in dict
+    with following keys ['width','high','length','weight','packeges']
     """
     info_dict = {}
     new_columns_name = ['width','height','length','weight','packages']
@@ -68,6 +86,7 @@ def extract_numeric_product_to_dict(product_features):
 
 def packages_dimensions_weights(page):
     """
+    Create data frame with information about subartickles
     """
     info = page.find_all('div',  {"class": 'range-revamp-product-details__container'})
     number = page.find_all('span',  {"class": 'range-revamp-product-identifier__value'})
@@ -85,6 +104,20 @@ def packages_dimensions_weights(page):
 
 
 def df_to_list(df, article_code):
+    """
+    Prepare output for API from data frame.
+    [(
+    article_code (str),
+    item_count (int),
+        [(
+        package_id (int),
+        package_length (int),
+        package_width (int),
+        package_height (int),
+        package_weight (float)
+        )]
+    )]
+    """
     # Initialize empty list
     return_list = []
     
@@ -106,20 +139,11 @@ def df_to_list(df, article_code):
         return_list.append([article, article_count, package_list])
         
     return return_list
-    
-    '''
-    # Initialize empty list
-    return_list = []
-    item_count = 1
-    for num_code in df['article_code'].unique():  
-        for i,row in enumerate(df[df['article_code']==num_code].iterrows()):
-            for j,x in enumerate(range(int(row[1]['packages']))):
-                return_list.append([row[1]['article_code'],item_count,[j,row[1]['length'],row[1]['width'],row[1]['height'],row[1]['weight']]])            
-    return return_list
-    '''
+
 
 def product_info_and_update_csv_database(article_dict,path_to_csv=DATABASE_PATH,item_count=1):
     """
+    Check if article exists in database, if not scrap it and update
     """
     # Only use article keys here
     article_code = [*article_dict]
@@ -144,12 +168,17 @@ def product_info_and_update_csv_database(article_dict,path_to_csv=DATABASE_PATH,
         # If not
         else:
             page = scrape_product(x, country_domain = IKEA_COUNTRY_DOMAIN, website_language = IKEA_WEBSITE_LANGUAGE)
+            if page == WEBSITE_UNAVAILABLE:
+                return WEBSITE_UNAVAILABLE
+            if page == ARTICLE_NOT_FOUND:
+                return ARTICLE_NOT_FOUND
             df = packages_dimensions_weights(page)
             df['article_code'] = article_code[i]
             all_ordered_product_df = all_ordered_product_df.append(df)
             new_product_for_database = new_product_for_database.append(df)
+   
 
     return_list = df_to_list(all_ordered_product_df, article_dict)
     ikea_database = ikea_database.append(new_product_for_database)
+    ikea_database.to_csv(path_to_csv)
     return return_list
-
