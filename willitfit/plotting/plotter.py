@@ -24,10 +24,11 @@ def generate_cuboids(article_coords):
     for item in article_coords:
         # coordinates of each article
         x1 = item[3] # x_start
-        x2 = item[6] # x_end
         y1 = item[4] # y_start
-        y2 = item[7] # y_end
         z1 = item[5] # z_start
+
+        x2 = item[6] # x_end
+        y2 = item[7] # y_end
         z2 = item[8] # z_end
 
         mesh = go.Mesh3d(
@@ -62,7 +63,7 @@ def generate_mesh3d_from_coords(coords_arr):
                                 alphahull=0,
                                 color='grey',
                                 flatshading=True,
-                                #hoverinfo='none',
+                                hoverinfo='none',
                                 ))
 
     return meshes
