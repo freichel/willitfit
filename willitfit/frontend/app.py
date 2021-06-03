@@ -94,6 +94,7 @@ def main():
         print(response.status_code)
         if response.status_code == 200:
             return_val = response.text
+
             # Scraper error
             if return_val in ERRORS_SCRAPER:
                 st.error(return_val)
@@ -102,6 +103,7 @@ def main():
                 st.error(return_val)
             # Successful
             st.write("Solution found! Visualisation loading...")
+            st.write(return_val)
             st.plotly_chart(plotly.io.from_json(json.loads(return_val)))
         else:
             st.error(f"Unspecified error {response.status_code}")
