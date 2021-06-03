@@ -15,7 +15,7 @@ Returns plot to user interface.
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
-from willitfit.params import ERRORS_OPTIMIZER, ERRORS_SCRAPER, ERRORS_INTERFACE
+from willitfit.params import ERRORS_OPTIMIZER, ERRORS_SCRAPER
 from willitfit.optimizers.volumeoptimizer import generate_optimizer
 from willitfit.plotting.plotter import plot_all
 from willitfit.scrapers.IKEA import product_info_and_update_csv_database
@@ -57,9 +57,6 @@ def input_output(request_text: RequestText):
     '''
     request_dict = dict(request_text)
     article_dict = request_dict["article_dict"]
-    #TODO
-    # Value in dict is passed as list, should be int
-    article_dict = {key: sum(value) for key,value in article_dict.items()}
     car_id = request_dict["car_model"]
     IKEA_COUNTRY_DOMAIN = request_dict["IKEA_country"]
     IKEA_WEBSITE_LANGUAGE = request_dict["IKEA_language"]
@@ -67,16 +64,12 @@ def input_output(request_text: RequestText):
     '''
     Find car trunk dimensions for given car_id
     '''
-
     volume_space = get_volume_space(car_id)
-    #volume_space = np.zeros((100,100,100), dtype=int)
-
+    
     '''
     Call scraper with article list and website location/language.
     Receive list of package dimensions and weights for each article.
     '''
-
-
     #TODO
     scraper_return = product_info_and_update_csv_database(article_dict)
     if scraper_return not in ERRORS_SCRAPER:

@@ -131,7 +131,7 @@ def df_to_list(df, article_code):
         package_count = 1
         for _, matched_package in matched_packages.iterrows():
             # If the same package exists multiple times this will run more than once
-            for idx in range(matched_package["packages"]):
+            for idx in range(int(matched_package["packages"])):
                 # Append package ID, dimensions and weight
                 package_list.append((package_count,matched_package["height"], matched_package["width"], matched_package["length"], matched_package["weight"]))
                 package_count += 1
