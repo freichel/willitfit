@@ -1,7 +1,10 @@
 '''
 Defines global variables
 '''
+
 import numpy as np
+from pathlib import Path
+import os
 
 # IKEA website scraper settings
 IKEA_COUNTRY_DOMAIN = "de" # domain used
@@ -15,7 +18,16 @@ VOL_EMPTY = 0
 
 # Deployment variables
 API_URL = "http://127.0.0.1:8000/collect"
-CAR_DATABASE = "willitfit/data/cars_clean.csv"
+PROJECT_NAME = "willitfit"
+DATA_FOLDER = "data"
+CAR_DATABASE = "cars_clean.csv"
+PROJECT_DIR = Path(os.path.abspath(__file__)).parent.parent.absolute()
+
+# Google Cloud variables
+PROJECT_ID = PROJECT_NAME
+BUCKET_NAME = PROJECT_ID+"-bucket"
+BUCKET_FOLDER = DATA_FOLDER
+GOOGLE_APPLICATION_CREDENTIALS = PROJECT_NAME+"/keys/willitfit-bc6d464d89ff.json"
 
 # Function return codes
 # Optimizer
@@ -35,11 +47,6 @@ WEBSITE_UNAVAILABLE = "Website temporarily unavailable."
 ARTICLE_NOT_FOUND = "One or more articles do not exist."
 ERRORS_SCRAPER = [WEBSITE_UNAVAILABLE, ARTICLE_NOT_FOUND]
 
-#TODO
-'''
-Interface section
-Please modify/enhance those error codes as needed
-'''
 # Interface
 NOT_PDF = "Document is not a PDF."
 PDF_UNREADABLE = "Unexpected format."
@@ -54,4 +61,3 @@ VOLUME_SPACE = np.zeros((40,40,40), dtype=int)
 #VOLUME_SPACE[0:3,0:10,0:5] = VOL_UNAVAILABLE
 #VOLUME_SPACE[:,0:2,:] = VOL_UNAVAILABLE
 #VOLUME_SPACE[:,:,0] = VOL_UNAVAILABLE
-

@@ -1,6 +1,6 @@
 import pandas as pd
 import os
-from willitfit.params import CAR_DATABASE
+from willitfit.params import CAR_DATABASE, PROJECT_DIR, PROJECT_NAME, DATA_FOLDER
 from pathlib import Path
 import os
 
@@ -21,7 +21,7 @@ def get_car_data():
     Read CSV into DataFrame
     """
     data = pd.read_csv(
-        Path(os.path.abspath(__file__)).parent.parent.parent.absolute()/CAR_DATABASE
+        PROJECT_DIR/PROJECT_NAME/DATA_FOLDER/CAR_DATABASE
         )
     
     return data
@@ -53,3 +53,7 @@ def gen_make_dict(data):
         
     MAKE_DICT = dict(zip(make_list, by_make_list))
     return MAKE_DICT
+
+
+if __name__ == "__main__":
+    print(get_car_data())
