@@ -18,7 +18,7 @@ import chromedriver_binary
  
 
 
-DATABASE_PATH = Path(os.path.abspath(os.getcwd())).parents[0]/"data/ikea_database/ikea_database.csv"
+DATABASE_PATH = Path(os.path.abspath(__file__)).parents[1]/"data/ikea_database/ikea_database.csv"
 
 
 
@@ -122,7 +122,5 @@ def product_info_and_update_csv_database(article_code,path_to_csv=DATABASE_PATH,
 
     return_list = df_to_list(all_ordered_product_df)
     ikea_database = ikea_database.append(new_product_for_database)
-    ikea_database.to_csv(path_to_csv)
-    print(path_to_csv)
     return return_list
 
