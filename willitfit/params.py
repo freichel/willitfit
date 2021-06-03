@@ -18,14 +18,16 @@ VOL_EMPTY = 0
 
 # Deployment variables
 API_URL = "http://127.0.0.1:8000/collect"
-CAR_DATABASE = "willitfit/data/cars_clean.csv"
+PROJECT_NAME = "willitfit"
+DATA_FOLDER = "data"
+CAR_DATABASE = "cars_clean.csv"
 PROJECT_DIR = Path(os.path.abspath(__file__)).parent.parent.absolute()
-ENV_FILE = ".env"
 
 # Google Cloud variables
-PROJECT_ID = "willitfit"
-BUCKET_NAME = "willitfit-bucket"
-BUCKET_FOLDER = "data"
+PROJECT_ID = PROJECT_NAME
+BUCKET_NAME = PROJECT_ID+"-bucket"
+BUCKET_FOLDER = DATA_FOLDER
+GOOGLE_APPLICATION_CREDENTIALS = PROJECT_NAME+"/keys/willitfit-bc6d464d89ff.json"
 
 # Function return codes
 # Optimizer

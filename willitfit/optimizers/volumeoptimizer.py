@@ -31,6 +31,8 @@ def binarize_space(volume_space):
     Sets empty space to 1 and rest to 0.
     Needed to be able to identify clusters.
     '''
+    #TODO
+    # Use numpy.isin
     arbitrary_constant = max(VOL_UNAVAILABLE, VOL_BORDER, VOL_INTERIOR, VOL_EMPTY) + 1
     first_step = np.where(volume_space != VOL_EMPTY, arbitrary_constant, volume_space)
     second_step = np.where(first_step == VOL_EMPTY, 1, first_step)
