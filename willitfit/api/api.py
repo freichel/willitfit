@@ -143,6 +143,6 @@ def input_output(request_text: RequestText):
     Call plotter with package coordinates and filled volume array.
     Receive plot
     '''
-    plotter_return = plot_all(filled_space, package_coordinates, plot_unavailable=False)
+    plotter_return = plot_all(filled_space, package_coordinates, plot_unavailable=True)
     to_interface = plotly.io.to_json(plotter_return)
     return to_interface
