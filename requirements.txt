@@ -34,7 +34,16 @@ termcolor
 
 # ikea_scraper
 selenium
+<<<<<<< HEAD
+pathlib
+os
+chromedriver_binary
+webdriver_manager
+=======
+chromedriver-binary==77.0.3865.40.0
+webdriver-manager
 
+>>>>>>> master
 # framework/web-server
 streamlit
 

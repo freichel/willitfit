@@ -22,6 +22,8 @@ IKEA_SEARCH_URL = f"search/products/?q="
 DATABASE_PATH = '../willitfit/data/ikea_database/ikea_database.csv'
 
 def chrome_settings():
+    """
+    """
     
     chrome_options = Options()
     chrome_options.add_argument("--headless")
@@ -34,9 +36,9 @@ def chrome_settings():
 
 
 def scrap_product(article_code, item_count):
-    
+    """
+    """
     driver = webdriver.Chrome(ChromeDriverManager().install(),options=chrome_settings())
-    print(os.path.join(IKEA_URL,IKEA_SEARCH_URL,article_code))
     driver.get(os.path.join(IKEA_URL,IKEA_SEARCH_URL,article_code))
     important_part_of_page = driver.find_element_by_class_name('results__list')
     tag = important_part_of_page.find_element_by_tag_name('a')
@@ -48,7 +50,8 @@ def scrap_product(article_code, item_count):
     return important_part_of_page[0]
 
 def extract_numeric_product_to_dict(product_features):
-    
+    """
+    """
     info_dict = {}
     new_columns_name = ['width','high','length','weight','packeges']
     for info in product_features:
@@ -64,6 +67,8 @@ def extract_numeric_product_to_dict(product_features):
     return info_dict
 
 def packages_dimensions_weights(page):
+    """
+    """
     info = page.find_all('div',  {"class": 'range-revamp-product-details__container'})
     number = page.find_all('span',  {"class": 'range-revamp-product-identifier__value'})
 
@@ -79,6 +84,8 @@ def packages_dimensions_weights(page):
     return pd.DataFrame(list_of_products)
 
 def product_info_and_update_csv_database(article_code,path_to_csv=DATABASE_PATH):
+    """
+    """
     if not os.path.exists(path_to_csv):
         df = pd.DataFrame(columns = ['width', 'high', 'length', 'weight', 'packeges',
                                     'subarticle_code', 'article_code'])
