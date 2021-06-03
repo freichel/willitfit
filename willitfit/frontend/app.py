@@ -29,7 +29,7 @@ def main():
 
     # Car model selector
     car_make = st.sidebar.selectbox(
-        'Select car brand:', 
+        'Select car brand:',
         MAKE_LIST
         )
     if car_make:
@@ -50,7 +50,7 @@ def main():
     # Article number list
     form = st.sidebar.form('Add your items manually:')
     articles_str = form.text_area(
-        'List your Article Numbers:', 
+        'List your Article Numbers:',
         help='Delimited by commas. If more than 1 of the same article, denote in brackets as shown. Format: XXX.XXX.XX (>1), ',
         value="691.285.67 (2)"
         )
@@ -87,7 +87,7 @@ def main():
                     }
             # dict_['vol'] = get_volume_space(car_model, data=data)
             response = requests.post(API_URL, json=params)
-        
+
         else:
             st.error(NO_DATA_PROVIDED)
 
@@ -101,11 +101,11 @@ def main():
             if return_val in ERRORS_OPTIMIZER:
                 st.error(return_val)
             # Successful
-            st.write(return_val)
-            #st.plotly_chart(plotly.io.from_json(json.loads(return_val)))
+            st.write("Solution found! Visualisation loading...")
+            st.plotly_chart(plotly.io.from_json(json.loads(return_val)))
         else:
             st.error(f"Unspecified error {response.status_code}")
-            
+
     #     print("API call success")
     #     if response_dict['Viable'] == 1:
     #         st.write("Yes, it all fits perfectly!")
