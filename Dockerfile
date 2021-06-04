@@ -28,4 +28,4 @@ ENV PYTHONPATH "/"
 # First line may not be needed now
 CMD uvicorn willitfit.api.api:app --host 0.0.0.0 --port $PORT
 # Run Streamlit front end
-CMD streamlit run willitfit/frontend/app.py
+CMD streamlit run willitfit/frontend/frontend.py

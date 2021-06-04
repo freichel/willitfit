@@ -7,9 +7,13 @@ Returns list of package dimensions and weights.
 from willitfit.params import IKEA_COUNTRY_DOMAIN, IKEA_WEBSITE_LANGUAGE, WEBSITE_UNAVAILABLE, ARTICLE_NOT_FOUND, PROJECT_DIR, PROJECT_NAME, DATA_FOLDER, ARTICLE_DATABASE
 from bs4 import BeautifulSoup
 from selenium import webdriver
+from selenium.common.exceptions import TimeoutException
 from selenium.webdriver.chrome.options import Options
+from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.support import expected_conditions as EC
+from selenium.webdriver.common.by import By
 from webdriver_manager.chrome import ChromeDriverManager
-from willitfit.app_utils.googlecloud import get_cloud_data
+from willitfit.app_utils.googlecloud import get_cloud_data, send_cloud_data
 
 import os
 import requests
@@ -17,7 +21,7 @@ import pandas as pd
 import chromedriver_binary
  
 # Define path to database
-DATABASE_PATH = PROJECT_DIR/PROJECT_NAME/DATA_FOLDER/ARTICLE_DATABASE
+DATABASE_PATH = DATA_FOLDER+"/"+ARTICLE_DATABASE
 
 def chrome_settings():
     """
@@ -154,13 +158,16 @@ def product_info_and_update_csv_database(article_dict : dict,path_to_csv : str =
     # Only use article keys here
     article_code = [*article_dict]
     
+    '''
+    I've had to comment this out for now as we can assume that the file exists on Google Cloud
     if not os.path.exists(path_to_csv):
         df = pd.DataFrame(columns = ['width', 'height', 'length', 'weight', 'packages',
                                     'subarticle_code', 'article_code'])
         df.to_csv(path_to_csv)
+    '''
 
       
-    ikea_database = pd.read_csv(path_to_csv,index_col = [0])
+    ikea_database = get_cloud_data(path_to_csv)
     # Reduce size
     ikea_database = ikea_database.astype({"height": "int16", "width": "int16", "length": "int16", "packages": "int8"})
     all_ordered_product_df = pd.DataFrame()
@@ -188,5 +195,9 @@ def product_info_and_update_csv_database(article_dict : dict,path_to_csv : str =
     return_list = df_to_list(all_ordered_product_df, article_dict)
     # Append new items and reduce size
     ikea_database = ikea_database.append(new_product_for_database).astype({"height": "int16", "width": "int16", "length": "int16", "packages": "int8"})
-    ikea_database.to_csv(path_to_csv)
+    # Write to csv
+    write_file = send_cloud_data(ikea_database, path_to_csv)
+    if write_file != True:
+        #TODO
+        return "Error writing to file"
     return return_list
