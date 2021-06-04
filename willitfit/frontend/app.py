@@ -4,7 +4,8 @@ from willitfit.app_utils.pdf_parser import pdf_to_dict
 from willitfit.app_utils.form_transformer import form_to_dict
 from willitfit.app_utils.trunk_dimensions import get_volume_space
 from willitfit.app_utils.utils import gen_make_dict, gen_make_list
-from willitfit.params import IKEA_WEBSITE_LANGUAGE, IKEA_COUNTRY_DOMAIN, API_URL, CAR_DATABASE, NO_DATA_PROVIDED, ERRORS_SCRAPER, ERRORS_OPTIMIZER, PROJECT_NAME, PROJECT_DIR, DATA_FOLDER
+from willitfit.params import IKEA_WEBSITE_LANGUAGE, IKEA_COUNTRY_DOMAIN, API_URL, CAR_DATABASE, NO_DATA_PROVIDED, ERRORS_SCRAPER, ERRORS_OPTIMIZER, PROJECT_NAME, PROJECT_DIR, DATA_FOLDER, INTERFACE_INSTRUCTIONS
+from willitfit.app_utils.googlecloud import get_cloud_data
 import pandas as pd
 import os
 from pathlib import Path
@@ -12,13 +13,13 @@ import plotly
 import json
 
 CSV_PATH = PROJECT_DIR/PROJECT_NAME/DATA_FOLDER/CAR_DATABASE
-data = pd.read_csv(CSV_PATH)
+data = get_cloud_data(DATA_FOLDER+"/"+CAR_DATABASE)
 MAKE_LIST = gen_make_list(data)
 MAKE_DICT = gen_make_dict(data)
 
 def main():
     # Render initial app instructions
-    with open('app_instructions.md', 'r') as f:
+    with open(PROJECT_DIR/PROJECT_NAME/INTERFACE_INSTRUCTIONS, 'r') as f:
         contents = f.read()
         st.header(contents)
 
@@ -104,44 +105,10 @@ def main():
                 st.stop()
             # Successful
             st.write("Solution found! Visualisation loading...")
-            st.write(return_val)
             st.plotly_chart(plotly.io.from_json(json.loads(return_val)))
         else:
             st.error(f"Unspecified error {response.status_code}")
             st.stop()
-
-    #     print("API call success")
-    #     if response_dict['Viable'] == 1:
-    #         st.write("Yes, it all fits perfectly!")
-    #         # Gen plot
-    #     elif response_dict['Viable'] == 2:
-    #         st.write("Plenty of space left!")
-    #         # Gen plot
-    #     elif response_dict['Viable'] == 0:
-    #         st.write("Too many items! Remove items from cart.")
-    # else:
-    #     print("API call error")
-    #     st.error('Error')
-
-
-# # Cached data retrieval function
-# @st.cache
-# def get_plotly_data():
-#     print('get_plotly_data called')
-#     z_data = pd.read_csv('trunk_filled')
-#     z = z_data.values
-#     sh_0, sh_1 = z.shape
-#     x, y = np.linspace(0, 1, sh_0), np.linspace(0, 1, sh_1)
-#     return x, y, z
-
-# # Call retrieval function
-# x, y, z = get_plotly_data()
-
-# fig = go.Figure(data=[go.Surface(z=z, x=x, y=y)])
-# fig.update_layout(title='Optimised Trunk', autosize=False, width=800, height=800, margin=dict(l=40, r=40, b=40, t=40))
-
-# # Plot
-# st.plotly_chart(fig)
 
 if __name__ == "__main__":
     main()
