@@ -2,7 +2,6 @@ import streamlit as st
 import requests
 from willitfit.app_utils.pdf_parser import pdf_to_dict
 from willitfit.app_utils.form_transformer import form_to_dict
-from willitfit.app_utils.trunk_dimensions import get_volume_space
 from willitfit.app_utils.utils import gen_make_dict, gen_make_list
 from willitfit.params import LANG_CODE, IKEA_WEBSITE_LANGUAGE, IKEA_COUNTRY_DOMAIN, API_URL, CAR_DATABASE, NO_DATA_PROVIDED, ERRORS_SCRAPER, ERRORS_OPTIMIZER, PROJECT_NAME, PROJECT_DIR, DATA_FOLDER, INTERFACE_INSTRUCTIONS
 from willitfit.app_utils.googlecloud import get_cloud_data
@@ -12,7 +11,7 @@ from pathlib import Path
 import plotly
 import json
 
-CSV_PATH = PROJECT_DIR/PROJECT_NAME/DATA_FOLDER/CAR_DATABASE
+# Get car data from cloud CSV file
 data = get_cloud_data(DATA_FOLDER+"/"+CAR_DATABASE)
 MAKE_LIST = gen_make_list(data)
 MAKE_DICT = gen_make_dict(data)
@@ -70,7 +69,6 @@ def main():
                 "IKEA_language": IKEA_WEBSITE_LANGUAGE
                     }
 
-            
             response = requests.post(API_URL, json=params)
 
         # Build dict_ from form to POST
@@ -82,7 +80,6 @@ def main():
                 "IKEA_country": IKEA_COUNTRY_DOMAIN,
                 "IKEA_language": IKEA_WEBSITE_LANGUAGE
                     }
-            
             response = requests.post(API_URL, json=params)
 
         else:

@@ -14,7 +14,7 @@ generate_optimizer(
     )
 '''
 
-from willitfit.params import VOL_INTERIOR, VOL_UNAVAILABLE, VOL_BORDER, VOL_EMPTY, INSUFFICIENT_SPACE, INSUFFICIENT_DIMENSION, OPT_INSUFFICIENT_SPACE, OPT_UNSUCCESSFUL
+from willitfit.params import ERRORS_OPTIMIZER, VOL_INTERIOR, VOL_UNAVAILABLE, VOL_BORDER, VOL_EMPTY, INSUFFICIENT_SPACE, INSUFFICIENT_DIMENSION, OPT_INSUFFICIENT_SPACE, OPT_UNSUCCESSFUL
 import numpy as np
 import math
 from scipy.ndimage.measurements import label
@@ -57,7 +57,7 @@ def find_total_package_volume(article_list):
     Multiplies length, height and width (elements 1-3).
     Sums up individual products and returns them as int
     '''
-    return sum([calculate_package_volume(package[1:4]) for article in article_list for package in article[2]])
+    return sum([calculate_package_volume(package[1:4]) * article[1] for article in article_list for package in article[2]])
 
 
 def find_available_space(volume_space):
@@ -71,6 +71,7 @@ def is_space_sufficient(article_list, volume_space):
     '''
     Returns True if package volume is smaller than or equal to available volume
     '''
+    print(find_total_package_volume(article_list), find_available_space(volume_space))
     return find_total_package_volume(article_list) <= find_available_space(volume_space)
 
 
@@ -241,11 +242,13 @@ def generate_package_lists(article_list, sorters = ["volume|ascending", "volume|
 
     # Now add as many random lists as needed
     while True:
+        print("Attempting to add a new list...")
         # Shuffle starter list and copy data
         np.random.shuffle(starter_list)
         new_list = np.copy(starter_list)
         # Check if this particular permutation exists already by looking at hashes
         if hash_list([new_list])[0] not in hash_list(package_lists):
+            print("Appending new list")
             package_lists.append(new_list)
         # Check if length requirement (smaller of pre-defined lists + random_lists and max_permut) is fulfilled
         if len(package_lists) >= min(len(sorters) + random_lists, max_permut-2):
@@ -347,6 +350,7 @@ def optimizer(package_list, article_list, volume_space, queue=None, max_attempts
     package_coordinates = []
     # Loop while there are still packages to place
     while True:
+        print(f"attempts_counter {attempts_counter}")
         # Pick up first package
         package = package_list[package_counter]
         # Find article index
@@ -358,10 +362,10 @@ def optimizer(package_list, article_list, volume_space, queue=None, max_attempts
         package_length, package_width, package_height = pkg[1], pkg[2], pkg[3]
         # Obtain package orientation (random)
         package_dimensions = choose_orientation(package_length, package_width, package_height)
-
+        print('orientation done')
         # Attempt to place package in space
         placement_result = place_package(package_dimensions, volume_space)
-
+        print(f'placement done: {placement_result}')
         # Check if placement was successful
         if placement_result != OPT_INSUFFICIENT_SPACE:
             # Extract return variables and append to package_coordinates
@@ -373,14 +377,19 @@ def optimizer(package_list, article_list, volume_space, queue=None, max_attempts
             attempts_counter +=1
             # See if this is too many attempts already
             if attempts_counter > max_attempts:
+                print("max attempts reached")
                 # Return error code
+                if queue is not None:
+                    queue.put(OPT_UNSUCCESSFUL)
                 return OPT_UNSUCCESSFUL
             else:
                 # Try again
                 package_counter = 0
                 package_coordinates = []
                 volume_space = np.copy(empty_space)
+                print("continue")
                 continue
+        print(f"package_counter {package_counter}")
         # Increase counter to move to next package
         package_counter += 1
         # Once all packages have been placed
@@ -393,7 +402,7 @@ def optimizer(package_list, article_list, volume_space, queue=None, max_attempts
             return score, attempts_counter, volume_space, package_coordinates
 
 
-def generate_optimizer(article_list, volume_space, generator_sorters = ["volume|ascending", "volume|descending"], generator_random_lists = 10, optimizer_max_attempts = 10):
+def generate_optimizer(article_list, volume_space, generator_sorters = ["volume|descending"], generator_random_lists = 10, optimizer_max_attempts = 10):
     '''
     Main function to run this module.
     First checks if packages can fit at all, then generates various package lists.
@@ -404,15 +413,19 @@ def generate_optimizer(article_list, volume_space, generator_sorters = ["volume|
     # Check if package volume is smaller than or equal to available space, otherwise return error
     if not is_space_sufficient(article_list, volume_space):
         return INSUFFICIENT_SPACE
+    print("Space sufficient")
     # Check if longest package dimension is smaller than or equal to longest space dimension, otherwise return error
     if not is_longest_dimension_sufficient(article_list, volume_space):
         return INSUFFICIENT_DIMENSION
+    print("Dimension sufficient")
     # Generate list of package lists
-    package_lists = generate_package_lists(article_list, sorters=generator_sorters, random_lists=generator_random_lists)
+    package_lists = generate_package_lists(article_list, sorters=generator_sorters, random_lists=0)
+    print("Package lists generated")
     # Set up threads
     threads = []
     queue = Queue()
     return_vals = []
+    print(package_lists)
     # Call optimizer function for each package list
     for package_list in package_lists:
         #return_vals.append(optimizer(package_list, article_list, np.copy(volume_space), None, optimizer_max_attempts))
@@ -421,6 +434,7 @@ def generate_optimizer(article_list, volume_space, generator_sorters = ["volume|
         # Append to thread list
         threads.append(optimizer_thread)
         # Start thread
+        print("Thread starting")
         optimizer_thread.start()
         response = queue.get()
         return_vals.append(response)
@@ -428,8 +442,12 @@ def generate_optimizer(article_list, volume_space, generator_sorters = ["volume|
     # Receive return values back for each thread
     for idx, thread in enumerate(threads):
         thread.join()
+        print("Thread closed")
     # Find lowest score
-    scores = [return_val[0] for return_val in return_vals]
+    scores = [return_val[0] for return_val in return_vals if return_val not in ERRORS_OPTIMIZER]
+    if len(scores) == 0:
+        return OPT_UNSUCCESSFUL
     score_index = scores.index(min(scores))
     # Return
+    print("Optimizer complete")
     return return_vals[score_index][2:]
