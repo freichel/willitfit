@@ -57,6 +57,8 @@ def main():
         )
     form.form_submit_button('Submit your list')
 
+    plot_unavailable = st.sidebar.checkbox('Show unavailable space')
+
     st.sidebar.markdown("""
         Click 'Generate' below!
         ---
@@ -75,17 +77,17 @@ def main():
         else:
             st.error(NO_DATA_PROVIDED)
             st.stop()
-        
+
         # Find car trunk dimensions for given car_id
         st.write("Getting trunk volume...")
         volume_space = get_volume_space(car_model)
-        
+
         # Call scraper with article list and website location/language.
         # Receive list of package dimensions and weights for each article.
 
         st.write("Browsing IKEA for you...")
         scraper_return = product_info_and_update_csv_database(article_dict)
-        
+
         if scraper_return not in ERRORS_SCRAPER:
             article_list = scraper_return
         else:
@@ -107,7 +109,7 @@ def main():
         # Receive plot
 
         st.write("Solution found! Visualisation loading...")
-        plotter_return = plot_all(filled_space, package_coordinates, plot_unavailable=True)
+        plotter_return = plot_all(filled_space, package_coordinates, plot_unavailable=plot_unavailable)
         st.plotly_chart(plotter_return)
 
 if __name__ == "__main__":

@@ -83,6 +83,7 @@ def find_longest_package_dimension(article_list):
     '''
     Finds single longest dimension in cm among all packages.
     '''
+    print(article_list)
     return max([max(package[1:4]) for article in article_list for package in article[2]])
 
 
@@ -365,7 +366,7 @@ def optimizer(package_list, article_list, volume_space, queue=None, max_attempts
         print('orientation done')
         # Attempt to place package in space
         placement_result = place_package(package_dimensions, volume_space)
-        print(f'placement done: {placement_result}')
+        print('placement done')
         # Check if placement was successful
         if placement_result != OPT_INSUFFICIENT_SPACE:
             # Extract return variables and append to package_coordinates
