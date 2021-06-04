@@ -37,7 +37,7 @@ def chrome_settings():
     return chrome_options
 
 
-def scrape_product(article_code: str, country_domain: str = IKEA_COUNTRY_DOMAIN, website_language: str = IKEA_WEBSITE_LANGUAGE):
+def scrape_product(article_code, country_domain = IKEA_COUNTRY_DOMAIN, website_language= IKEA_WEBSITE_LANGUAGE):
     """
     Scrap the artikle from Ikea website
     Filter out part of the site with important informations.  
@@ -72,7 +72,7 @@ def scrape_product(article_code: str, country_domain: str = IKEA_COUNTRY_DOMAIN,
     
     return important_part_of_page[0]
 
-def extract_numeric_product_to_dict(product_features)->dict:
+def extract_numeric_product_to_dict(product_features):
     """
     Extract features from string and save it in dict
     with following keys ['width','high','length','weight','packeges']
@@ -91,7 +91,7 @@ def extract_numeric_product_to_dict(product_features)->dict:
     
     return info_dict
 
-def packages_dimensions_weights(page)->pd.DataFrame:
+def packages_dimensions_weights(page):
     """
     Create data frame with information about subarticles
     """
@@ -113,7 +113,7 @@ def packages_dimensions_weights(page)->pd.DataFrame:
     return pd.DataFrame(list_of_products)
 
 
-def df_to_list(df:pd.DataFrame, article_code:dict)->list:
+def df_to_list(df, article_code):
     """
     Prepare output for API from data frame.
     [(
@@ -151,7 +151,7 @@ def df_to_list(df:pd.DataFrame, article_code:dict)->list:
     return return_list
 
 
-def product_info_and_update_csv_database(article_dict : dict,path_to_csv : str = DATABASE_PATH,item_count : int =1) -> list:
+def product_info_and_update_csv_database(article_dict ,path_to_csv  = DATABASE_PATH,item_count  =1):
     """
     Check if article exists in database, if not scrap it and update
     """
