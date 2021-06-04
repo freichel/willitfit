@@ -1,7 +1,8 @@
 import numpy as np
 import pandas as pd
-from willitfit.params import CAR_DATABASE, VOL_EMPTY, VOL_UNAVAILABLE
-from willitfit.app_utils.utils import get_car_data
+from willitfit.params import CAR_DATABASE, VOL_EMPTY, VOL_UNAVAILABLE, DATA_FOLDER
+#from willitfit.app_utils.utils import get_car_data
+from willitfit.app_utils.googlecloud import get_cloud_data
 
 def get_volume_space(car_model, ratio_height=0.5, slant=1):
     """
@@ -12,7 +13,7 @@ def get_volume_space(car_model, ratio_height=0.5, slant=1):
     dim_cols = ['depth', 'width', 'height']
 
     # Load car data
-    data = get_car_data()
+    data = get_cloud_data(DATA_FOLDER+"/"+CAR_DATABASE)
 
     # Trunk dimensions
     model_row = data[data['car_model'] == car_model]
