@@ -14,7 +14,7 @@ PYTHON_VERSION=3.8.6
 PACKAGE_NAME=willitfit
 
 # Streamlit/API
-FRONT_END_FILE=willitfit/frontend/app.py
+FRONT_END_FILE=willitfit/frontend/frontend.py
 BACK_END_FILE=api.api
 BACK_END_APP=app
 

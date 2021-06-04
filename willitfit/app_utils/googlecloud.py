@@ -19,9 +19,9 @@ def get_cloud_data(path_to_file=f"{DATA_FOLDER}/{CAR_DATABASE}"):
     return pd.read_csv(f"gs://{BUCKET_NAME}/{path_to_file}")
 
 
-def send_cloud_data(path_to_file="data/test.csv"):
+def send_cloud_data(df, path_to_file="data/test.csv"):
     '''
-    Saves a local copy of a file, then pushes it to specified path.
+    Saves a dataframe to a local copy of a file, then pushes it to specified path.
     Returns True once upload complete.
     '''
     # Set environment variable for service account
@@ -32,6 +32,9 @@ def send_cloud_data(path_to_file="data/test.csv"):
     
     # Specify bucket
     bucket = storage_client.bucket(BUCKET_NAME)
+    
+    # Write dataframe
+    df.to_csv(PROJECT_DIR/PROJECT_NAME/path_to_file)
     
     # Create blob
     blob = bucket.blob(path_to_file)

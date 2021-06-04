@@ -17,7 +17,7 @@ VOL_INTERIOR = -2
 VOL_EMPTY = 0
 
 # Deployment variables
-API_URL = "http://127.0.0.1:8000/collect"
+### ? API_URL = "http://127.0.0.1:8000/collect"
 PROJECT_DIR = Path(os.path.abspath(__file__)).parent.parent.absolute()
 PROJECT_NAME = "willitfit"
 DATA_FOLDER = "data"
