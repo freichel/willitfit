@@ -58,9 +58,9 @@ def scrape_product(article_code: str, country_domain: str = IKEA_COUNTRY_DOMAIN,
     # Scrap website and select relevant part of the website  
     driver = webdriver.Chrome(ChromeDriverManager().install(),options=chrome_settings())
     driver.get(os.path.join(IKEA_URL,IKEA_SEARCH_URL,article_code))
-    important_part_of_page = driver.find_element_by_class_name('results__list')
-    # Check if the article exists, if not return str
     try:
+        important_part_of_page = driver.find_element_by_class_name('results__list')
+        # Check if the article exists, if not return str
         tag = important_part_of_page.find_element_by_tag_name('a')
     except:
         return ARTICLE_NOT_FOUND
