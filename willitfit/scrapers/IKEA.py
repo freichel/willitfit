@@ -9,7 +9,7 @@ from bs4 import BeautifulSoup
 from selenium import webdriver
 from selenium.webdriver.chrome.options import Options
 from webdriver_manager.chrome import ChromeDriverManager
-from pathlib import Path 
+from willitfit.app_utils.googlecloud import get_cloud_data
 
 import os
 import requests
@@ -174,11 +174,13 @@ def product_info_and_update_csv_database(article_dict,path_to_csv=DATABASE_PATH,
                 return ARTICLE_NOT_FOUND
             df = packages_dimensions_weights(page)
             df['article_code'] = article_code[i]
-            all_ordered_product_df = all_ordered_product_df.append(df)
+            all_ordered_product_df = all_ordered_product_df.append(df).astype({"height": "int16", "width": "int16", "length": "int16", "packages": "int8"})
             new_product_for_database = new_product_for_database.append(df)
+        
    
 
     return_list = df_to_list(all_ordered_product_df, article_dict)
-    ikea_database = ikea_database.append(new_product_for_database)
+    # Append new items and reduce size
+    ikea_database = ikea_database.append(new_product_for_database).astype({"height": "int16", "width": "int16", "length": "int16", "packages": "int8"})
     ikea_database.to_csv(path_to_csv)
     return return_list
