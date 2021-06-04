@@ -10,6 +10,29 @@ import os
 IKEA_COUNTRY_DOMAIN = "de" # domain used
 IKEA_WEBSITE_LANGUAGE = "de" # language used, often same as IKEA_COUNTRY_DOMAIN but may be different
 
+# Humanised language codes
+LANG_CODE = {
+    'Deutsch': 'de',
+    'English': 'en',
+    'Français': 'fr',
+    'Nederlands': 'nl',
+    'Dansk': 'da',
+    'Norsk': 'no',
+    'Suomi': 'fi',
+    'Svenska': 'se',
+    'Česky': 'cs',
+    'Español': 'es',
+    'Italiano': 'it',
+    'Magyar': 'hu',
+    'Polski': 'pl',
+    'Português': 'pt',
+    'Romȃna': 'ro',
+    'Slovenský': 'sk',
+    'Hrvatski': 'hr',
+    'Srpski': 'sr',
+    'Slovenščina': 'sl', 
+}
+
 # Volume array settings
 VOL_UNAVAILABLE = -1
 VOL_BORDER = 1
