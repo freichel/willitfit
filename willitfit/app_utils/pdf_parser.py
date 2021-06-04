@@ -3,9 +3,8 @@ from pdfminer.layout import LAParams
 import re
 import pandas as pd
 from willitfit.app_utils.utils import _parse_line
-from willitfit.params import IKEA_WEBSITE_LANGUAGE
 
-def pdf_to_dict(uploaded_pdf, IKEA_WEBSITE_LANGUAGE):
+def pdf_to_dict(uploaded_pdf, lang_code):
     ## Setup pdf layout params
     laparams = LAParams(
         line_overlap=0.1, 
@@ -37,12 +36,13 @@ def pdf_to_dict(uploaded_pdf, IKEA_WEBSITE_LANGUAGE):
         'ro': 'buc',
         'se': 'st',
         'sk': 'ks',
-        'sl': 'Število kosov'
+        'sl': 'Število kosov',
+        'sr': 'kom\.'
     }
 
     ## Setup regex dict
     rx_dict = {
-        'n_pieces': re.compile(rf"(?P<n_pieces>\d+)\s{lang_dict[IKEA_WEBSITE_LANGUAGE]}"),
+        'n_pieces': re.compile(rf"(?P<n_pieces>\d+)\s{lang_dict[lang_code]}"),
         'article_num': re.compile(r'(?P<article_num>\d{3}\.\d{3}\.\d{2,})')
         }
 
@@ -55,11 +55,10 @@ def pdf_to_dict(uploaded_pdf, IKEA_WEBSITE_LANGUAGE):
             pdf_dict[key].append(match[0])
 
     df = pd.DataFrame(pdf_dict)
+    
     # Strip article dots
-
     df['article_num'] = df['article_num'].str.replace('.', '', regex=True)
     # Convert n_pieces column to int
     df['n_pieces'] = df['n_pieces'].astype(int)
 
     return df.set_index('article_num').T.to_dict('index')['n_pieces']
-

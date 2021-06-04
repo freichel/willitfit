@@ -3,7 +3,7 @@ import requests
 from willitfit.app_utils.pdf_parser import pdf_to_dict
 from willitfit.app_utils.form_transformer import form_to_dict
 from willitfit.app_utils.utils import gen_make_dict, gen_make_list
-from willitfit.params import IKEA_WEBSITE_LANGUAGE, IKEA_COUNTRY_DOMAIN, API_URL, CAR_DATABASE, NO_DATA_PROVIDED, ERRORS_SCRAPER, ERRORS_OPTIMIZER, PROJECT_NAME, PROJECT_DIR, DATA_FOLDER, INTERFACE_INSTRUCTIONS
+from willitfit.params import LANG_CODE, IKEA_WEBSITE_LANGUAGE, IKEA_COUNTRY_DOMAIN, API_URL, CAR_DATABASE, NO_DATA_PROVIDED, ERRORS_SCRAPER, ERRORS_OPTIMIZER, PROJECT_NAME, PROJECT_DIR, DATA_FOLDER, INTERFACE_INSTRUCTIONS
 from willitfit.app_utils.googlecloud import get_cloud_data
 import pandas as pd
 import os
@@ -42,6 +42,7 @@ def main():
         """)
 
     # Upload pdf
+    pdf_lang = st.sidebar.selectbox('Select PDF language:', [*LANG_CODE])
     uploaded_pdf = st.sidebar.file_uploader('Upload PDF:')
     st.sidebar.markdown("""
         ##### or
@@ -56,16 +57,11 @@ def main():
         )
     form.form_submit_button('Submit your list')
 
-    st.sidebar.markdown("""
-        Click 'Generate' below!
-        ---
-        """)
-
     ## Generate plot
     if st.button('Generate'):
         # Parsing uploaded_pdf to dict_ to POST
         if uploaded_pdf:
-            dict_ = pdf_to_dict(uploaded_pdf, IKEA_WEBSITE_LANGUAGE)
+            dict_ = pdf_to_dict(uploaded_pdf, LANG_CODE[pdf_lang])
             params = {
                 "article_dict": dict_,
                 "car_model": car_model,
