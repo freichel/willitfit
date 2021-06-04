@@ -3,7 +3,7 @@ from willitfit.app_utils.pdf_parser import pdf_to_dict
 from willitfit.app_utils.form_transformer import form_to_dict
 from willitfit.app_utils.trunk_dimensions import get_volume_space
 from willitfit.app_utils.utils import gen_make_dict, gen_make_list
-from willitfit.params import IKEA_WEBSITE_LANGUAGE, IKEA_COUNTRY_DOMAIN, API_URL, CAR_DATABASE, NO_DATA_PROVIDED, ERRORS_SCRAPER, ERRORS_OPTIMIZER, PROJECT_NAME, PROJECT_DIR, DATA_FOLDER, INTERFACE_INSTRUCTIONS
+from willitfit.params import IKEA_WEBSITE_LANGUAGE, IKEA_COUNTRY_DOMAIN, CAR_DATABASE, NO_DATA_PROVIDED, ERRORS_SCRAPER, ERRORS_OPTIMIZER, PROJECT_NAME, PROJECT_DIR, DATA_FOLDER, INTERFACE_INSTRUCTIONS
 from willitfit.app_utils.googlecloud import get_cloud_data
 from willitfit.optimizers.volumeoptimizer import generate_optimizer
 from willitfit.scrapers.IKEA import product_info_and_update_csv_database
@@ -85,6 +85,7 @@ def main():
 
         st.write("Browsing IKEA for you...")
         scraper_return = product_info_and_update_csv_database(article_dict)
+        
         if scraper_return not in ERRORS_SCRAPER:
             article_list = scraper_return
         else:
