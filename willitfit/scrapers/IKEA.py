@@ -33,7 +33,7 @@ def chrome_settings():
     return chrome_options
 
 
-def scrape_product(article_code, country_domain = IKEA_COUNTRY_DOMAIN, website_language = IKEA_WEBSITE_LANGUAGE):
+def scrape_product(article_code: str, country_domain: str = IKEA_COUNTRY_DOMAIN, website_language: str = IKEA_WEBSITE_LANGUAGE):
     """
     Scrap the artikle from Ikea website
     Filter out part of the site with important informations.  
@@ -44,20 +44,23 @@ def scrape_product(article_code, country_domain = IKEA_COUNTRY_DOMAIN, website_l
     then the respective chromedriver is auto downloaded 
     and updated when running tests.
     """
-    #Ikea url
+    # Ikea url
     IKEA_URL = f"https://www.ikea.com/{country_domain}/{website_language}/"
     IKEA_SEARCH_URL = f"search/products/?q="
+    # Request to check if website exsist, if not return str
     r = requests.get(os.path.join(IKEA_URL,IKEA_SEARCH_URL,article_code))
     if r.status_code == 404:
         return WEBSITE_UNAVAILABLE
-        
+    # Scrap website and select relevant part of the website  
     driver = webdriver.Chrome(ChromeDriverManager().install(),options=chrome_settings())
     driver.get(os.path.join(IKEA_URL,IKEA_SEARCH_URL,article_code))
     important_part_of_page = driver.find_element_by_class_name('results__list')
+    # Check if the article exists, if not return str
     try:
         tag = important_part_of_page.find_element_by_tag_name('a')
     except:
         return ARTICLE_NOT_FOUND
+    # if article exists return important part of page
     #https://stackoverflow.com/questions/48665001/can-not-click-on-a-element-elementclickinterceptedexception-in-splinter-selen
     driver.execute_script("arguments[0].click();", tag)
     soup = BeautifulSoup(driver.page_source, 'html.parser')  
@@ -65,7 +68,7 @@ def scrape_product(article_code, country_domain = IKEA_COUNTRY_DOMAIN, website_l
     
     return important_part_of_page[0]
 
-def extract_numeric_product_to_dict(product_features):
+def extract_numeric_product_to_dict(product_features)->dict:
     """
     Extract features from string and save it in dict
     with following keys ['width','high','length','weight','packeges']
@@ -84,26 +87,29 @@ def extract_numeric_product_to_dict(product_features):
     
     return info_dict
 
-def packages_dimensions_weights(page):
+def packages_dimensions_weights(page)->pd.DataFrame:
     """
-    Create data frame with information about subartickles
+    Create data frame with information about subarticles
     """
+    # filter out important info with beautiful soup
     info = page.find_all('div',  {"class": 'range-revamp-product-details__container'})
     number = page.find_all('span',  {"class": 'range-revamp-product-identifier__value'})
-
+    # create empty list
     list_of_products = []
+    # create empty dict
     product_info = {}
+    # extract subarticle code and parameters for all subproducts in product
     for i,(x,y) in enumerate(zip(number,info)):
         y_info = [info.text for info in y.find_all('span',  {"class": 'range-revamp-product-details__label'})]
+        # append to dict
         product_info = extract_numeric_product_to_dict(y_info) 
         product_info['subarticle_code'] = x.text.replace('.','')        
-        
-        list_of_products.append(product_info)
-        
+        #append to list
+        list_of_products.append(product_info)    
     return pd.DataFrame(list_of_products)
 
 
-def df_to_list(df, article_code):
+def df_to_list(df:pd.DataFrame, article_code:dict)->list:
     """
     Prepare output for API from data frame.
     [(
@@ -141,7 +147,7 @@ def df_to_list(df, article_code):
     return return_list
 
 
-def product_info_and_update_csv_database(article_dict,path_to_csv=DATABASE_PATH,item_count=1):
+def product_info_and_update_csv_database(article_dict : dict,path_to_csv : str = DATABASE_PATH,item_count : int =1) -> list:
     """
     Check if article exists in database, if not scrap it and update
     """
