@@ -3,7 +3,7 @@ import re
 
 def form_to_dict(articles_list):
     """
-    Transform form submitted on app to dataframe 
+    Transform form submitted on app to dataframe
     """
     ## Setup regex
     rx_dict = {
