@@ -25,7 +25,5 @@ RUN unzip /tmp/chromedriver.zip chromedriver -d /usr/local/bin/
 # Set Python path to be able to import project as module
 ENV PYTHONPATH "/"
 
-# First line may not be needed now
-CMD uvicorn willitfit.api.api:app --host 0.0.0.0 --port $PORT
 # Run Streamlit front end
 CMD streamlit run willitfit/frontend/frontend.py

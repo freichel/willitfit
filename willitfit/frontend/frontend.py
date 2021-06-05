@@ -98,7 +98,7 @@ def main():
         # Receive package coordinates and filled volume array.
 
         st.write("Stacking packages...")
-        optimizer_return = generate_optimizer(article_list, np.copy(volume_space), generator_random_lists=2, optimizer_max_attempts=5)
+        optimizer_return = generate_optimizer(article_list, np.copy(volume_space), generator_random_lists=10, optimizer_max_attempts=10)
         if optimizer_return not in ERRORS_OPTIMIZER:
             filled_space, package_coordinates = optimizer_return
         else:

@@ -68,12 +68,12 @@ count_lines:
 run_streamlit:
 	-@streamlit run ${FRONT_END_FILE}
 
-run_api:
-	@uvicorn ${PROJECT_FOLDER}.${BACK_END_FILE}:${BACK_END_APP} --reload
+# ----------------------------------
+#			  DOCKER
+# ----------------------------------
 
-# Run with -j2 flag to execute simultaneously
-run_full_interface: run_streamlit run_api
-	
+#TBD
+
 # ----------------------------------
 #			GOOGLE CLOUD
 # ----------------------------------
@@ -81,8 +81,8 @@ run_full_interface: run_streamlit run_api
 set_project:
 	-@gcloud config set project ${PROJECT_ID}
 
-create_bucket:
-	-@gsutil mb -l ${REGION} -p ${PROJECT_ID} gs://${BUCKET_NAME}
+#create_bucket:
+#	-@gsutil mb -l ${REGION} -p ${PROJECT_ID} gs://${BUCKET_NAME}
 
-upload_data:
-	-@gsutil cp ${LOCAL_PATH} gs://${BUCKET_NAME}/${BUCKET_FOLDER}/${BUCKET_FILE_NAME}
+#upload_data:
+#	-@gsutil cp ${LOCAL_PATH} gs://${BUCKET_NAME}/${BUCKET_FOLDER}/${BUCKET_FILE_NAME}
