@@ -23,7 +23,7 @@ After the minimum working product is complete, the above components will be refi
 * [Florian Reichel](https://github.com/freichel)
 
 # Module Description
-## User interface (`frontend\frontend.py`)
+## User interface (`frontend/frontend.py`)
 * Streamlit interface allowing the following user interactions:
     * User provides list and count of articles.
     * User selects from a list of pre-defined cars (whose trunk size is known).
@@ -154,9 +154,11 @@ After the minimum working product is complete, the above components will be refi
 # Useful Commands
 * `make install_requirements` resets Python virtual environment to only the packages defined in requirements.txt. It **removes all other packages**.
 * `make start_app` starts the front-end on port 8501.
-To be added:
 * `make docker_build img=IMAGE_NAME` builds a Docker image with the specified *IMAGE_NAME*.
 * `make docker_run img=IMAGE_NAME` runs a Docker image locally with the specified *IMAGE_NAME*.
+  
+To be added:
+  
 * `make docker_build_run_deploy img=IMAGE_NAME mode=MODE` builds and then runs (*mode=local*) or deploys (*mode=GC*) the image with the specified *IMAGE_NAME*.
 
 # Change Log

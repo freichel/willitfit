@@ -36,7 +36,20 @@ start_app:
 #			  DOCKER
 # ----------------------------------
 
-#TBD
+docker_build:
+	@echo "Building new Docker image "$(img)"..."
+	@echo "Restarting Docker service. Enter password if prompted..."
+	@sudo service docker stop
+	@sudo service docker start
+	@echo "Docker service running."
+	@echo "Building image "$(img)" now..."
+	@docker build -f Dockerfile -t $(img) .
+	@echo "Image $(img) built."
+
+docker_run:
+	@echo "Launching Docker image $(img) locally on port 8501 (http://localhost:8501/)..."
+	@docker run -p 8501:8501 $(img)
+
 
 # ----------------------------------
 #			GOOGLE CLOUD

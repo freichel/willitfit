@@ -336,7 +336,8 @@ def find_first_space(package_x, package_y, package_z, volume_space):
         # Next, try within package dimensions limited to smallest
         try:
             additional_space = np.min(template_shape.shape)
-            result = np.where(match_template(bin_space[:search_space[0]+additional_space, :search_space[1]+additional_space, :search_space[2]]+additional_space, template_shape) == 0)
+            print(additional_space)
+            result = np.where(match_template(bin_space[:search_space[0]+additional_space+1, :search_space[1]+additional_space+1, :search_space[2]+additional_space+1], template_shape) == 0)
             return_val = first_free_space_locator(bin_space, result)
             if return_val == OPT_INSUFFICIENT_SPACE:
                 raise ValueError
