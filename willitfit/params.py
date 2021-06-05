@@ -39,8 +39,13 @@ VOL_BORDER = 1
 VOL_INTERIOR = -2
 VOL_EMPTY = 0
 
+# Optimizer settings
+BIAS_STACKS = [(False, 0), (True, 0.8), (True, 1)]
+RANDOM_LIST_COUNT = 8
+OPT_MAX_ATTEMPTS = 10
+GEN_SORTERS = ["volume|descending", "volume|ascending"]
+
 # Deployment variables
-### ? API_URL = "http://127.0.0.1:8000/collect"
 PROJECT_DIR = Path(os.path.abspath(__file__)).parent.parent.absolute()
 PROJECT_NAME = "willitfit"
 DATA_FOLDER = "data"

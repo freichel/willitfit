@@ -7,3 +7,4 @@ raw_data/
 .env
 *Zone.Identifier.env
 willitfit/keys
+data/*.csv
