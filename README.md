@@ -2,10 +2,10 @@
 ## Project Description
 **Will It Fit?** starts as a group project for the Le Wagon Berlin Data Science Bootcamp, batch 606. The initial pitch can be found [here](https://docs.google.com/presentation/d/e/2PACX-1vQfbjkibq4NNs7WjbxE9bvqmIKx-KpdwnLLpAKy1qnAkRI3a2uxIX60CbqAtQXPNRaCWtsYwS38s-fd/pub?start=false&loop=true&delayms=60000#slide=id.gdc7fe3dba0_1_122).
 For the purposes of creating a minimum working product, the following components will be completed first (see more details below):
-- [ ] User interface
-- [ ] Web scraping module for IKEA package dimensions
-- [ ] Volume optimization algorithm
-- [ ] 3D interactive plot
+- [X] User interface
+- [X] Web scraping module for IKEA package dimensions
+- [X] Volume optimization algorithm
+- [X] 3D interactive plot
   
 After the minimum working product is complete, the above components will be refined further, both for speed and versatility. In addition, other potential components include (non-exhaustive list):
 - [ ] Web scraping module (text and images) for car dimensions
@@ -22,11 +22,35 @@ After the minimum working product is complete, the above components will be refi
 * [Dominik Wagner](https://github.com/domzae)
 * [Florian Reichel](https://github.com/freichel)
 
-*Section last updated 31/05/2021*
-
 # Module Description
+## User interface (`frontend\frontend.py`)
+* Streamlit interface allowing the following user interactions:
+    * User provides list and count of articles.
+    * User selects from a list of pre-defined cars (whose trunk size is known).
+    * Interface returns visual representation of how packages would fit in trunk after performing the following steps:
+        * Parse PDF or article list into dictionary.
+        * Obtain trunk volume array from car model database.
+        * Pass article dict to IKEA website, get package dimensions for each article in a list returned.
+        * Pass article dict and trunk space to optimizer, get filled trunk space and list of package coordinates returned.
+        * Pass filled trunk space and list of package coordinates to plotter, receive plot.
+### Inputs
+* By user:
+    * Car make and model from selection boxes
+    * Upload user's IKEA wishlist pdf or specify article codes and counts
+    * Choose if trunk should be plotted too
+### Outputs
+* 3D interactive plot in user interface. 
+### Potential further enhancements
+* Article data collection:
+    * Log into IKEA website using user login details and extract shopping basket data directly.
+* Language selection:
+    * Offer interface in user language.
+    * Initially hardcoded (see `params.py`) but could be pre-populated based on user location/browser language, with user ability to change.
+* Car display:
+    * Show picture of chosen car.
+
 ## IKEA Web Scraper (`scrapers/IKEA.py`)
-* Receives list of article codes and article counts.
+* Receives dict of article codes and article counts.
 * For existing articles:
   * Obtain relevant data from database.
 * For new articles:
@@ -54,14 +78,11 @@ After the minimum working product is complete, the above components will be refi
     )]
 )] (list)
 ```
-### Minimum requirements
-* Assume ```IKEA_COUNTRY_DOMAIN``` and ```IKEA_WEBSITE_LANGUAGE``` are static to begin with (set in `params.py`).
-* Efficiently (do not re-scrape existing ones, use database) scrape relevant country website and return required outputs.
 ### Potential further enhancements
 * Ability to scrape other countries' websites.
 * Inch/cm and pound/kg conversions.
 * Also return URL to article as well as direct URL to one picture of article.
-* ...
+* Non-cuboid packages.
 
 ## Volume Optimization Algorithm (`optimizers/volumeoptimizer.py`)
 * Receives list of package dimensions, weights and counts
@@ -100,16 +121,6 @@ After the minimum working product is complete, the above components will be refi
     z_end (int)
 ] (list)
 ```
-### Minimum requirements:
-* First test if available volume is sufficient (vs. total volume of packages as well as in any single dimension vs. max value)
-* Efficiently distribute space from ```[0][0][0]``` (assume bottom left front corner of trunk)
-* Potential ideas:
-    * After initial fit test, sort packages by overall volume descending, then recursively fill space.
-    * Consider using a loss function that minimizes the number of empty "pockets": More small pockets should produce a bigger penalty than one large one.
-    * [This](https://docs.scipy.org/doc/scipy-0.14.0/reference/generated/scipy.ndimage.measurements.label.html) could maybe be used to identify and count pockets.
-    * Use parameters defined in `params.py` to assign space.
-    * Algorithm efficiency will be key for speed - might have to minimize use of loops and rely as much as possible on numpy-native functions, where available.
-    * Consider [threading](https://realpython.com/intro-to-python-threading/) to run multiple possible solutions in parallel
 ### Potential further enhancements
 * Train a machine learning model on a set of already-optimized configurations, eliminating the requirement for individual further optimizations.
 * Include weight as a factor - heavier items should sit near the bottom.
@@ -135,64 +146,21 @@ After the minimum working product is complete, the above components will be refi
 ```
 ### Outputs
 * 3D interactive plot which can be displayed through user interface
-### Minimum requirements:
-* Plot available space and individual packages inside.
-* Zoom and tilt must be available.
-* Potential ideas:
-    * Consider using [voxels](https://matplotlib.org/3.1.0/gallery/mplot3d/voxels.html) for plotting.
-    * Ideally packages would have distinct colors - create appropriate color map in *params.py*.
 ### Potential further enhancements
 * Add hover labels to packages.
 * Add list next to plot. When user hovers over/clicks on article its location on plot is highlighted.
 * Hover labels - include article name, link to article and small preview picture (would have to be buffered).
 
-## User interface
-* Website interface allowing the following user interactions:
-    * User provides list and count of articles.
-    * User selects from a (short) list of pre-defined cars (whose trunk size is known).
-    * Interface returns visual representation of how packages would fit in trunk.
-### Inputs
-* By user:
-    * Car make and model from selection box 
-    * Upload user's IKEA wishlist pdf
-    * List of article numbers and count of each
-### Outputs
-* Article list and counts: ```{article_code (str): item_count (int)} (dict)```
-
-### Minimum requirements
-* User can paste in a list of article numbers and respective counts, select a predefined car model and receives a plot in return.
-* To be deployed in English only.
-### Potential further enhancements
-* Article data collection:
-    * Log into IKEA website using user login details and extract shopping basket data directly.
-* Language selection:
-    * Offer interface in user language.
-    * Initially hardcoded (see `params.py`) but could be pre-populated based on user location/browser language, with user ability to change.
-* Car selection:
-    * Instead of picking from scraped list of car models (limited utility), expand range - will require implementing additional modules (see below).
-  
-  
-
-**The following module ideas are *enhancements*, to be tackled once the minimum working product is deployable.**
-
-## Web scraping module for car dimensions
-* Decide on best website, or combination of websites, to extract standardized car photos (side and back), exterior dimensions and trunk volume.
-* Creation of database.
-
-## Machine learning module to estimate trunk size
-* Infer trunk location from position of wheels and doors.
-* Use volume provided by manufacturer to validate model assumptions.
-
-## User interface enhancements
-* Allow user to take photo of car.
-* Deployment as an app.
-
-## Other scrapers
-* Wayfair, MediaMarkt, ...
-
-*Section last updated 31/05/2021*
+# Useful Commands
+* `make install_requirements` resets Python virtual environment to only the packages defined in requirements.txt. It **removes all other packages**.
+* `make start_app` starts the front-end on port 8501.
+To be added:
+* `make docker_build img=IMAGE_NAME` builds a Docker image with the specified *IMAGE_NAME*.
+* `make docker_run img=IMAGE_NAME` runs a Docker image locally with the specified *IMAGE_NAME*.
+* `make docker_build_run_deploy img=IMAGE_NAME mode=MODE` builds and then runs (*mode=local*) or deploys (*mode=GC*) the image with the specified *IMAGE_NAME*.
 
 # Change Log
+* 05/06/2021: Clean-up and added useful commands section (freichel)
 * 03/06/2021: User interface section updated (proxvision)
 * 02/06/2021: Removed superfluous sections
 * 31/05/2021: Added space separators and additional info on optimizer (freichel)

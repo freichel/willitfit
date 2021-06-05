@@ -1,49 +1,25 @@
-# packaging
+# Packaging
 pip>=9
 setuptools>=26
-twine
-wheel>=0.29
 
-# data science
+# Data
 numpy
 pandas
-scikit-learn
 scikit-image
 
-# tests/linter
-black
-coverage
-flake8
-pytest
-yapf
-
 # API
+streamlit
 gcsfs
 google-cloud-storage
-## ??? mlflow
-s3fs
 bs4
-fastapi
-uvicorn
 
-# utilities
-six>=1.14
-joblib
-memoized-property
-termcolor
-
-# ikea_scraper
+# Scraping
 selenium
 pathlib
 chromedriver_binary
 webdriver_manager
-
-# framework/web-server
-streamlit
-
-# pdf to text
 pdfminer.six
 
-# plotter
+# Plotting
 ipywidgets>=7.5
 plotly

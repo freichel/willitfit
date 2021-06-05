@@ -67,10 +67,10 @@ def main():
     ## Generate plot
     if st.button('Generate'):
         st.write("Unpacking data...")
-        # Parsing uploaded_pdf to dict_ to POST
+        # Parsing uploaded_pdf to dict_
         if uploaded_pdf:
             article_dict = pdf_to_dict(uploaded_pdf, IKEA_WEBSITE_LANGUAGE)
-        # Build dict_ from form to POST
+        # Build dict_ from form
         elif articles_str:
             article_dict = form_to_dict(articles_str)
         # If not data was provided, break
