@@ -4,6 +4,7 @@
 
 # General
 PROJECT_FOLDER=willitfit
+PORT=8501
 
 # Google
 PROJECT_ID=willitfit
@@ -36,7 +37,52 @@ start_app:
 #			  DOCKER
 # ----------------------------------
 
-#TBD
+docker_build:
+    ifeq ($(mode),GC)
+		@echo "Building new Docker image eu.gcr.io/"$(PROJECT_ID)"/"$(img)" for GC deployment..."
+    else
+		@echo "Building new Docker image "$(img)"..."
+    endif
+	@echo "Restarting Docker service. Enter password if prompted..."
+	@sudo service docker start
+	@echo "Docker service running."
+	@echo "Building image now..."
+    ifeq ($(mode),GC)
+		@docker build -f Dockerfile -t eu.gcr.io/$(PROJECT_ID)/$(img) .
+		@echo "Image eu.gcr.io/"$(PROJECT_ID)"/"$(img)" built for GC deployment."
+    else
+		@docker build -f Dockerfile -t $(img) .
+		@echo "Image $(img) built."
+    endif
+	
+
+docker_run:
+	@echo "Launching Docker image $(img) locally on port "$(PORT)" (http://localhost:"$(PORT)"/)..."
+	@docker run -p $(PORT):$(PORT) $(img)
+
+docker_build_run_deploy:
+    ifeq ($(mode),GC)
+		@echo "Building and deploying new Docker image eu.gcr.io/"$(PROJECT_ID)"/"$(img)"..."
+		@echo "Building new Docker image eu.gcr.io/"$(PROJECT_ID)"/"$(img)" for GC deployment..."
+    else
+		@echo "Building and running new Docker image "$(img)" locally..."
+		@echo "Building new Docker image "$(img)"..."
+    endif
+	@echo "Restarting Docker service. Enter password if prompted..."
+	@sudo service docker start
+	@echo "Docker service running."
+	@echo "Building image "$(img)" now..."
+    ifeq ($(mode),GC)
+		@docker build -f Dockerfile -t eu.gcr.io/$(PROJECT_ID)/$(img) .
+		@echo "Image eu.gcr.io/"$(PROJECT_ID)"/"$(img)" built for GC deployment."
+		@docker push eu.gcr.io/$(PROJECT_ID)/$(img)
+		@gcloud run deploy --image eu.gcr.io/$(PROJECT_ID)/$(img) --platform managed --region europe-west3 --port $(PORT) 
+    else
+		@docker build -f Dockerfile -t $(img) .
+		@echo "Image $(img) built."
+		@echo "Launching Docker image $(img) locally on port $(PORT) (http://localhost:"$(PORT)"/)..."
+		@docker run -p $(PORT):$(PORT) $(img)
+    endif
 
 # ----------------------------------
 #			GOOGLE CLOUD

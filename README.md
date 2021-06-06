@@ -23,7 +23,7 @@ After the minimum working product is complete, the above components will be refi
 * [Florian Reichel](https://github.com/freichel)
 
 # Module Description
-## User interface (`frontend\frontend.py`)
+## User interface (`frontend/frontend.py`)
 * Streamlit interface allowing the following user interactions:
     * User provides list and count of articles.
     * User selects from a list of pre-defined cars (whose trunk size is known).
@@ -87,7 +87,7 @@ After the minimum working product is complete, the above components will be refi
 ## Volume Optimization Algorithm (`optimizers/volumeoptimizer.py`)
 * Receives list of package dimensions, weights and counts
 * Receives available volume
-* Optimizes stacking of packages in available volume
+* Optimizes stacking of packages in available volume, one thread per configuration
 * Returns 3D numeric representation of occupied space as well as article coordinates
 ### Inputs
 * List of package dimensions and weights:
@@ -151,15 +151,22 @@ After the minimum working product is complete, the above components will be refi
 * Add list next to plot. When user hovers over/clicks on article its location on plot is highlighted.
 * Hover labels - include article name, link to article and small preview picture (would have to be buffered).
 
+# Relevant Parameters (`params.py`)
+These are parameters which can be set before project deployment. Ideally, most relevant parameters should be modifiable from the user interface:
+* `BIAS_STACKS (list)`: Controls how the optimizer will try to place the next package and takes two arguments per list element: *biased (bool)* and *bias_tendency (float 0-1)*. When *biased* is set to False, the optimizer will choose an entirely random package orientation. When it is set to True, it will, up to *bias_tendency*, use the orientation that stacks the package as flatly as possible, i.e. the two largest dimensions will be in the original plane. Each list element creates a separate thread.
+* `GEN_SORTERS (list)`: Lists pre-defined package sorting orders in the format *criterion|direction*. So far only volume has been implemented as a criterion. Each sorting order is optimized in a separate thread.
+* `RANDOM_LIST_COUNT (int)`: Number of randomized package lists the optimizer should also consider. Each is run in a separate thread. This can be useful to find the optimal stacking solution, but it increases processing time and memory requirements.
+* `OPT_MAX_ATTEMPTS (int)`: Number of times each optimizer thread will try to place packages if an individual attempt doesn't succeed, i.e. if the next package cannot be placed anymore. As there is an element of randomness to individual package placement (other than for a *biased = True*, *bias_tendency = 1* package), trying again may yield a different result. This also increases processing time.
+
 # Useful Commands
 * `make install_requirements` resets Python virtual environment to only the packages defined in requirements.txt. It **removes all other packages**.
-* `make start_app` starts the front-end on port 8501.
-To be added:
-* `make docker_build img=IMAGE_NAME` builds a Docker image with the specified *IMAGE_NAME*.
+* `make start_app` starts the front-end on specified port.
+* `make docker_build img=IMAGE_NAME mode=MODE` builds a Docker image with the specified *IMAGE_NAME*. If *mode=GC* is not specified, the image is built locally, otherwise it's built for GC deployment.
 * `make docker_run img=IMAGE_NAME` runs a Docker image locally with the specified *IMAGE_NAME*.
-* `make docker_build_run_deploy img=IMAGE_NAME mode=MODE` builds and then runs (*mode=local*) or deploys (*mode=GC*) the image with the specified *IMAGE_NAME*.
+* `make docker_build_run_deploy img=IMAGE_NAME mode=MODE` builds and then runs or deploys (*mode=GC*) the image with the specified *IMAGE_NAME*.
 
 # Change Log
+* 06/06/2021: Added parameter description (freichel)
 * 05/06/2021: Clean-up and added useful commands section (freichel)
 * 03/06/2021: User interface section updated (proxvision)
 * 02/06/2021: Removed superfluous sections

@@ -3,7 +3,7 @@ from willitfit.app_utils.pdf_parser import pdf_to_dict
 from willitfit.app_utils.form_transformer import form_to_dict
 from willitfit.app_utils.trunk_dimensions import get_volume_space
 from willitfit.app_utils.utils import gen_make_dict, gen_make_list
-from willitfit.params import IKEA_WEBSITE_LANGUAGE, IKEA_COUNTRY_DOMAIN, CAR_DATABASE, NO_DATA_PROVIDED, ERRORS_SCRAPER, ERRORS_OPTIMIZER, PROJECT_NAME, PROJECT_DIR, DATA_FOLDER, INTERFACE_INSTRUCTIONS
+from willitfit.params import IKEA_WEBSITE_LANGUAGE, IKEA_COUNTRY_DOMAIN, OPT_MAX_ATTEMPTS, RANDOM_LIST_COUNT, CAR_DATABASE, NO_DATA_PROVIDED, ERRORS_SCRAPER, ERRORS_OPTIMIZER, PROJECT_NAME, PROJECT_DIR, DATA_FOLDER, INTERFACE_INSTRUCTIONS
 from willitfit.app_utils.googlecloud import get_cloud_data
 from willitfit.optimizers.volumeoptimizer import generate_optimizer
 from willitfit.scrapers.IKEA import product_info_and_update_csv_database
@@ -98,7 +98,7 @@ def main():
         # Receive package coordinates and filled volume array.
 
         st.write("Stacking packages...")
-        optimizer_return = generate_optimizer(article_list, np.copy(volume_space), generator_random_lists=10, optimizer_max_attempts=10)
+        optimizer_return = generate_optimizer(article_list, np.copy(volume_space), generator_random_lists=RANDOM_LIST_COUNT, optimizer_max_attempts=OPT_MAX_ATTEMPTS)
         if optimizer_return not in ERRORS_OPTIMIZER:
             filled_space, package_coordinates = optimizer_return
         else:
