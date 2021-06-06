@@ -4,7 +4,7 @@ Returns interactive 3D plot of packages
 '''
 
 from numpy.lib.shape_base import split
-from willitfit.params import COORDS, VOL_INTERIOR, VOL_UNAVAILABLE, VOL_BORDER, VOL_EMPTY, VOLUME_SPACE
+from willitfit.params import VOL_INTERIOR, VOL_UNAVAILABLE, VOL_BORDER, VOL_EMPTY
 from willitfit.plotting.plot_helper import get_split_indexes, split_array_by_index
 import numpy as np
 import plotly.graph_objects as go
@@ -69,7 +69,7 @@ def generate_mesh3d_from_coords(coords_arr):
     return meshes
 
 
-def draw_3d_plot(meshes, volume_dimensions=VOLUME_SPACE.shape):
+def draw_3d_plot(meshes, volume_dimensions):
     '''Draw a 3D plotly.go plot of cuboids
     Args:
         meshes - a list of cuboids as Mesh3d objects
@@ -129,7 +129,7 @@ def get_unavailable_meshes(fitted_array):
     ###
 
     # Binarize unavailable space
-    fitted_array = np.isin(fitted_array, -1).astype(np.uint8)
+    fitted_array = np.isin(fitted_array, VOL_UNAVAILABLE).astype(np.uint8)
 
     # Kernal for convolve function
     kernel =  [[[0,0,0],
@@ -153,7 +153,7 @@ def get_unavailable_meshes(fitted_array):
     return meshes
 
 
-def plot_all(fitted_array=VOLUME_SPACE, article_coords=COORDS, plot_unavailable=False):
+def plot_all(fitted_array, article_coords, plot_unavailable=False):
     '''Primary function for generating 3D plot
     Args:
         fitted_array - 3D numpy array with optimally fit packages

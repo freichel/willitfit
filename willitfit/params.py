@@ -30,7 +30,7 @@ LANG_CODE = {
     'Slovenský': 'sk',
     'Hrvatski': 'hr',
     'Srpski': 'sr',
-    'Slovenščina': 'sl', 
+    'Slovenščina': 'sl',
 }
 
 # Volume array settings
@@ -84,11 +84,3 @@ PDF_UNREADABLE = "Unexpected format."
 API_CALL_ERROR = "Back-end offline."
 NO_DATA_PROVIDED = "Please upload wishlist PDF or add Article Numbers!"
 ERRORS_INTERFACE = [NOT_PDF, PDF_UNREADABLE, API_CALL_ERROR, NO_DATA_PROVIDED]
-
-# Dummy data for volume array
-COORDS = [["article1",0,1,0,0,0,10,15,10],
-          ["article2",1,1,10,0,0,15,10,5]]
-VOLUME_SPACE = np.zeros((40,40,40), dtype=int)
-#VOLUME_SPACE[0:3,0:10,0:5] = VOL_UNAVAILABLE
-#VOLUME_SPACE[:,0:2,:] = VOL_UNAVAILABLE
-#VOLUME_SPACE[:,:,0] = VOL_UNAVAILABLE
