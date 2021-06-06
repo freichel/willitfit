@@ -33,7 +33,7 @@ def binarize_space(volume_space):
     Needed to be able to identify clusters.
     '''
     return np.isin(volume_space, VOL_EMPTY).astype(int)
-    
+
 
 '''
 Volume fit functions
@@ -157,7 +157,7 @@ def find_open_surfaces(volume_space):
     EDGE_STRUCTURE = np.array([1,0])
     # Initialize counter
     surfaces = 0
-    
+
     # Find matches for both the edge structure and its opposite in each dimension
     surfaces += len(np.where((binarize_space(volume_space)[:,:,:-1] == EDGE_STRUCTURE[0]) & (binarize_space(volume_space)[:,:,1:] == EDGE_STRUCTURE[1]))[0])
     surfaces += len(np.where((binarize_space(volume_space)[:,:,:-1] == EDGE_STRUCTURE[1]) & (binarize_space(volume_space)[:,:,1:] == EDGE_STRUCTURE[0]))[0])
@@ -165,7 +165,7 @@ def find_open_surfaces(volume_space):
     surfaces += len(np.where((binarize_space(volume_space)[:,:-1:,] == EDGE_STRUCTURE[1]) & (binarize_space(volume_space)[:,1:,:] == EDGE_STRUCTURE[0]))[0])
     surfaces += len(np.where((binarize_space(volume_space)[:-1,:,:] == EDGE_STRUCTURE[0]) & (binarize_space(volume_space)[1:,:,:] == EDGE_STRUCTURE[1]))[0])
     surfaces += len(np.where((binarize_space(volume_space)[:-1,:,:] == EDGE_STRUCTURE[1]) & (binarize_space(volume_space)[1:,:,:] == EDGE_STRUCTURE[0]))[0])
-    
+
     return surfaces
 
 
@@ -282,7 +282,7 @@ def choose_orientation(package_length, package_width, package_height, biased = F
     '''
     # Get dimensions
     dimensions = [package_length, package_width, package_height]
-    
+
     if biased == True:
         if np.random.uniform(0,1) <= bias_tendency:
             return sorted(dimensions, reverse=True)
@@ -301,7 +301,7 @@ def first_free_space_locator(bin_space, result):
             return (result[0][i], result[1][i], result[2][i])
     # If the package cannot be placed, return error code
     return OPT_INSUFFICIENT_SPACE
-        
+
 
 
 def find_first_space(package_x, package_y, package_z, volume_space):
@@ -317,7 +317,7 @@ def find_first_space(package_x, package_y, package_z, volume_space):
     template_shape[1,1,1] = 1.01
     # Use skimage's match_template to process a sliding window over bin_space...
     # ...and find the first location of zero, which indicates the starting point
-    
+
     # Search more efficiently
     # Try within current maximum space first, i.e. where there are already items
     start_time = time.time()
@@ -352,7 +352,7 @@ def find_first_space(package_x, package_y, package_z, volume_space):
             # If still no fit, then the package cannot be placed
             except ValueError:
                 return OPT_INSUFFICIENT_SPACE
-    
+
 
 def place_package(package_dimensions, volume_space):
     '''
