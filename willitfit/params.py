@@ -47,7 +47,7 @@ VOL_EMPTY = 0
 
 # Optimizer settings
 #BIAS_STACKS = [(False, 0), (True, 0.8), (True, 1)]
-BIAS_STACKS = [(True, 1)]
+BIAS_STACKS = [(True, 0.8)]
 RANDOM_LIST_COUNT = 8
 OPT_MAX_ATTEMPTS = 10
 GEN_SORTERS = ["volume|descending"]
@@ -57,7 +57,7 @@ PROJECT_DIR = Path(os.path.abspath(__file__)).parent.parent.absolute()
 PROJECT_NAME = "willitfit"
 DATA_FOLDER = "data"
 CAR_DATABASE = "cars_clean.csv"
-ARTICLE_DATABASE = "ikea_database.csv"
+ARTICLE_DATABASE = "ikea_database_domzae.csv"
 INTERFACE_INSTRUCTIONS = "frontend/app_instructions.md"
 
 # Google Cloud variables

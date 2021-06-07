@@ -379,13 +379,13 @@ def place_package(package_dimensions, volume_space):
         return OPT_INSUFFICIENT_SPACE
     # Otherwise populate the array
     # Surfaces first
-    # z-plain
+    # z-plane
     volume_space[x:x+package_x, y:y+package_y, z] = VOL_BORDER
     volume_space[x:x+package_x, y:y+package_y, z+package_z-1] = VOL_BORDER
-    # y-plain
+    # y-plane
     volume_space[x:x+package_x, y, z:z+package_z] = VOL_BORDER
     volume_space[x:x+package_x, y+package_y-1, z:z+package_z] = VOL_BORDER
-    # x-plain
+    # x-plane
     volume_space[x, y:y+package_y, z:z+package_z] = VOL_BORDER
     volume_space[x+package_x-1, y:y+package_y, z:z+package_z] = VOL_BORDER
     # Fill interior area
@@ -465,6 +465,7 @@ def generate_optimizer(article_list, volume_space, generator_sorters = GEN_SORTE
     Finds lowest achieved score.
     Returns filled volume_space and package coordinates.
     '''
+    begin_time = time.time()
     # Check if package volume is smaller than or equal to available space, otherwise return error
     if not is_space_sufficient(article_list, volume_space):
         return INSUFFICIENT_SPACE
@@ -507,5 +508,6 @@ def generate_optimizer(article_list, volume_space, generator_sorters = GEN_SORTE
     if len(scores) == 0:
         return OPT_UNSUCCESSFUL
     score_index = scores.index(min(scores))
+    print(f"Total optimizer time: {time.time()-begin_time}")
     # Return
     return return_vals[score_index][2:]
