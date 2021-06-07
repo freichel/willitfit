@@ -11,11 +11,15 @@ from willitfit.plotting.plotter import plot_all
 import plotly
 import numpy as np
 
+
+
 # Get car data from cloud CSV file
 data = get_cloud_data(DATA_FOLDER+"/"+CAR_DATABASE)
 MAKE_LIST = gen_make_list(data)
 MAKE_DICT = gen_make_dict(data)
 
+icon = PROJECT_DIR/'resources/icon.jpeg'
+st.set_page_config(page_title='Will It Fit?',page_icon = icon, layout = 'wide')
 def main():
     # Render initial app instructions
     with open(PROJECT_DIR/PROJECT_NAME/INTERFACE_INSTRUCTIONS, 'r') as f:
