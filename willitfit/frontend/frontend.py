@@ -11,7 +11,6 @@ from willitfit.plotting.plotter import plot_all
 from pathlib import Path
 import plotly
 import numpy as np
-import os
 
 
 
