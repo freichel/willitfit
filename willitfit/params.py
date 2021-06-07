@@ -9,7 +9,7 @@ import os
 # IKEA website scraper settings
 IKEA_COUNTRY_DOMAIN = "de" # domain used
 IKEA_WEBSITE_LANGUAGE = "de" # language used, often same as IKEA_COUNTRY_DOMAIN but may be different
-IKEA_DATABASE_DTYPES = {"height": "int16", 
+IKEA_DATABASE_DTYPES = {"height": "int16",
                         "width": "int16",
                         "length": "int16",
                         "packages": "int8",
@@ -57,7 +57,7 @@ PROJECT_DIR = Path(os.path.abspath(__file__)).parent.parent.absolute()
 PROJECT_NAME = "willitfit"
 DATA_FOLDER = "data"
 CAR_DATABASE = "cars_clean.csv"
-ARTICLE_DATABASE = "ikea_database_domzae.csv"
+ARTICLE_DATABASE = "ikea_database.csv"
 INTERFACE_INSTRUCTIONS = "frontend/app_instructions.md"
 
 # Google Cloud variables

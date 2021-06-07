@@ -65,7 +65,7 @@ def main():
     articles_str = form.text_area(
         'List your Article Numbers:',
         help='Delimited by commas. If more than 1 of the same article, denote in brackets as shown. Format: XXX.XXX.XX (>1), ',
-        value="904.990.66 (2)"
+        value="604.845.80 (2)"
         )
     form.form_submit_button('Submit your list')
 
@@ -91,7 +91,7 @@ def main():
         # Receive list of package dimensions and weights for each article.
 
         st.info("Browsing IKEA for you...")
-        scraper_return = product_info_and_update_csv_database(article_dict)
+        scraper_return, product_names = product_info_and_update_csv_database(article_dict)
 
         if scraper_return not in ERRORS_SCRAPER:
             article_list = scraper_return
