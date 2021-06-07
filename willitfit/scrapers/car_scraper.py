@@ -27,17 +27,18 @@ SCRAPE_BASE_URL = 'http://www.ridc.org.uk'
 
 ## Compile regex to parse numerical fields
 rx = re.compile(r'(\d*)mm')
-
-## Populate dictionary
+# Access every uri
 df_dict = {
     'make': [],
     'car_model': [],
     'depth': [],
     'height': [],
-    'width': []
+    'width': [],
+    'extra_depth': [],
+    'img_url': []
 }
 for uri in uri_list:
-    PAGE_URL = SCRAPE_BASE_URL+f'{uri}'
+    PAGE_URL = SCRAPE_BASE+f'{uri}'
     response = requests.get(PAGE_URL)
     page_soup = BeautifulSoup(response.content, "html.parser")
     
@@ -55,11 +56,28 @@ for uri in uri_list:
     width = int(int(
             rx.findall(page_soup.find(class_='field--name-field-width-of-boot-floor-at-nar')
                        .text)[0])/10)
+    try:
+        extra_depth = int(int(
+            rx.findall(
+                page_soup.find(
+                    class_='field field--name-field-length-of-boot-floor-back- field--type-integer field--label-inline').find(
+                    class_='field__item'
+                ).contents[0])[0])/10)
+    except AttributeError:
+        extra_depth = depth
+    
+    try:
+        img_url = SCRAPE_BASE+(page_soup.find('picture').find('img').attrs['src'])
+    except AttributeError:
+        img_url = None
+        
     df_dict['make'].append(make)
     df_dict['car_model'].append(car_model)
     df_dict['depth'].append(depth)
     df_dict['height'].append(height)
     df_dict['width'].append(width)
+    df_dict['extra_depth'].append(extra_depth)
+    df_dict['img_url'].append(img_url)
     
 data = pd.DataFrame(df_dict)
 # Clean data
