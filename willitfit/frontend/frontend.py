@@ -3,7 +3,7 @@ from willitfit.app_utils.pdf_parser import pdf_to_dict
 from willitfit.app_utils.form_transformer import form_to_dict
 from willitfit.app_utils.trunk_dimensions import get_volume_space
 from willitfit.app_utils.utils import gen_make_dict, gen_make_list
-from willitfit.params import IKEA_WEBSITE_LANGUAGE, IKEA_COUNTRY_DOMAIN, OPT_MAX_ATTEMPTS, RANDOM_LIST_COUNT, CAR_DATABASE, NO_DATA_PROVIDED, ERRORS_SCRAPER, ERRORS_OPTIMIZER, PROJECT_NAME, PROJECT_DIR, DATA_FOLDER, INTERFACE_INSTRUCTIONS
+from willitfit.params import IKEA_WEBSITE_LANGUAGE, IKEA_COUNTRY_DOMAIN, OPT_MAX_ATTEMPTS, RANDOM_LIST_COUNT, CAR_DATABASE, NO_DATA_PROVIDED, ERRORS_SCRAPER, ERRORS_OPTIMIZER, PROJECT_NAME, PROJECT_DIR, DATA_FOLDER, INTERFACE_INSTRUCTIONS, LANG_CODE
 from willitfit.app_utils.googlecloud import get_cloud_data
 from willitfit.optimizers.volumeoptimizer import generate_optimizer
 from willitfit.scrapers.IKEA import product_info_and_update_csv_database
@@ -57,8 +57,6 @@ def main():
         )
     form.form_submit_button('Submit your list')
 
-    plot_unavailable = st.sidebar.checkbox('Show unavailable space')
-
     st.sidebar.markdown("""
         Click 'Generate' below!
         ---
@@ -109,7 +107,7 @@ def main():
         # Receive plot
 
         st.write("Solution found! Visualisation loading...")
-        plotter_return = plot_all(filled_space, package_coordinates, plot_unavailable=plot_unavailable)
+        plotter_return = plot_all(filled_space, package_coordinates, plot_unavailable=True)
         st.plotly_chart(plotter_return)
 
 if __name__ == "__main__":

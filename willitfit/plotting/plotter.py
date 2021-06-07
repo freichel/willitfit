@@ -3,9 +3,7 @@ Receives 3D numeric representation of occupied space as well as article coordina
 Returns interactive 3D plot of packages
 '''
 
-from numpy.lib.shape_base import split
 from willitfit.params import VOL_INTERIOR, VOL_UNAVAILABLE, VOL_BORDER, VOL_EMPTY
-from willitfit.plotting.plot_helper import get_split_indexes, split_array_by_index
 import numpy as np
 import plotly.graph_objects as go
 from scipy.ndimage import convolve
@@ -40,6 +38,7 @@ def generate_cuboids(package_coordinates):
             # Set package styling below
             flatshading=True,
             opacity=0.5,
+            showlegend=True,
             hoverinfo="name"
         )
         meshes.append(mesh)
@@ -55,15 +54,19 @@ def generate_mesh3d_from_coords(coords_arr):
         mesh - a plotly.go.Mesh3d object
     '''
     x,y,z = coords_arr
-    mesh = go.Mesh3d(x=x,
-                    y=y,
-                    z=z,
-                    alphahull=0,
-                    # Set unavailable space styling below
-                    color='grey',
-                    flatshading=True,
-                    hoverinfo='none',
-                    )
+    mesh = go.Mesh3d(
+        name = "Unavailable space (SLOW)",
+        x=x,
+        y=y,
+        z=z,
+        alphahull=0,
+        # Set unavailable space styling below
+        color='grey',
+        flatshading=True,
+        visible='legendonly',
+        showlegend=True,
+        hoverinfo='none',
+        )
 
     return mesh
 
