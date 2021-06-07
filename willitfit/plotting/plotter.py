@@ -6,15 +6,16 @@ Returns interactive 3D plot of packages
 from re import M
 from willitfit.params import VOL_INTERIOR, VOL_UNAVAILABLE, VOL_BORDER, VOL_EMPTY
 import numpy as np
+import pandas as pd
 import plotly.graph_objects as go
 from scipy.ndimage import convolve
 
 
-def generate_cuboids(package_coordinates):
+def generate_cuboids(package_coordinates, product_names):
     '''Convert article start & end coords info into a list of plotly.go.Mesh3d objects
     Args:
         package_coordinates - a list of articles and their start/end coordinates: [[article_code, article_id, package_id, x_start, y_start, z_start, x_end, y_end, z_end]]
-        unavailable_space - (optional: default=False) denotes whether the generated cuboids should be treated as unavailable space
+        product_names - pandas.DataFrame with article_code as index, product_name column
     Returns:
         meshes - a list of cuboids as Mesh3d objects
     '''
@@ -30,7 +31,7 @@ def generate_cuboids(package_coordinates):
         z2 = item[8] # z_end
 
         mesh = go.Mesh3d(
-            name=item[0],
+            name=product_names.loc[item[0],'product_name'],
             # 8 vertices of a cuboid
             x=[x1, x1, x2, x2, x1, x1, x2, x2],
             y=[y1, y2, y2, y1, y1, y2, y2, y1],
@@ -143,16 +144,17 @@ def get_unavailable_mesh(volume_space):
     return mesh
 
 
-def plot_all(volume_space, package_coordinates, plot_unavailable=False):
+def plot_all(volume_space, package_coordinates, product_names, plot_unavailable=False):
     '''Primary function for generating 3D plot
     Args:
         volume_space - 3D numpy array with optimally fit packages
         package_coordinates - list of articles and their start/end coordinates, produced by optimizers.volumeoptimizer
+        product_names - pandas.DataFrame with article_code as index, product_name column
         plot_unavailable - bool(default=False). If true, also plot unavailable space
     Returns:
         fig = a plotly.go.Figure object
     '''
-    meshes = generate_cuboids(package_coordinates)
+    meshes = generate_cuboids(package_coordinates, product_names)
 
     if plot_unavailable:
         unavailable_mesh = get_unavailable_mesh(volume_space)

@@ -90,14 +90,14 @@ def extract_numeric_product_to_dict(product_features):
                 pass
     # prepare dict for product with only 2 dimensions
     info_not_all_dimensions_given = {}
-    if len(info_dict)==4:   
+    if len(info_dict)==4:
         info_not_all_dimensions_given[new_columns_name[0]] = list(info_dict.values())[0]
         info_not_all_dimensions_given[new_columns_name[1]] = list(info_dict.values())[2]
         info_not_all_dimensions_given[new_columns_name[2]] = list(info_dict.values())[2]
         info_not_all_dimensions_given[new_columns_name[3]] = list(info_dict.values())[1]
         info_not_all_dimensions_given[new_columns_name[4]] = list(info_dict.values())[3]
         return info_not_all_dimensions_given
-    
+
     info_dict = {x:y for x,y in zip(new_columns_name,info_dict.values())}
     return info_dict
 
@@ -167,6 +167,9 @@ def df_to_list(df, article_code):
 def product_info_and_update_csv_database(article_dict ,path_to_csv  = DATABASE_PATH,item_count  =1):
     """
     Check if article exists in database, if not scrap it and update
+    Returns:
+        return_list - list required for optimizer
+        product_names - pd.dataframe containing article_code & product_name
     """
     # Only use article keys here
     article_code = [*article_dict]
@@ -195,6 +198,8 @@ def product_info_and_update_csv_database(article_dict ,path_to_csv  = DATABASE_P
             all_ordered_product_df = all_ordered_product_df.append(df).astype(IKEA_DATABASE_DTYPES)
             new_product_for_database = new_product_for_database.append(df)
 
+    product_names = all_ordered_product_df[['article_code','product_name']].set_index(['article_code'])
+
     return_list = df_to_list(all_ordered_product_df, article_dict)
     # Append new items and reduce size
     ikea_database = ikea_database.append(new_product_for_database).astype(IKEA_DATABASE_DTYPES)
@@ -203,4 +208,4 @@ def product_info_and_update_csv_database(article_dict ,path_to_csv  = DATABASE_P
     if write_file != True:
         #TODO
         return "Error writing to file"
-    return return_list
+    return return_list, product_names
