@@ -20,7 +20,7 @@ data = get_cloud_data(DATA_FOLDER+"/"+CAR_DATABASE)
 MAKE_LIST = gen_make_list(data)
 MAKE_DICT = gen_make_dict(data)
 
-icon = str(Path(os.path.abspath(__file__)).parent.parent.parent.absolute() / 'resources' / 'icon.jpeg')
+icon = PROJECT_DIR/PROJECT_NAME/'resources/icon.jpeg'
 st.set_page_config(page_title='Will It Fit?',page_icon = icon, layout = 'wide')
 def main():
     # Render initial app instructions
