@@ -6,6 +6,11 @@ import numpy as np
 from pathlib import Path
 import os
 
+# Interface settings
+LANG_CHOOSE = "---Choose a language---"
+CAR_BRAND_CHOOSE = "---Choose a brand---"
+CAR_MODEL_CHOOSE = "---Choose a model---"
+
 # IKEA website scraper settings
 IKEA_COUNTRY_DOMAIN = "de" # domain used
 IKEA_WEBSITE_LANGUAGE = "de" # language used, often same as IKEA_COUNTRY_DOMAIN but may be different
@@ -18,6 +23,7 @@ IKEA_DATABASE_DTYPES = {"height": "int16",
 
 # Humanised language codes
 LANG_CODE = {
+    LANG_CHOOSE: LANG_CHOOSE,
     'Deutsch': 'de',
     'English': 'en',
     'Français': 'fr',
@@ -58,7 +64,7 @@ PROJECT_NAME = "willitfit"
 DATA_FOLDER = "data"
 CAR_DATABASE = "cars_clean.csv"
 ARTICLE_DATABASE = "ikea_database.csv"
-INTERFACE_INSTRUCTIONS = "frontend/app_instructions.md"
+INTERFACE_INSTRUCTIONS = "frontend/containers_frontend_instructions.md"
 
 # Google Cloud variables
 PROJECT_ID = PROJECT_NAME
@@ -82,6 +88,5 @@ ERRORS_SCRAPER = [WEBSITE_UNAVAILABLE, ARTICLE_NOT_FOUND]
 # Interface
 NOT_PDF = "Document is not a PDF."
 PDF_UNREADABLE = "Unexpected format."
-API_CALL_ERROR = "Back-end offline."
-NO_DATA_PROVIDED = "Please upload wishlist PDF or add Article Numbers!"
-ERRORS_INTERFACE = [NOT_PDF, PDF_UNREADABLE, API_CALL_ERROR, NO_DATA_PROVIDED]
+NO_DATA_PROVIDED = "Please upload wishlist PDF or add articles to the form."
+ERRORS_INTERFACE = [NOT_PDF, PDF_UNREADABLE, NO_DATA_PROVIDED]
