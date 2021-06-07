@@ -175,6 +175,7 @@ def product_info_and_update_csv_database(article_dict ,path_to_csv  = DATABASE_P
     return_list = []
     
     for i,x in enumerate(article_code):
+        print(x)
         # If article exists in database already
         if ikea_database.shape[0]>0 and (ikea_database['article_code'] == x).any():
             all_ordered_product_df = all_ordered_product_df.append(ikea_database[ikea_database['article_code'] == x])
