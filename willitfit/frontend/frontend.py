@@ -54,11 +54,11 @@ def main():
         with open(PROJECT_DIR/PROJECT_NAME/'frontend/containers_frontend_instructions.md', 'r') as f:
             contents = f.read()
             st.write(contents)
-        
+
     # Form container
     form_container = st.beta_container()
     form_container.subheader("""
-        Alternatively:                     
+        Alternatively:
         """)
     # Article number list
     form = form_container.form('form')
@@ -68,10 +68,6 @@ def main():
         value="904.990.66 (2)"
         )
     form.form_submit_button('Submit your list')
-
-    plot_unavailable = st.checkbox(
-        'Show unavailable space', 
-        help="Check this box if your rear window takes up significant trunk-space.")
 
     ## Generate plot
     if st.button('Generate'):
@@ -86,7 +82,7 @@ def main():
         else:
             st.error(NO_DATA_PROVIDED)
             st.stop()
-        
+
         # Find car trunk dimensions for given car_id
         st.info("Getting trunk volume...")
         volume_space = get_volume_space(car_model)
@@ -114,13 +110,12 @@ def main():
                 st.error(optimizer_return)
                 st.stop()
         st.success('Solution found!')
-        
 
         # Call plotter with package coordinates and filled volume array.
         # Receive plot
-        plotter_return = plot_all(filled_space, package_coordinates, plot_unavailable=plot_unavailable)
+        plotter_return = plot_all(filled_space, package_coordinates, plot_unavailable=True)
         st.info('Build 3D plot')
-        st.plotly_chart(plotter_return)
+        st.plotly_chart(plotter_return,use_container_width=True)
 
 if __name__ == "__main__":
     main()

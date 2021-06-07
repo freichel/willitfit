@@ -56,7 +56,7 @@ def generate_mesh3d_from_coords(coords_arr):
     '''
     x,y,z = coords_arr
     mesh = go.Mesh3d(
-        name = "Unavailable space (SLOW)",
+        name = "Unavailable space",
         x=x,
         y=y,
         z=z,
@@ -72,6 +72,33 @@ def generate_mesh3d_from_coords(coords_arr):
     return mesh
 
 
+def get_unavailable_mesh(volume_space):
+    '''Parse an array with unavailable space (VOL_UNAVAILABLE) and generate a Mesh3d object
+    Args:
+        volume_space - 3D array with any number of "unavailable" cells
+    Returns:
+        mesh - a plotly.go.Mesh3d object
+    '''
+    # Binarize unavailable space
+    volume_space = np.isin(volume_space, VOL_UNAVAILABLE).astype(np.uint8)
+
+    # Kernal for convolve function
+    kernel = np.zeros((5,5,5))
+    kernel[2,:,2] = 1
+    kernel[2,2,:] = 1
+    kernel[:,2,2] = 1
+
+    # Convolve over the unavailable to find edges
+    convolved = convolve(volume_space, kernel, mode='constant', cval=0.0)
+
+    # Select corners based on the convolution 'score'
+    edge_coords = np.argwhere(convolved == 7)
+
+    mesh = generate_mesh3d_from_coords(edge_coords.T)
+
+    return mesh
+
+
 def draw_3d_plot(meshes, volume_dimensions):
     '''Draw a 3D plotly.go plot of meshes
     Args:
@@ -80,9 +107,7 @@ def draw_3d_plot(meshes, volume_dimensions):
     Returns:
         fig - a plotly.go.Figure object
     '''
-    x_max = volume_dimensions[0]
-    y_max = volume_dimensions[1]
-    z_max = volume_dimensions[2]
+    x_max, y_max, z_max = volume_dimensions
 
     # Styling for all plot axes
     def axis_dict(max):
@@ -110,37 +135,6 @@ def draw_3d_plot(meshes, volume_dimensions):
     fig = go.Figure(data=meshes, layout=layout)
 
     return fig
-
-
-def get_unavailable_mesh(volume_space):
-    '''Parse an array with unavailable space (VOL_UNAVAILABLE) and generate a Mesh3d object
-    Args:
-        volume_space - 3D array with any number of "unavailable" cells
-    Returns:
-        mesh - a plotly.go.Mesh3d object
-    '''
-    # Binarize unavailable space
-    volume_space = np.isin(volume_space, VOL_UNAVAILABLE).astype(np.uint8)
-
-    # Kernal for convolve function
-    kernel =  np.array([[[0,0,0],
-                         [0,1,0],
-                         [0,0,0]],
-                        [[0,1,0],
-                         [1,1,1],
-                         [0,1,0]],
-                        [[0,0,0],
-                         [0,1,0],
-                         [0,0,0]]])
-
-    convolved = convolve(volume_space, kernel, mode='constant', cval=0.0)
-
-    # Select edges based on the convolution 'score'
-    edge_coords = np.argwhere((convolved < 6) & (convolved > 3))
-
-    mesh = generate_mesh3d_from_coords(edge_coords.T)
-
-    return mesh
 
 
 def plot_all(volume_space, package_coordinates, plot_unavailable=False):
