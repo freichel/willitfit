@@ -145,38 +145,7 @@ def draw_3d_plot(meshes, volume_dimensions):
     return fig
 
 
-def get_unavailable_mesh(volume_space):
-    '''Parse an array with unavailable space (VOL_UNAVAILABLE) and generate a Mesh3d object
-    Args:
-        volume_space - 3D array with any number of "unavailable" cells
-    Returns:
-        mesh - a plotly.go.Mesh3d object
-    '''
-    # Binarize unavailable space
-    volume_space = np.isin(volume_space, VOL_UNAVAILABLE).astype(np.uint8)
-
-    # Kernal for convolve function
-    kernel =  np.array([[[0,0,0],
-                         [0,1,0],
-                         [0,0,0]],
-                        [[0,1,0],
-                         [1,1,1],
-                         [0,1,0]],
-                        [[0,0,0],
-                         [0,1,0],
-                         [0,0,0]]])
-
-    convolved = convolve(volume_space, kernel, mode='constant', cval=0.0)
-
-    # Select edges based on the convolution 'score'
-    edge_coords = np.argwhere((convolved < 6) & (convolved > 3))
-
-    mesh = generate_mesh3d_from_coords(edge_coords.T)
-
-    return mesh
-
-
-def plot_all(volume_space, package_coordinates, product_names, plot_unavailable=False):
+def plot_all(volume_space, package_coordinates, product_names, plot_unavailable=True):
 
     '''Primary function for generating 3D plot
     Args:

@@ -23,15 +23,15 @@ st.set_page_config(page_title='Will It Fit?',page_icon = icon, layout = 'wide')
 class LanguageSelector:
     def __init__(self):
         self.lang = LANG_CHOOSE
-    
+
     def show_page(self):
         # Dropdown for language
         self.lang = st.selectbox('Select your local IKEA website language:', [*LANG_CODE], index=0)
-        
+
 class CarSelector:
     def __init__(self):
         self.car_model = "---Choose a model---"
-    
+
     def show_page(self):
         # Car model selector
         car_make = st.selectbox(
@@ -45,13 +45,13 @@ class CarSelector:
             )
         #TODO
         #Display car image
-        
+
         self.car_model = car_model
-        
+
 class ArticlePicker:
     def __init__(self):
         self.article_dict = {}
-    
+
     def show_page(self):
         # Columns
         pdf_col, manual_col = st.beta_columns(2)
@@ -69,9 +69,9 @@ class ArticlePicker:
             help='Delimited by commas. If more than 1 of the same article, denote in brackets as shown. Format: XXX.XXX.XX (>1), ',
             value="904.990.66 (2)"
             )
-        
+
         cols = st.beta_columns([5,1,5])
-        
+
         if cols[1].button('Generate'):
             # Status message field wich will get overwritten
             unpack_message = st.empty()
@@ -87,7 +87,7 @@ class ArticlePicker:
             else:
                 unpack_message.error(NO_DATA_PROVIDED)
                 st.stop()
-        
+
 # Individual elements to be displayed sequentially
 #TODO
 # They're labelled "pages" because ideally we'd use individual pages. However, haven't gotten there yet.
@@ -97,7 +97,7 @@ def main():
     # Icon
     cols = st.beta_columns([2,1,2])
     cols[1].image(icon, use_column_width=True)
-    
+
     # Language selection
     page = pages["select_lang"]()
     page.show_page()
@@ -105,9 +105,9 @@ def main():
     while page.lang == LANG_CHOOSE:
         status = st.empty()
         time.sleep(0.5)
-    # Assign language    
+    # Assign language
     pdf_lang = page.lang
-        
+
     # Car selection
     page = pages["select_car"]()
     page.show_page()
@@ -117,7 +117,7 @@ def main():
         time.sleep(0.5)
     # Assign car model
     car_model = page.car_model
-    
+
     # Article selection
     page = pages["pick_art"]()
     page.show_page()
@@ -127,7 +127,7 @@ def main():
         time.sleep(0.5)
     # Assign articles
     article_dict = page.article_dict
-    
+
     # Find car trunk dimensions for given car_id
     trunk_message = st.empty()
     trunk_message.info(f"Getting trunk volume for your {car_model}...")
@@ -152,7 +152,7 @@ def main():
     # How many articles and packages are there in total?
     article_count = sum([article[1] for article in article_list])
     package_count = sum([len(article[2])*article[1] for article in article_list])
-    
+
     # Call optimizer with article list and volume array.
     # Receive package coordinates and filled volume array.
     optimizer_message = st.empty()
@@ -164,15 +164,15 @@ def main():
         optimizer_message.error(optimizer_return)
         st.stop()
     optimizer_message.success(f"Solution found for {article_count} article{'s' if article_count>1 else ''} and {package_count} individual package{'s' if package_count>1 else ''}.")
-    
+
 
     # Call plotter with package coordinates and filled volume array.
     # Receive plot
     plotter_message = st.empty()
     plotter_message.info("Building 3D plot")
     plotter_return = plot_all(filled_space, package_coordinates, product_names)
-    cols = st.beta_columns([1,1,1])
-    cols[1].plotly_chart(plotter_return, use_container_width=True)
+
+    st.plotly_chart(plotter_return, use_container_width=True)
     plotter_message.empty()
 
 if __name__ == "__main__":
