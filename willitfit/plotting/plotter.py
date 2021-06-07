@@ -3,6 +3,7 @@ Receives 3D numeric representation of occupied space as well as article coordina
 Returns interactive 3D plot of packages
 '''
 
+from re import M
 from willitfit.params import VOL_INTERIOR, VOL_UNAVAILABLE, VOL_BORDER, VOL_EMPTY
 import numpy as np
 import plotly.graph_objects as go
@@ -83,31 +84,28 @@ def draw_3d_plot(meshes, volume_dimensions):
     y_max = volume_dimensions[1]
     z_max = volume_dimensions[2]
 
+    # Styling for all plot axes
+    def axis_dict(max):
+        return dict(type='linear',
+                    range = [0,max],
+                    showgrid=False,
+                    showspikes=False,
+                    showticklabels=False,
+                    title=dict(text=""),
+                    backgroundcolor='lightgrey',
+                    #showbackground=False,
+                    )
+
     layout = go.Layout(
         scene = dict(
             aspectmode='cube',
-            xaxis = dict(
-                type='linear',
-                range = [0,x_max],
-                showgrid=False,
-                showspikes=False,
-                #showbackground=False,
-                ),
-            yaxis = dict(
-                type='linear',
-                range = [0,y_max],
-                showgrid=False,
-                showspikes=False,
-                #showbackground=False,
-                ),
-            zaxis = dict(
-                type='linear',
-                range = [0,z_max],
-                showgrid=False,
-                showspikes=False,
-                #showbackground=False,
-                ),
-        )
+            xaxis = axis_dict(x_max),
+            yaxis = axis_dict(y_max),
+            zaxis = axis_dict(z_max),
+        ),
+        width=None,
+        height=None,
+        margin=dict(l=20, r=20, t=20, b=20)
     )
     fig = go.Figure(data=meshes, layout=layout)
 
