@@ -108,6 +108,7 @@ def packages_dimensions_weights(page):
     # filter out important info with beautiful soup
     info = page.find_all('div',  {"class": 'range-revamp-product-details__container'})
     number = page.find_all('span',  {"class": 'range-revamp-product-identifier__value'})
+    product_name = page.find_all('span',  {"class": 'range-revamp-product-details__header notranslate'})[0].text
     # create empty list
     list_of_products = []
     # create empty dict
@@ -119,6 +120,7 @@ def packages_dimensions_weights(page):
         # append to dict
         product_info = extract_numeric_product_to_dict(y_info)
         product_info['subarticle_code'] = x.text.replace('.','')
+        product_info['product_name'] = product_name
         #append to list
         list_of_products.append(product_info)
 
