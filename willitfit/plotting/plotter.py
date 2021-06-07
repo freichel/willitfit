@@ -31,7 +31,7 @@ def generate_cuboids(package_coordinates, product_names):
         z2 = item[8] # z_end
 
         mesh = go.Mesh3d(
-            name=product_names.loc[item[0],'product_name'],
+            name=str(product_names.loc[item[0],'product_name']) + " | " + item[0],
             # 8 vertices of a cuboid
             x=[x1, x1, x2, x2, x1, x1, x2, x2],
             y=[y1, y2, y2, y1, y1, y2, y2, y1],
@@ -41,7 +41,8 @@ def generate_cuboids(package_coordinates, product_names):
             flatshading=True,
             opacity=0.5,
             showlegend=True,
-            hoverinfo="name"
+            hoverinfo="name",
+            hoverlabel=dict(namelength=-1)
         )
         meshes.append(mesh)
 
