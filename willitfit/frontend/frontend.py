@@ -69,10 +69,6 @@ def main():
         )
     form.form_submit_button('Submit your list')
 
-    plot_unavailable = st.checkbox(
-        'Show unavailable space',
-        help="Check this box if your rear window takes up significant trunk-space.")
-
     ## Generate plot
     if st.button('Generate'):
         st.info("Unpacking data...")
@@ -117,9 +113,9 @@ def main():
 
         # Call plotter with package coordinates and filled volume array.
         # Receive plot
-        plotter_return = plot_all(filled_space, package_coordinates, product_names, plot_unavailable=plot_unavailable)
+        plotter_return = plot_all(filled_space, package_coordinates, plot_unavailable=True)
         st.info('Build 3D plot')
-        st.plotly_chart(plotter_return)
+        st.plotly_chart(plotter_return,use_container_width=True)
 
 if __name__ == "__main__":
     main()
