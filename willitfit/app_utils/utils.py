@@ -1,6 +1,6 @@
 import pandas as pd
 import os
-from willitfit.params import CAR_DATABASE, PROJECT_DIR, PROJECT_NAME, DATA_FOLDER
+from willitfit.params import CAR_DATABASE, PROJECT_DIR, PROJECT_NAME, DATA_FOLDER, CAR_BRAND_CHOOSE, CAR_MODEL_CHOOSE
 from pathlib import Path
 import os
 
@@ -20,13 +20,13 @@ def gen_make_list(data):
     """
     ## Generate Make and Model lists for Front-end
     make_list = data['make'].value_counts().index.to_list()
-    return sorted(make_list)
+    return [CAR_BRAND_CHOOSE]+sorted(make_list)
 
 def gen_make_dict(data):
     """
     Generate make dictionary with list of models as values for frontend use
     """
-    make_list = gen_make_list(data)
+    make_list = gen_make_list(data)[1:]
     ## Lower snake naming convention
     make_list_lower_snake = [i.lower().replace(' ', '_') for i in make_list]
     ## Group by make
@@ -40,6 +40,9 @@ def gen_make_dict(data):
         by_make_list.append(vars()[f"{make}_list"])
         
     MAKE_DICT = dict(zip(make_list, by_make_list))
+    # Add placeholder to each
+    for key, value in MAKE_DICT.items():
+        MAKE_DICT[key] = [CAR_MODEL_CHOOSE]+value
     return MAKE_DICT
 
 
