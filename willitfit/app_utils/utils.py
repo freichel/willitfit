@@ -4,18 +4,6 @@ from willitfit.params import CAR_DATABASE, PROJECT_DIR, PROJECT_NAME, DATA_FOLDE
 from pathlib import Path
 import os
 
-def _parse_line(line):
-    """
-    Do a regex search against all defined regexes and
-    return the key and match result of the first matching regex
-    """
-    for key, rx in rx_dict.items():
-        match = rx.findall(line)
-        if match:
-            return key, match
-    # if there are no matches
-    return None, None
-
 def get_car_data():
     """
     Read CSV into DataFrame

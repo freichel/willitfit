@@ -295,6 +295,10 @@ def first_free_space_locator(bin_space, result):
     Returns the first free space that is actually free.
     match_template sometimes returns matches that do not actually work.
     '''
+    # Combine tuple of x,y,z arrays into single numpy array
+    result = np.stack(result)
+    # Sort by y, then z plane. This ensure packages will be stacked first along the z and then y plane.
+    result = result[:,np.lexsort((result[0,:], result[1,:], result[2,:]))]
     # Iterate over list of found spaces and return the first one that is empty
     for i, _ in enumerate(result[0]):
         if bin_space[result[0][i], result[1][i], result[2][i]] == 1:
@@ -335,8 +339,7 @@ def find_first_space(package_x, package_y, package_z, volume_space):
     except ValueError:
         # Next, try within package dimensions limited to smallest
         try:
-            additional_space = np.min(template_shape.shape)
-            print(additional_space)
+            additional_space = np.max(template_shape.shape)
             result = np.where(match_template(bin_space[:search_space[0]+additional_space+1, :search_space[1]+additional_space+1, :search_space[2]+additional_space+1], template_shape) == 0)
             return_val = first_free_space_locator(bin_space, result)
             if return_val == OPT_INSUFFICIENT_SPACE:
@@ -376,13 +379,13 @@ def place_package(package_dimensions, volume_space):
         return OPT_INSUFFICIENT_SPACE
     # Otherwise populate the array
     # Surfaces first
-    # z-plain
+    # z-plane
     volume_space[x:x+package_x, y:y+package_y, z] = VOL_BORDER
     volume_space[x:x+package_x, y:y+package_y, z+package_z-1] = VOL_BORDER
-    # y-plain
+    # y-plane
     volume_space[x:x+package_x, y, z:z+package_z] = VOL_BORDER
     volume_space[x:x+package_x, y+package_y-1, z:z+package_z] = VOL_BORDER
-    # x-plain
+    # x-plane
     volume_space[x, y:y+package_y, z:z+package_z] = VOL_BORDER
     volume_space[x+package_x-1, y:y+package_y, z:z+package_z] = VOL_BORDER
     # Fill interior area
@@ -417,10 +420,8 @@ def optimizer(package_list, article_list, volume_space, empty_space, queue=None,
         package_length, package_width, package_height = pkg[1], pkg[2], pkg[3]
         # Obtain package orientation (random)
         package_dimensions = choose_orientation(package_length, package_width, package_height, biased=biased, bias_tendency=bias_tendency)
-        #print('orientation done')
         # Attempt to place package in space
         placement_result = place_package(package_dimensions, volume_space)
-        #print('placement done')
         # Check if placement was successful
         if placement_result != OPT_INSUFFICIENT_SPACE:
             # Extract return variables and append to package_coordinates
@@ -464,6 +465,7 @@ def generate_optimizer(article_list, volume_space, generator_sorters = GEN_SORTE
     Finds lowest achieved score.
     Returns filled volume_space and package coordinates.
     '''
+    begin_time = time.time()
     # Check if package volume is smaller than or equal to available space, otherwise return error
     if not is_space_sufficient(article_list, volume_space):
         return INSUFFICIENT_SPACE
@@ -506,5 +508,6 @@ def generate_optimizer(article_list, volume_space, generator_sorters = GEN_SORTE
     if len(scores) == 0:
         return OPT_UNSUCCESSFUL
     score_index = scores.index(min(scores))
+    print(f"Total optimizer time: {time.time()-begin_time}")
     # Return
     return return_vals[score_index][2:]
