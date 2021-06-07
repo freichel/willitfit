@@ -133,16 +133,17 @@ def main():
     trunk_message.info(f"Getting trunk volume for your {car_model}...")
     volume_space = get_volume_space(car_model)
     trunk_message.success(f"Trunk volume for your {car_model} computed.")
-
     # Call scraper with article list and website location/language.
     # Receive list of package dimensions and weights for each article.
+
 
     scraper_message = st.empty()
     scraper_message.info("Browsing IKEA for you...")
     scraper_return = product_info_and_update_csv_database(article_dict)
 
     if scraper_return not in ERRORS_SCRAPER:
-        article_list = scraper_return
+        article_list = scraper_return[0]
+        product_names = scraper_return[1]
         scraper_message.success("All articles found on IKEA.")
     else:
         scraper_message.error(scraper_return)
@@ -169,9 +170,9 @@ def main():
     # Receive plot
     plotter_message = st.empty()
     plotter_message.info("Building 3D plot")
-    plotter_return = plot_all(filled_space, package_coordinates)
+    plotter_return = plot_all(filled_space, package_coordinates, product_names)
     cols = st.beta_columns([1,1,1])
-    cols[1].plotly_chart(plotter_return)
+    cols[1].plotly_chart(plotter_return, use_container_width=True)
     plotter_message.empty()
 
 if __name__ == "__main__":
