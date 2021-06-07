@@ -104,7 +104,7 @@ def main():
         # Receive plot
 
         st.write("Solution found! Visualisation loading...")
-        plotter_return = plot_all(filled_space, package_coordinates, plot_unavailable=plot_unavailable)
+        plotter_return = plot_all(filled_space, package_coordinates, plot_unavailable=True)
         st.plotly_chart(plotter_return)
 
 if __name__ == "__main__":

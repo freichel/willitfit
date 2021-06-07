@@ -4,7 +4,7 @@ Scrapes IKEA website to obtain package dimensions (rounded up to next cm), weigh
 Returns list of package dimensions and weights.
 '''
 
-from willitfit.params import IKEA_COUNTRY_DOMAIN, IKEA_WEBSITE_LANGUAGE, WEBSITE_UNAVAILABLE, ARTICLE_NOT_FOUND, PROJECT_DIR, PROJECT_NAME, DATA_FOLDER, ARTICLE_DATABASE
+from willitfit.params import IKEA_COUNTRY_DOMAIN, IKEA_WEBSITE_LANGUAGE, WEBSITE_UNAVAILABLE, ARTICLE_NOT_FOUND, DATA_FOLDER, ARTICLE_DATABASE, IKEA_DATABASE_DTYPES
 from bs4 import BeautifulSoup
 from selenium import webdriver
 from selenium.common.exceptions import TimeoutException
@@ -38,9 +38,9 @@ def chrome_settings():
     return chrome_options
 
 
-def scrape_product(article_code: str, country_domain = IKEA_COUNTRY_DOMAIN, website_language = IKEA_WEBSITE_LANGUAGE):
+def scrape_product(article_code, country_domain = IKEA_COUNTRY_DOMAIN, website_language= IKEA_WEBSITE_LANGUAGE):
     """
-    Scrap the artikle from Ikea website
+    Scrape the artikle from Ikea website
     Filter out part of the site with important informations.
     When we run the test first time,
     latest version of chromedriver binary is downloaded and saved in cache
@@ -73,10 +73,10 @@ def scrape_product(article_code: str, country_domain = IKEA_COUNTRY_DOMAIN, webs
 
     return important_part_of_page[0]
 
-def extract_numeric_product_to_dict(product_features)->dict:
+def extract_numeric_product_to_dict(product_features):
     """
     Extract features from string and save it in dict
-    with following keys ['width','high','length','weight','packeges']
+    with following keys ['width','high','length','weight','packages']
     """
     info_dict = {}
     new_columns_name = ['width','height','length','weight','packages']
@@ -88,11 +88,20 @@ def extract_numeric_product_to_dict(product_features)->dict:
                 info_dict[info_item[0]] = float(info_item[1])
             except:
                 pass
+    # prepare dict for product with only 2 dimensions
+    info_not_all_dimensions_given = {}
+    if len(info_dict)==4:   
+        info_not_all_dimensions_given[new_columns_name[0]] = list(info_dict.values())[0]
+        info_not_all_dimensions_given[new_columns_name[1]] = list(info_dict.values())[2]
+        info_not_all_dimensions_given[new_columns_name[2]] = list(info_dict.values())[2]
+        info_not_all_dimensions_given[new_columns_name[3]] = list(info_dict.values())[1]
+        info_not_all_dimensions_given[new_columns_name[4]] = list(info_dict.values())[3]
+        return info_not_all_dimensions_given
+    
     info_dict = {x:y for x,y in zip(new_columns_name,info_dict.values())}
-
     return info_dict
 
-def packages_dimensions_weights(page)->pd.DataFrame:
+def packages_dimensions_weights(page):
     """
     Create data frame with information about subarticles
     """
@@ -106,15 +115,17 @@ def packages_dimensions_weights(page)->pd.DataFrame:
     # extract subarticle code and parameters for all subproducts in product
     for i,(x,y) in enumerate(zip(number,info)):
         y_info = [info.text for info in y.find_all('span',  {"class": 'range-revamp-product-details__label'})]
+        print(y_info)
         # append to dict
         product_info = extract_numeric_product_to_dict(y_info)
         product_info['subarticle_code'] = x.text.replace('.','')
         #append to list
         list_of_products.append(product_info)
+
     return pd.DataFrame(list_of_products)
 
 
-def df_to_list(df:pd.DataFrame, article_code:dict)->list:
+def df_to_list(df, article_code):
     """
     Prepare output for API from data frame.
     [(
@@ -137,7 +148,7 @@ def df_to_list(df:pd.DataFrame, article_code:dict)->list:
         # Sub-list when there are multiple packages
         package_list = []
         # Find all matches in dataframe
-        matched_packages = df[df["article_code"] == int(article)]
+        matched_packages = df[df["article_code"] == article]
         # Loop over all packages
         package_count = 1
         for _, matched_package in matched_packages.iterrows():
@@ -148,37 +159,28 @@ def df_to_list(df:pd.DataFrame, article_code:dict)->list:
                 package_count += 1
         # Append list of packages
         return_list.append([article, article_count, package_list])
-    #print(return_list)
     return return_list
 
 
-def product_info_and_update_csv_database(article_dict : dict,path_to_csv : str = DATABASE_PATH,item_count : int =1) -> list:
+def product_info_and_update_csv_database(article_dict ,path_to_csv  = DATABASE_PATH,item_count  =1):
     """
     Check if article exists in database, if not scrap it and update
     """
     # Only use article keys here
     article_code = [*article_dict]
 
-    '''
-    I've had to comment this out for now as we can assume that the file exists on Google Cloud
-    if not os.path.exists(path_to_csv):
-        df = pd.DataFrame(columns = ['width', 'height', 'length', 'weight', 'packages',
-                                    'subarticle_code', 'article_code'])
-        df.to_csv(path_to_csv)
-    '''
-
-
     ikea_database = get_cloud_data(path_to_csv)
     # Reduce size
-    ikea_database = ikea_database.astype({"height": "int16", "width": "int16", "length": "int16", "packages": "int8"})
+    ikea_database = ikea_database.astype(IKEA_DATABASE_DTYPES)
     all_ordered_product_df = pd.DataFrame()
     new_product_for_database = pd.DataFrame()
     return_list = []
 
     for i,x in enumerate(article_code):
+        print(x)
         # If article exists in database already
-        if ikea_database.shape[0]>0 and (ikea_database['article_code'] == int(x)).any():
-            all_ordered_product_df = all_ordered_product_df.append(ikea_database[ikea_database['article_code'] == int(x)])
+        if ikea_database.shape[0]>0 and (ikea_database['article_code'] == x).any():
+            all_ordered_product_df = all_ordered_product_df.append(ikea_database[ikea_database['article_code'] == x])
         # If not
         else:
             page = scrape_product(x, country_domain = IKEA_COUNTRY_DOMAIN, website_language = IKEA_WEBSITE_LANGUAGE)
@@ -187,15 +189,13 @@ def product_info_and_update_csv_database(article_dict : dict,path_to_csv : str =
             if page == ARTICLE_NOT_FOUND:
                 return ARTICLE_NOT_FOUND
             df = packages_dimensions_weights(page)
-            df['article_code'] = int(x)
-            all_ordered_product_df = all_ordered_product_df.append(df).astype({"height": "int16", "width": "int16", "length": "int16", "packages": "int8"})
+            df['article_code'] = x
+            all_ordered_product_df = all_ordered_product_df.append(df).astype(IKEA_DATABASE_DTYPES)
             new_product_for_database = new_product_for_database.append(df)
-
-
 
     return_list = df_to_list(all_ordered_product_df, article_dict)
     # Append new items and reduce size
-    ikea_database = ikea_database.append(new_product_for_database).astype({"height": "int16", "width": "int16", "length": "int16", "packages": "int8"})
+    ikea_database = ikea_database.append(new_product_for_database).astype(IKEA_DATABASE_DTYPES)
     # Write to csv
     write_file = send_cloud_data(ikea_database, path_to_csv)
     if write_file != True:
