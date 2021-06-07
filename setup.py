@@ -7,7 +7,7 @@ requirements = [x.strip() for x in content if 'git+' not in x]
 
 setup(name='willitfit',
       version="1.0",
-      description="Project Description",
+      description="Optimizes IKEA packages",
       packages=find_packages(),
       install_requires=requirements,
       test_suite='tests',

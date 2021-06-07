@@ -4,6 +4,7 @@
 
 # General
 PROJECT_FOLDER=willitfit
+PORT=8501
 
 # Google
 PROJECT_ID=willitfit
@@ -22,67 +23,70 @@ BACK_END_APP=app
 #          INSTALL & TEST
 # ----------------------------------
 install_requirements:
+	@pip freeze --exclude-editable | xargs -r pip uninstall -y 
 	@pip install -r requirements.txt
-
-check_code:
-	@flake8 scripts/* ${PROJECT_FOLDER}/*.py
-
-black:
-	@black scripts/* ${PROJECT_FOLDER}/*.py
-
-test:
-	@coverage run -m pytest tests/*.py
-	@coverage report -m --omit="${VIRTUAL_ENV}/lib/python*"
-
-ftest:
-	@Write me
-
-clean:
-	@rm -f */version.txt
-	@rm -f .coverage
-	@rm -fr */__pycache__ */*.pyc __pycache__
-	@rm -fr build dist
-	@rm -fr ${PROJECT_FOLDER}-*.dist-info
-	@rm -fr ${PROJECT_FOLDER}.egg-info
-
-install:
-	@pip install . -U
-
-all: clean install test black check_code
-
-count_lines:
-	@find ./ -name '*.py' -exec  wc -l {} \; | sort -n| awk \
-        '{printf "%4s %s\n", $$1, $$2}{s+=$$0}END{print s}'
-	@echo ''
-	@find ./scripts -name '*-*' -exec  wc -l {} \; | sort -n| awk \
-		        '{printf "%4s %s\n", $$1, $$2}{s+=$$0}END{print s}'
-	@echo ''
-	@find ./tests -name '*.py' -exec  wc -l {} \; | sort -n| awk \
-        '{printf "%4s %s\n", $$1, $$2}{s+=$$0}END{print s}'
-	@echo ''
 
 # ----------------------------------
 #            STREAMLIT/API
 # ----------------------------------
 
-run_streamlit:
+start_app:
 	-@streamlit run ${FRONT_END_FILE}
 
-run_api:
-	@uvicorn ${PROJECT_FOLDER}.${BACK_END_FILE}:${BACK_END_APP} --reload
+# ----------------------------------
+#			  DOCKER
+# ----------------------------------
 
-# Run with -j2 flag to execute simultaneously
-run_full_interface: run_streamlit run_api
+docker_build:
+    ifeq ($(mode),GC)
+		@echo "Building new Docker image eu.gcr.io/"$(PROJECT_ID)"/"$(img)" for GC deployment..."
+    else
+		@echo "Building new Docker image "$(img)"..."
+    endif
+	@echo "Restarting Docker service. Enter password if prompted..."
+	@sudo service docker start
+	@echo "Docker service running."
+	@echo "Building image now..."
+    ifeq ($(mode),GC)
+		@docker build -f Dockerfile -t eu.gcr.io/$(PROJECT_ID)/$(img) .
+		@echo "Image eu.gcr.io/"$(PROJECT_ID)"/"$(img)" built for GC deployment."
+    else
+		@docker build -f Dockerfile -t $(img) .
+		@echo "Image $(img) built."
+    endif
 	
+
+docker_run:
+	@echo "Launching Docker image $(img) locally on port "$(PORT)" (http://localhost:"$(PORT)"/)..."
+	@docker run -p $(PORT):$(PORT) $(img)
+
+docker_build_run_deploy:
+    ifeq ($(mode),GC)
+		@echo "Building and deploying new Docker image eu.gcr.io/"$(PROJECT_ID)"/"$(img)"..."
+		@echo "Building new Docker image eu.gcr.io/"$(PROJECT_ID)"/"$(img)" for GC deployment..."
+    else
+		@echo "Building and running new Docker image "$(img)" locally..."
+		@echo "Building new Docker image "$(img)"..."
+    endif
+	@echo "Restarting Docker service. Enter password if prompted..."
+	@sudo service docker start
+	@echo "Docker service running."
+	@echo "Building image "$(img)" now..."
+    ifeq ($(mode),GC)
+		@docker build -f Dockerfile -t eu.gcr.io/$(PROJECT_ID)/$(img) .
+		@echo "Image eu.gcr.io/"$(PROJECT_ID)"/"$(img)" built for GC deployment."
+		@docker push eu.gcr.io/$(PROJECT_ID)/$(img)
+		@gcloud run deploy --image eu.gcr.io/$(PROJECT_ID)/$(img) --platform managed --region europe-west3 --port $(PORT) 
+    else
+		@docker build -f Dockerfile -t $(img) .
+		@echo "Image $(img) built."
+		@echo "Launching Docker image $(img) locally on port $(PORT) (http://localhost:"$(PORT)"/)..."
+		@docker run -p $(PORT):$(PORT) $(img)
+    endif
+
 # ----------------------------------
 #			GOOGLE CLOUD
 # ----------------------------------
 
 set_project:
 	-@gcloud config set project ${PROJECT_ID}
-
-create_bucket:
-	-@gsutil mb -l ${REGION} -p ${PROJECT_ID} gs://${BUCKET_NAME}
-
-upload_data:
-	-@gsutil cp ${LOCAL_PATH} gs://${BUCKET_NAME}/${BUCKET_FOLDER}/${BUCKET_FILE_NAME}

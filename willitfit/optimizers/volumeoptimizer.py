@@ -14,13 +14,14 @@ generate_optimizer(
     )
 '''
 
-from willitfit.params import ERRORS_OPTIMIZER, VOL_INTERIOR, VOL_UNAVAILABLE, VOL_BORDER, VOL_EMPTY, INSUFFICIENT_SPACE, INSUFFICIENT_DIMENSION, OPT_INSUFFICIENT_SPACE, OPT_UNSUCCESSFUL
+from willitfit.params import ERRORS_OPTIMIZER, GEN_SORTERS, OPT_MAX_ATTEMPTS, RANDOM_LIST_COUNT, VOL_INTERIOR, VOL_UNAVAILABLE, VOL_BORDER, VOL_EMPTY, INSUFFICIENT_SPACE, INSUFFICIENT_DIMENSION, OPT_INSUFFICIENT_SPACE, OPT_UNSUCCESSFUL, BIAS_STACKS
 import numpy as np
 import math
 from scipy.ndimage.measurements import label
 from threading import Thread
 from queue import Queue
 from skimage.feature import match_template
+import time
 
 '''
 General functions
@@ -31,12 +32,7 @@ def binarize_space(volume_space):
     Sets empty space to 1 and rest to 0.
     Needed to be able to identify clusters.
     '''
-    #TODO
-    # Use numpy.isin
-    arbitrary_constant = max(VOL_UNAVAILABLE, VOL_BORDER, VOL_INTERIOR, VOL_EMPTY) + 1
-    first_step = np.where(volume_space != VOL_EMPTY, arbitrary_constant, volume_space)
-    second_step = np.where(first_step == VOL_EMPTY, 1, first_step)
-    return np.where(second_step == arbitrary_constant, 0, second_step)
+    return np.isin(volume_space, VOL_EMPTY).astype(int)
 
 
 '''
@@ -71,7 +67,6 @@ def is_space_sufficient(article_list, volume_space):
     '''
     Returns True if package volume is smaller than or equal to available volume
     '''
-    print(find_total_package_volume(article_list), find_available_space(volume_space))
     return find_total_package_volume(article_list) <= find_available_space(volume_space)
 
 
@@ -152,10 +147,32 @@ def find_empty_space(volume_space):
     return number_spaces, empty_volume, largest_volume
 
 
+def find_open_surfaces(volume_space):
+    '''
+    Identifies and sums all surface areas.
+    A surface area is defined as the 1 cm squared edge between something (unavailable space or a package) and empty space.
+    Returns an integer.
+    '''
+    # This is what we're searching for
+    EDGE_STRUCTURE = np.array([1,0])
+    # Initialize counter
+    surfaces = 0
+
+    # Find matches for both the edge structure and its opposite in each dimension
+    surfaces += len(np.where((binarize_space(volume_space)[:,:,:-1] == EDGE_STRUCTURE[0]) & (binarize_space(volume_space)[:,:,1:] == EDGE_STRUCTURE[1]))[0])
+    surfaces += len(np.where((binarize_space(volume_space)[:,:,:-1] == EDGE_STRUCTURE[1]) & (binarize_space(volume_space)[:,:,1:] == EDGE_STRUCTURE[0]))[0])
+    surfaces += len(np.where((binarize_space(volume_space)[:,:-1:,] == EDGE_STRUCTURE[0]) & (binarize_space(volume_space)[:,1:,:] == EDGE_STRUCTURE[1]))[0])
+    surfaces += len(np.where((binarize_space(volume_space)[:,:-1:,] == EDGE_STRUCTURE[1]) & (binarize_space(volume_space)[:,1:,:] == EDGE_STRUCTURE[0]))[0])
+    surfaces += len(np.where((binarize_space(volume_space)[:-1,:,:] == EDGE_STRUCTURE[0]) & (binarize_space(volume_space)[1:,:,:] == EDGE_STRUCTURE[1]))[0])
+    surfaces += len(np.where((binarize_space(volume_space)[:-1,:,:] == EDGE_STRUCTURE[1]) & (binarize_space(volume_space)[1:,:,:] == EDGE_STRUCTURE[0]))[0])
+
+    return surfaces
+
+
 def score_space(volume_space, article_list):
     '''
     This function assigns a score to the empty space left by the optimization algorithm.
-    There is a penalty for having more empty spaces as well as a relatively smaller largest empty space.
+    There is a penalty for having more empty spaces as well as a relatively smaller largest empty space, and too many surfaces.
     '''
     # Get number of empty spaces, their total volume and the volume of the largest empty space
     number_spaces, empty_volume, largest_volume = find_empty_space(volume_space)
@@ -164,8 +181,9 @@ def score_space(volume_space, article_list):
     '''INITIAL IDEA:
     - Linear penalty for each empty space
     - Log penalty for how much largest empty space is smaller than maximum possible
+    - Log penalty for open surfaces
     '''
-    score = number_spaces + np.log(max(max_largest_volume - largest_volume,0.001))
+    score = number_spaces + np.log(max(max_largest_volume - largest_volume,0.001)) + np.log(find_open_surfaces(volume_space))
     return score
 
 
@@ -207,7 +225,7 @@ def hash_list(article_list):
     return [hash(article.tobytes()) for article in article_list]
 
 
-def generate_package_lists(article_list, sorters = ["volume|ascending", "volume|descending"], random_lists = 10):
+def generate_package_lists(article_list, sorters = GEN_SORTERS, random_lists = RANDOM_LIST_COUNT):
     '''
     Returns list of package lists for the optimizer.
     Lists can be pre-defined or randomized.
@@ -242,13 +260,11 @@ def generate_package_lists(article_list, sorters = ["volume|ascending", "volume|
 
     # Now add as many random lists as needed
     while True:
-        print("Attempting to add a new list...")
         # Shuffle starter list and copy data
         np.random.shuffle(starter_list)
         new_list = np.copy(starter_list)
         # Check if this particular permutation exists already by looking at hashes
         if hash_list([new_list])[0] not in hash_list(package_lists):
-            print("Appending new list")
             package_lists.append(new_list)
         # Check if length requirement (smaller of pre-defined lists + random_lists and max_permut) is fulfilled
         if len(package_lists) >= min(len(sorters) + random_lists, max_permut-2):
@@ -257,15 +273,35 @@ def generate_package_lists(article_list, sorters = ["volume|ascending", "volume|
     return package_lists
 
 
-def choose_orientation(package_length, package_width, package_height):
+def choose_orientation(package_length, package_width, package_height, biased = False, bias_tendency = 0.8):
     '''
     A 3-dimensional object (with exceptions like cubes) that needs to align...
     ...with the grid can have six degrees of freedom.
     Returns one random orientation for a given package.
+    Can also be biased, where package will most likely be placed as flat as possible (two largest dimensions first)
     '''
+    # Get dimensions
     dimensions = [package_length, package_width, package_height]
+
+    if biased == True:
+        if np.random.uniform(0,1) <= bias_tendency:
+            return sorted(dimensions, reverse=True)
     np.random.shuffle(dimensions)
     return (dimensions[0], dimensions[1], dimensions[2])
+
+
+def first_free_space_locator(bin_space, result):
+    '''
+    Returns the first free space that is actually free.
+    match_template sometimes returns matches that do not actually work.
+    '''
+    # Iterate over list of found spaces and return the first one that is empty
+    for i, _ in enumerate(result[0]):
+        if bin_space[result[0][i], result[1][i], result[2][i]] == 1:
+            return (result[0][i], result[1][i], result[2][i])
+    # If the package cannot be placed, return error code
+    return OPT_INSUFFICIENT_SPACE
+
 
 
 def find_first_space(package_x, package_y, package_z, volume_space):
@@ -282,17 +318,40 @@ def find_first_space(package_x, package_y, package_z, volume_space):
     # Use skimage's match_template to process a sliding window over bin_space...
     # ...and find the first location of zero, which indicates the starting point
 
+    # Search more efficiently
+    # Try within current maximum space first, i.e. where there are already items
+    start_time = time.time()
     try:
-        result = np.where(match_template(bin_space, template_shape) == 0)
+        search_space = np.max(np.where(volume_space == VOL_BORDER), axis=1)
+    except:
+        search_space = np.zeros((3), dtype=int)
+    try:
+        result = np.where(match_template(bin_space[:search_space[0], :search_space[1], :search_space[2]], template_shape) == 0)
+        return_val = first_free_space_locator(bin_space, result)
+        if return_val == OPT_INSUFFICIENT_SPACE:
+            raise ValueError
+        print(f"Done in smallest. This took {time.time()-start_time}.")
+        return return_val
     except ValueError:
-        return OPT_INSUFFICIENT_SPACE
-
-    # From here we can extract the coordinates
-    for i, _ in enumerate(result[0]):
-        if bin_space[result[0][i], result[1][i], result[2][i]] == 1:
-            return (result[0][i], result[1][i], result[2][i])
-    # If the package cannot be placed, return error code
-    return OPT_INSUFFICIENT_SPACE
+        # Next, try within package dimensions limited to smallest
+        try:
+            additional_space = np.min(template_shape.shape)
+            print(additional_space)
+            result = np.where(match_template(bin_space[:search_space[0]+additional_space+1, :search_space[1]+additional_space+1, :search_space[2]+additional_space+1], template_shape) == 0)
+            return_val = first_free_space_locator(bin_space, result)
+            if return_val == OPT_INSUFFICIENT_SPACE:
+                raise ValueError
+            print(f"Done in second. This took {time.time()-start_time}.")
+            return return_val
+        except ValueError:
+            # Then try whole space
+            try:
+                result = np.where(match_template(bin_space, template_shape) == 0)
+                print(f"Done in full. This took {time.time()-start_time}.")
+                return first_free_space_locator(bin_space, result)
+            # If still no fit, then the package cannot be placed
+            except ValueError:
+                return OPT_INSUFFICIENT_SPACE
 
 
 def place_package(package_dimensions, volume_space):
@@ -313,9 +372,7 @@ def place_package(package_dimensions, volume_space):
     # Check available space - there need to be as many zeros as the package_volume for it to fit
     available_space = volume_space[x:x+package_x, y:y+package_y, z:z+package_z]
     # If the package cannot be placed, return
-    #TODO
-    # Investigate if binarize_space should be called twice on available_space first - I think it should
-    if package_volume != available_space.size - np.count_nonzero(available_space):
+    if package_volume != available_space.size - np.count_nonzero(binarize_space(binarize_space(available_space))):
         return OPT_INSUFFICIENT_SPACE
     # Otherwise populate the array
     # Surfaces first
@@ -334,7 +391,7 @@ def place_package(package_dimensions, volume_space):
     return volume_space, x, y, z, x+package_x-1, y+package_y-1, z+package_z-1
 
 
-def optimizer(package_list, article_list, volume_space, queue=None, max_attempts=10):
+def optimizer(package_list, article_list, volume_space, empty_space, queue=None, max_attempts=OPT_MAX_ATTEMPTS, biased=True, bias_tendency=0.8):
     '''
     Places packages sequentially into available space.
     If at any point a package can no longer be placed, try again up to max_attempts times.
@@ -342,8 +399,6 @@ def optimizer(package_list, article_list, volume_space, queue=None, max_attempts
     '''
     # Attempts taken
     attempts_counter = 1
-    # Take pristine copy of volume_space
-    empty_space = np.copy(volume_space)
     # Package counter variable
     package_counter = 0
     # Package coordinates
@@ -361,11 +416,11 @@ def optimizer(package_list, article_list, volume_space, queue=None, max_attempts
         pkg = article_list[idx][2][int(package[2])-1]
         package_length, package_width, package_height = pkg[1], pkg[2], pkg[3]
         # Obtain package orientation (random)
-        package_dimensions = choose_orientation(package_length, package_width, package_height)
-        print('orientation done')
+        package_dimensions = choose_orientation(package_length, package_width, package_height, biased=biased, bias_tendency=bias_tendency)
+        #print('orientation done')
         # Attempt to place package in space
         placement_result = place_package(package_dimensions, volume_space)
-        print(f'placement done: {placement_result}')
+        #print('placement done')
         # Check if placement was successful
         if placement_result != OPT_INSUFFICIENT_SPACE:
             # Extract return variables and append to package_coordinates
@@ -377,7 +432,7 @@ def optimizer(package_list, article_list, volume_space, queue=None, max_attempts
             attempts_counter +=1
             # See if this is too many attempts already
             if attempts_counter > max_attempts:
-                print("max attempts reached")
+                #print("max attempts reached")
                 # Return error code
                 if queue is not None:
                     queue.put(OPT_UNSUCCESSFUL)
@@ -387,7 +442,6 @@ def optimizer(package_list, article_list, volume_space, queue=None, max_attempts
                 package_counter = 0
                 package_coordinates = []
                 volume_space = np.copy(empty_space)
-                print("continue")
                 continue
         print(f"package_counter {package_counter}")
         # Increase counter to move to next package
@@ -402,7 +456,7 @@ def optimizer(package_list, article_list, volume_space, queue=None, max_attempts
             return score, attempts_counter, volume_space, package_coordinates
 
 
-def generate_optimizer(article_list, volume_space, generator_sorters = ["volume|descending"], generator_random_lists = 10, optimizer_max_attempts = 10):
+def generate_optimizer(article_list, volume_space, generator_sorters = GEN_SORTERS, generator_random_lists = RANDOM_LIST_COUNT, optimizer_max_attempts = OPT_MAX_ATTEMPTS):
     '''
     Main function to run this module.
     First checks if packages can fit at all, then generates various package lists.
@@ -413,41 +467,44 @@ def generate_optimizer(article_list, volume_space, generator_sorters = ["volume|
     # Check if package volume is smaller than or equal to available space, otherwise return error
     if not is_space_sufficient(article_list, volume_space):
         return INSUFFICIENT_SPACE
-    print("Space sufficient")
+    #print("Space sufficient")
     # Check if longest package dimension is smaller than or equal to longest space dimension, otherwise return error
     if not is_longest_dimension_sufficient(article_list, volume_space):
         return INSUFFICIENT_DIMENSION
-    print("Dimension sufficient")
+    #print("Dimension sufficient")
     # Generate list of package lists
-    package_lists = generate_package_lists(article_list, sorters=generator_sorters, random_lists=0)
-    print("Package lists generated")
+    package_lists = generate_package_lists(article_list, sorters=generator_sorters, random_lists=generator_random_lists)
+    #print("Package lists generated")
     # Set up threads
     threads = []
     queue = Queue()
+    # Set up an empty list
     return_vals = []
-    print(package_lists)
+    # Also copy the volume_space once, so that each optimizer thread has a point it can start from again if needed
+    empty_space = np.copy(volume_space)
     # Call optimizer function for each package list
     for package_list in package_lists:
-        #return_vals.append(optimizer(package_list, article_list, np.copy(volume_space), None, optimizer_max_attempts))
-        # Set up new thread
-        optimizer_thread = Thread(target=optimizer, args=(package_list, article_list, np.copy(volume_space), queue, optimizer_max_attempts))
-        # Append to thread list
-        threads.append(optimizer_thread)
-        # Start thread
-        print("Thread starting")
-        optimizer_thread.start()
-        response = queue.get()
-        return_vals.append(response)
+        # Set up new threads
+        # One for each defined bias in params.py
+        for bias in BIAS_STACKS:
+            optimizer_thread = Thread(target=optimizer, args=(package_list, article_list, np.copy(volume_space), empty_space, queue, optimizer_max_attempts, bias[0], bias[1]))
+            # Append to thread list
+            threads.append(optimizer_thread)
+            # Start thread
+            print("Thread starting")
+            optimizer_thread.start()
 
     # Receive return values back for each thread
     for idx, thread in enumerate(threads):
+        response = queue.get()
+        return_vals.append(response)
         thread.join()
         print("Thread closed")
     # Find lowest score
     scores = [return_val[0] for return_val in return_vals if return_val not in ERRORS_OPTIMIZER]
+    print(f"Scores: {scores}")
     if len(scores) == 0:
         return OPT_UNSUCCESSFUL
     score_index = scores.index(min(scores))
     # Return
-    print("Optimizer complete")
     return return_vals[score_index][2:]
