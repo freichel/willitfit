@@ -51,7 +51,7 @@ PROJECT_DIR = Path(os.path.abspath(__file__)).parent.parent.absolute()
 PROJECT_NAME = "willitfit"
 DATA_FOLDER = "data"
 CAR_DATABASE = "cars_clean.csv"
-ARTICLE_DATABASE = "ikea_database.csv"
+ARTICLE_DATABASE = "ikea_database_domzae.csv"
 INTERFACE_INSTRUCTIONS = "frontend/app_instructions.md"
 
 # Google Cloud variables

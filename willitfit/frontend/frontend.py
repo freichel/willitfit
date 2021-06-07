@@ -8,15 +8,21 @@ from willitfit.app_utils.googlecloud import get_cloud_data
 from willitfit.optimizers.volumeoptimizer import generate_optimizer
 from willitfit.scrapers.IKEA import product_info_and_update_csv_database
 from willitfit.plotting.plotter import plot_all
+from pathlib import Path
 import plotly
 #import pandas as pd
 import numpy as np
+import os
+
+
 
 # Get car data from cloud CSV file
 data = get_cloud_data(DATA_FOLDER+"/"+CAR_DATABASE)
 MAKE_LIST = gen_make_list(data)
 MAKE_DICT = gen_make_dict(data)
 
+icon = str(Path(os.path.abspath(__file__)).parent.parent.parent.absolute() / 'resources' / 'icon.jpeg')
+st.set_page_config(page_title='Will It Fit?',page_icon = icon, layout = 'wide')
 def main():
     # Render initial app instructions
     with open(PROJECT_DIR/PROJECT_NAME/INTERFACE_INSTRUCTIONS, 'r') as f:

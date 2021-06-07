@@ -21,7 +21,7 @@ def main():
     with open(PROJECT_DIR/PROJECT_NAME/INTERFACE_INSTRUCTIONS, 'r') as f:
         contents = f.read()
         st.header(contents)
-
+    
     # Sidebar
     st.sidebar.markdown("""
         #### Enter your data:
