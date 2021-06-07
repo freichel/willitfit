@@ -8,7 +8,6 @@ from willitfit.app_utils.googlecloud import get_cloud_data
 from willitfit.optimizers.volumeoptimizer import generate_optimizer
 from willitfit.scrapers.IKEA import product_info_and_update_csv_database
 from willitfit.plotting.plotter import plot_all
-from pathlib import Path
 import plotly
 import numpy as np
 
