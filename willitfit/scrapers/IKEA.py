@@ -38,11 +38,7 @@ def chrome_settings():
     return chrome_options
 
 
-<<<<<<< HEAD
 def scrape_product(article_code, country_domain = IKEA_COUNTRY_DOMAIN, website_language= IKEA_WEBSITE_LANGUAGE):
-=======
-def scrape_product(article_code: str, country_domain = IKEA_COUNTRY_DOMAIN, website_language = IKEA_WEBSITE_LANGUAGE):
->>>>>>> master
     """
     Scrap the artikle from Ikea website
     Filter out part of the site with important informations.
@@ -92,8 +88,17 @@ def extract_numeric_product_to_dict(product_features):
                 info_dict[info_item[0]] = float(info_item[1])
             except:
                 pass
+    # prepare dict for product with only 2 dimensions
+    info_not_all_dimensions_given = {}
+    if len(info_dict)==4:   
+        info_not_all_dimensions_given[new_columns_name[0]] = list(info_dict.values())[0]
+        info_not_all_dimensions_given[new_columns_name[1]] = list(info_dict.values())[2]
+        info_not_all_dimensions_given[new_columns_name[2]] = list(info_dict.values())[2]
+        info_not_all_dimensions_given[new_columns_name[3]] = list(info_dict.values())[1]
+        info_not_all_dimensions_given[new_columns_name[4]] = list(info_dict.values())[3]
+        return info_not_all_dimensions_given
+    
     info_dict = {x:y for x,y in zip(new_columns_name,info_dict.values())}
-
     return info_dict
 
 def packages_dimensions_weights(page):
@@ -110,6 +115,7 @@ def packages_dimensions_weights(page):
     # extract subarticle code and parameters for all subproducts in product
     for i,(x,y) in enumerate(zip(number,info)):
         y_info = [info.text for info in y.find_all('span',  {"class": 'range-revamp-product-details__label'})]
+        print(y_info)
         # append to dict
         product_info = extract_numeric_product_to_dict(y_info)
         product_info['subarticle_code'] = x.text.replace('.','')
