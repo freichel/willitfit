@@ -17,39 +17,48 @@ MAKE_LIST = gen_make_list(data)
 MAKE_DICT = gen_make_dict(data)
 
 def main():
-    # Render initial app instructions
-    with open(PROJECT_DIR/PROJECT_NAME/INTERFACE_INSTRUCTIONS, 'r') as f:
-        contents = f.read()
-        st.header(contents)
-    
-    # Sidebar
-    st.sidebar.markdown("""
-        #### Enter your data:
-        """)
+    # Title
+    st.header('Will It Fit?')
+    # Icon
+    path_string = str(PROJECT_DIR/PROJECT_NAME)
+    st.image(path_string+"/frontend/icon.jpeg")
 
+    # Data entry container
+    data_container = st.beta_container()
+    data_container.subheader("""
+        Enter your data:
+        """)
+    # Columns
+    lang_col, make_col = data_container.beta_columns(2)
+    # IKEA language
+    pdf_lang = lang_col.selectbox('Select your local IKEA website language:', [*LANG_CODE])
     # Car model selector
-    car_make = st.sidebar.selectbox(
+    car_make = make_col.selectbox(
         'Select car brand:',
         MAKE_LIST
         )
     if car_make:
-        car_model = st.sidebar.selectbox(
+        car_model = data_container.selectbox(
         'Select model:',
         MAKE_DICT[car_make]
         )
-    st.sidebar.markdown("""
-        ---
-        """)
 
     # Upload pdf
-    pdf_lang = st.sidebar.selectbox('Select PDF language:', [*LANG_CODE])
-    uploaded_pdf = st.sidebar.file_uploader('Upload PDF:')
-    st.sidebar.markdown("""
-        ##### or
+    uploaded_pdf = data_container.file_uploader('Upload PDF:')
+    ## PDF instructions expandable
+    instr_expander = data_container.beta_expander('Expand for instructions')
+    with instr_expander:
+        with open(PROJECT_DIR/PROJECT_NAME/'frontend/containers_frontend_instructions.md', 'r') as f:
+            contents = f.read()
+            st.write(contents)
+        
+    # Form container
+    form_container = st.beta_container()
+    form_container.subheader("""
+        Alternatively:                     
         """)
-
     # Article number list
-    form = st.sidebar.form('Add your items manually:')
+    form = form_container.form('form')
     articles_str = form.text_area(
         'List your Article Numbers:',
         help='Delimited by commas. If more than 1 of the same article, denote in brackets as shown. Format: XXX.XXX.XX (>1), ',
@@ -57,7 +66,9 @@ def main():
         )
     form.form_submit_button('Submit your list')
 
-    plot_unavailable = st.sidebar.checkbox('Show unavailable space')
+    plot_unavailable = st.checkbox(
+        'Show unavailable space', 
+        help="Check this box if your rear window takes up significant trunk-space.")
 
     ## Generate plot
     if st.button('Generate'):
@@ -72,15 +83,15 @@ def main():
         else:
             st.error(NO_DATA_PROVIDED)
             st.stop()
-
+        
         # Find car trunk dimensions for given car_id
-        st.warning("Getting trunk volume...")
+        st.info("Getting trunk volume...")
         volume_space = get_volume_space(car_model)
 
         # Call scraper with article list and website location/language.
         # Receive list of package dimensions and weights for each article.
 
-        st.error("Browsing IKEA for you...")
+        st.info("Browsing IKEA for you...")
         scraper_return = product_info_and_update_csv_database(article_dict)
 
         if scraper_return not in ERRORS_SCRAPER:
@@ -91,20 +102,21 @@ def main():
 
         # Call optimizer with article list and volume array.
         # Receive package coordinates and filled volume array.
-
-        st.write("Stacking packages...")
-        optimizer_return = generate_optimizer(article_list, np.copy(volume_space), generator_random_lists=RANDOM_LIST_COUNT, optimizer_max_attempts=OPT_MAX_ATTEMPTS)
-        if optimizer_return not in ERRORS_OPTIMIZER:
-            filled_space, package_coordinates = optimizer_return
-        else:
-            st.error(optimizer_return)
-            st.stop()
+        st.info('Running optimizer...')
+        with st.spinner(text='Stacking packages...'):
+            optimizer_return = generate_optimizer(article_list, np.copy(volume_space), generator_random_lists=RANDOM_LIST_COUNT, optimizer_max_attempts=OPT_MAX_ATTEMPTS)
+            if optimizer_return not in ERRORS_OPTIMIZER:
+                filled_space, package_coordinates = optimizer_return
+            else:
+                st.error(optimizer_return)
+                st.stop()
+        st.success('Solution found!')
+        
 
         # Call plotter with package coordinates and filled volume array.
         # Receive plot
-
-        st.write("Solution found! Visualisation loading...")
         plotter_return = plot_all(filled_space, package_coordinates, plot_unavailable=plot_unavailable)
+        st.info('Build 3D plot')
         st.plotly_chart(plotter_return)
 
 if __name__ == "__main__":
