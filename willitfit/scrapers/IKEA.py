@@ -121,6 +121,7 @@ def packages_dimensions_weights(page):
         product_info['subarticle_code'] = x.text.replace('.','')
         #append to list
         list_of_products.append(product_info)
+
     return pd.DataFrame(list_of_products)
 
 
@@ -190,10 +191,7 @@ def product_info_and_update_csv_database(article_dict ,path_to_csv  = DATABASE_P
             df = packages_dimensions_weights(page)
             df['article_code'] = x
             all_ordered_product_df = all_ordered_product_df.append(df).astype(IKEA_DATABASE_DTYPES)
-            
             new_product_for_database = new_product_for_database.append(df)
-
-
 
     return_list = df_to_list(all_ordered_product_df, article_dict)
     # Append new items and reduce size
