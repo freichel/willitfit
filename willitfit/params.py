@@ -9,6 +9,12 @@ import os
 # IKEA website scraper settings
 IKEA_COUNTRY_DOMAIN = "de" # domain used
 IKEA_WEBSITE_LANGUAGE = "de" # language used, often same as IKEA_COUNTRY_DOMAIN but may be different
+IKEA_DATABASE_DTYPES = {"height": "int16", 
+                        "width": "int16",
+                        "length": "int16",
+                        "packages": "int8",
+                        "article_code": "str",
+                        "subarticle_code": "str"}
 
 # Humanised language codes
 LANG_CODE = {
@@ -68,11 +74,6 @@ OPT_INSUFFICIENT_SPACE = "Optimizer could not place this package (internal retur
 OPT_UNSUCCESSFUL = "Optimizer was unable to place all packages."
 ERRORS_OPTIMIZER = [INSUFFICIENT_SPACE, INSUFFICIENT_DIMENSION, OPT_INSUFFICIENT_SPACE, OPT_UNSUCCESSFUL]
 
-#TODO
-'''
-Scraper section
-Please modify/enhance those error codes as needed
-'''
 # Scraper
 WEBSITE_UNAVAILABLE = "Website temporarily unavailable."
 ARTICLE_NOT_FOUND = "One or more articles do not exist."
