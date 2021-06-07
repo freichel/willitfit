@@ -125,14 +125,20 @@ def draw_3d_plot(meshes, volume_dimensions):
 
     layout = go.Layout(
         scene = dict(
-            aspectmode='cube',
+            aspectmode='auto',
             xaxis = axis_dict(x_max),
             yaxis = axis_dict(y_max),
             zaxis = axis_dict(z_max),
         ),
         width=None,
         height=None,
-        margin=dict(l=20, r=20, t=20, b=20)
+        margin=dict(l=20, r=20, t=20, b=20),
+        legend=dict(borderwidth=2,
+                    font=dict(size=16),
+                    title=dict(side="top", text="Article List", font=dict(size=16)),
+                    y=0.9,
+                    itemsizing="constant"),
+
     )
     fig = go.Figure(data=meshes, layout=layout)
 
