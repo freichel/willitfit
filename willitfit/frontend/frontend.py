@@ -47,15 +47,15 @@ class LanguageSelector:
     def show_page(self):
         # Dropdown for language
         self.lang = st.selectbox(
-            "Select your local IKEA website language:", 
-            [*LANG_CODE], 
+            "Select your local IKEA website language:",
+            [*LANG_CODE],
             index=0
             )
-        
+
 class CarSelector:
     def __init__(self):
         self.car_model = CAR_BRAND_CHOOSE
-    
+
     def show_page(self):
         # Car model selector
         car_make = st.selectbox("Select car brand:", MAKE_LIST)
@@ -75,7 +75,7 @@ class ArticlePicker:
     def __init__(self):
         self.article_dict = {}
         self.pdf_list = []
-    
+
     def show_page(self, pdf_lang):
         # Columns
         pdf_col, manual_col = st.beta_columns(2)
@@ -99,14 +99,14 @@ class ArticlePicker:
         extra_line_empty = manual_col.empty()
         # extra_depth checkbox
         extra_depth = manual_col.checkbox(
-                'Back-seat down/removed if applicable', 
+                'Back-seat down/removed if applicable',
                 value=False
                 )
         self.extra_depth = extra_depth
-        
+
         # Centering 'Generate' button with columns
         cols = st.beta_columns([5,1,5])
-        
+
         if cols[1].button('Generate'):
             # Status message field wich will get overwritten
             unpack_message = st.empty()
@@ -130,9 +130,9 @@ class ArticlePicker:
                     st.stop()
                 self.article_dict = form_return
                 unpack_message.success("Articles extracted from form.")
-        else:
-            unpack_message.error(NO_DATA_PROVIDED)
-            st.stop()
+            else:
+                unpack_message.error(NO_DATA_PROVIDED)
+                st.stop()
 
 # Individual elements to be displayed sequentially
 # TODO
@@ -180,13 +180,13 @@ def main():
     article_dict = page.article_dict
     # Toggle extra_depth
     extra_depth = page.extra_depth
-    
+
     # Find car trunk dimensions for given car_model
     trunk_message = st.empty()
     trunk_message.info(f"Getting trunk volume for your {car_model}...")
     volume_space = get_volume_space(
         data,
-        car_model, 
+        car_model,
         extra_depth=extra_depth
         )
     trunk_message.success(f"Trunk volume for your {car_model} computed.")
