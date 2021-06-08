@@ -6,6 +6,7 @@ EXPOSE 8501
 # Copy requirements as well as entire project folder
 COPY requirements.txt /requirements.txt
 COPY willitfit /willitfit
+COPY resources /resources
 
 # Install packages
 RUN pip install --upgrade pip
