@@ -32,7 +32,7 @@ data = get_cloud_data(DATA_FOLDER + "/" + CAR_DATABASE)
 MAKE_LIST = gen_make_list(data)
 MAKE_DICT = gen_make_dict(data)
 
-icon = str(PROJECT_DIR / "resources/icon.jpeg")
+icon = str(PROJECT_DIR / "resources/icon.png")
 st.set_page_config(page_title="Will It Fit?", page_icon=icon, layout="wide")
 
 
