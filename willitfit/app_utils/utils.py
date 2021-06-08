@@ -20,6 +20,7 @@ def gen_make_list(data):
     """
     ## Generate Make and Model lists for Front-end
     make_list = data['make'].value_counts().index.to_list()
+    
     return [CAR_BRAND_CHOOSE]+sorted(make_list)
 
 def gen_make_dict(data):
@@ -43,8 +44,10 @@ def gen_make_dict(data):
     # Add placeholder to each
     for key, value in MAKE_DICT.items():
         MAKE_DICT[key] = [CAR_MODEL_CHOOSE]+value
+    
     return MAKE_DICT
 
-
-if __name__ == "__main__":
-    print(get_car_data())
+def get_image(data, car_model):
+    model_row = data[data['car_model'] == car_model]
+    
+    return model_row['img_url'].values[0]

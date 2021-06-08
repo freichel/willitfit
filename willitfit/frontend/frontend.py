@@ -2,8 +2,8 @@ import streamlit as st
 from willitfit.app_utils.pdf_parser import pdf_to_dict
 from willitfit.app_utils.form_transformer import form_to_dict
 from willitfit.app_utils.trunk_dimensions import get_volume_space
-from willitfit.app_utils.utils import gen_make_dict, gen_make_list
-from willitfit.params import OPT_MAX_ATTEMPTS, RANDOM_LIST_COUNT, CAR_DATABASE, NO_DATA_PROVIDED, ERRORS_SCRAPER, ERRORS_OPTIMIZER, PROJECT_NAME, PROJECT_DIR, DATA_FOLDER, INTERFACE_INSTRUCTIONS, LANG_CODE, CAR_MODEL_CHOOSE, CAR_BRAND_CHOOSE, LANG_CHOOSE
+from willitfit.app_utils.utils import gen_make_dict, gen_make_list, get_image
+from willitfit.params import OPT_MAX_ATTEMPTS, RANDOM_LIST_COUNT, CAR_DATABASE, NO_DATA_PROVIDED, NOT_PDF, LIST_UNREADABLE, ERRORS_INTERFACE, ERRORS_SCRAPER, ERRORS_OPTIMIZER, PROJECT_NAME, PROJECT_DIR, DATA_FOLDER, INTERFACE_INSTRUCTIONS, LANG_CODE, CAR_MODEL_CHOOSE, CAR_BRAND_CHOOSE, LANG_CHOOSE
 from willitfit.app_utils.googlecloud import get_cloud_data
 from willitfit.optimizers.volumeoptimizer import generate_optimizer
 from willitfit.scrapers.IKEA import product_info_and_update_csv_database
@@ -18,7 +18,11 @@ MAKE_LIST = gen_make_list(data)
 MAKE_DICT = gen_make_dict(data)
 
 icon = str(PROJECT_DIR/'resources/icon.jpeg')
-st.set_page_config(page_title='Will It Fit?',page_icon = icon, layout = 'wide')
+st.set_page_config(
+    page_title='Will It Fit?', 
+    page_icon=icon, 
+    layout='wide'
+    )
 
 class LanguageSelector:
     def __init__(self):
@@ -26,11 +30,15 @@ class LanguageSelector:
     
     def show_page(self):
         # Dropdown for language
-        self.lang = st.selectbox('Select your local IKEA website language:', [*LANG_CODE], index=0)
+        self.lang = st.selectbox(
+            'Select your local IKEA website language:', 
+            [*LANG_CODE], 
+            index=0
+            )
         
 class CarSelector:
     def __init__(self):
-        self.car_model = "---Choose a model---"
+        self.car_model = CAR_BRAND_CHOOSE
     
     def show_page(self):
         # Car model selector
@@ -41,10 +49,13 @@ class CarSelector:
         if car_make:
             car_model = st.selectbox(
             'Select model:',
-            MAKE_DICT.get(car_make,[CAR_MODEL_CHOOSE])
+            MAKE_DICT.get(car_make, [CAR_MODEL_CHOOSE])
             )
-        #TODO
-        #Display car image
+            if car_model is not CAR_MODEL_CHOOSE:
+                car_cols = st.beta_columns([1,1,1])
+                image_url = get_image(data, car_model)
+                if type(image_url) is not float:
+                    car_cols[1].image(image_url)
         
         self.car_model = car_model
         
@@ -52,7 +63,7 @@ class ArticlePicker:
     def __init__(self):
         self.article_dict = {}
     
-    def show_page(self):
+    def show_page(self, pdf_lang):
         # Columns
         pdf_col, manual_col = st.beta_columns(2)
         # Upload pdf
@@ -66,10 +77,19 @@ class ArticlePicker:
         # Article number list
         articles_str = manual_col.text_area(
             'Alternatively, list your Article Numbers:',
-            help='Delimited by commas. If more than 1 of the same article, denote in brackets as shown. Format: XXX.XXX.XX (>1), ',
+            help='Delimited by commas. If more than 1 of the same article, denote in brackets as shown. Format: "XXX.XXX.XX (>1), XXX.XX.XX" ',
             value="904.990.66 (2)"
             )
+        ## Empty line space
+        extra_line_empty = manual_col.empty()
+        # extra_depth checkbox
+        extra_depth = manual_col.checkbox(
+                'Back-seat down/removed if applicable', 
+                value=False
+                )
+        self.extra_depth = extra_depth
         
+        # Centering 'Generate' button with columns
         cols = st.beta_columns([5,1,5])
         
         if cols[1].button('Generate'):
@@ -78,12 +98,22 @@ class ArticlePicker:
             unpack_message.info("Unpacking data...")
             # Parsing uploaded_pdf to article_dict
             if uploaded_pdf:
-                self.article_dict = pdf_to_dict(uploaded_pdf, LANG_CODE[pdf_lang])
-                unpack_message.success("Articles extracted from PDF.")
+                try:
+                    pdf_parsed = pdf_to_dict(uploaded_pdf, LANG_CODE[pdf_lang])
+                    self.article_dict = pdf_parsed
+                    unpack_message.success("Articles extracted from PDF.")
+                except:
+                    unpack_message.error(NOT_PDF)
+                    st.stop()
             # Or build article_dict from form
             elif articles_str:
-                self.article_dict = form_to_dict(articles_str)
-                unpack_message.success("Articles extracted from form.")
+                try:
+                    form_built = form_to_dict(articles_str)
+                    self.article_dict = form_built
+                    unpack_message.success("Articles extracted from form.")
+                except:
+                    unpack_message.error(LIST_UNREADABLE)
+                    st.stop()
             else:
                 unpack_message.error(NO_DATA_PROVIDED)
                 st.stop()
@@ -120,18 +150,24 @@ def main():
     
     # Article selection
     page = pages["pick_art"]()
-    page.show_page()
+    page.show_page(pdf_lang)
     # Loop until articles are selected
     while page.article_dict == {}:
         status = st.empty()
         time.sleep(0.5)
     # Assign articles
     article_dict = page.article_dict
+    # Toggle extra_depth
+    extra_depth = page.extra_depth
     
-    # Find car trunk dimensions for given car_id
+    # Find car trunk dimensions for given car_model
     trunk_message = st.empty()
     trunk_message.info(f"Getting trunk volume for your {car_model}...")
-    volume_space = get_volume_space(car_model)
+    volume_space = get_volume_space(
+        data,
+        car_model, 
+        extra_depth=extra_depth
+        )
     trunk_message.success(f"Trunk volume for your {car_model} computed.")
     # Call scraper with article list and website location/language.
     # Receive list of package dimensions and weights for each article.
@@ -169,7 +205,7 @@ def main():
     # Call plotter with package coordinates and filled volume array.
     # Receive plot
     plotter_message = st.empty()
-    plotter_message.info("Building 3D plot")
+    plotter_message.info("Building 3D plot...")
     plotter_return = plot_all(filled_space, package_coordinates, product_names)
     cols = st.beta_columns([1,1,1])
     cols[1].plotly_chart(plotter_return, use_container_width=True)
