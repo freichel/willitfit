@@ -64,7 +64,7 @@ def generate_mesh3d_from_coords(coords_arr):
         z=z,
         alphahull=0,
         # Set unavailable space styling below
-        color="grey",
+        color="lightgrey",
         flatshading=True,
         visible="legendonly",
         showlegend=True,
@@ -110,6 +110,7 @@ def draw_3d_plot(meshes, volume_dimensions):
         fig - a plotly.go.Figure object
     """
     x_max, y_max, z_max = volume_dimensions
+    print(volume_dimensions)
 
     # Styling for all plot axes
     def axis_dict(max):
@@ -125,15 +126,16 @@ def draw_3d_plot(meshes, volume_dimensions):
         )
 
     layout = go.Layout(
-        scene=dict(
-            aspectmode="auto",
-            xaxis=axis_dict(x_max),
-            yaxis=axis_dict(y_max),
-            zaxis=axis_dict(z_max),
+        scene = dict(
+            aspectmode="manual",
+            aspectratio=dict(x=1,y=1,z=1),
+            xaxis = axis_dict(x_max),
+            yaxis = axis_dict(y_max),
+            zaxis = axis_dict(z_max),
         ),
         width=None,
-        height=None,
-        margin=dict(l=20, r=20, t=20, b=20),
+        height=600,
+        margin=dict(l=20, r=20, t=20, b=0),
         legend=dict(
             borderwidth=2,
             font=dict(size=16),

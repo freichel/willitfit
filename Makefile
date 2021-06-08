@@ -22,6 +22,7 @@ BACK_END_APP=app
 # ----------------------------------
 #          INSTALL & TEST
 # ----------------------------------
+
 install_requirements:
 	@pip freeze --exclude-editable | xargs -r pip uninstall -y 
 	@pip install -r requirements.txt
@@ -54,7 +55,6 @@ docker_build:
 		@docker build -f Dockerfile -t $(img) .
 		@echo "Image $(img) built."
     endif
-	
 
 docker_run:
 	@echo "Launching Docker image $(img) locally on port "$(PORT)" (http://localhost:"$(PORT)"/)..."
@@ -83,10 +83,3 @@ docker_build_run_deploy:
 		@echo "Launching Docker image $(img) locally on port $(PORT) (http://localhost:"$(PORT)"/)..."
 		@docker run -p $(PORT):$(PORT) $(img)
     endif
-
-# ----------------------------------
-#			GOOGLE CLOUD
-# ----------------------------------
-
-set_project:
-	-@gcloud config set project ${PROJECT_ID}

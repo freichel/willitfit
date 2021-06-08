@@ -68,7 +68,7 @@ PROJECT_NAME = "willitfit"
 DATA_FOLDER = "data"
 CAR_DATABASE = "cars_clean.csv"
 ARTICLE_DATABASE = "ikea_database.csv"
-INTERFACE_INSTRUCTIONS = "frontend/containers_frontend_instructions.md"
+INTERFACE_INSTRUCTIONS = "frontend/pdf_frontend_instructions.md"
 
 # Google Cloud variables
 PROJECT_ID = PROJECT_NAME
@@ -98,6 +98,7 @@ ERRORS_SCRAPER = [WEBSITE_UNAVAILABLE, ARTICLE_NOT_FOUND]
 
 # Interface
 NOT_PDF = "Document is not a PDF."
-PDF_UNREADABLE = "Unexpected format."
+UNABLE_TO_PARSE_LANG = 'Check that the PDF language matches the language selected.'
+LIST_UNREADABLE = "Unexpected list format."
 NO_DATA_PROVIDED = "Please upload wishlist PDF or add articles to the form."
-ERRORS_INTERFACE = [NOT_PDF, PDF_UNREADABLE, NO_DATA_PROVIDED]
+ERRORS_INTERFACE = [NOT_PDF, UNABLE_TO_PARSE_LANG, LIST_UNREADABLE, NO_DATA_PROVIDED]
