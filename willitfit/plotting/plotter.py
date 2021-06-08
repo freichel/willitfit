@@ -110,7 +110,6 @@ def draw_3d_plot(meshes, volume_dimensions):
         fig - a plotly.go.Figure object
     """
     x_max, y_max, z_max = volume_dimensions
-    print(volume_dimensions)
 
     # Styling for all plot axes
     def axis_dict(max):
