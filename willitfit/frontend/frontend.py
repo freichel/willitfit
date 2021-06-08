@@ -71,7 +71,6 @@ class CarSelector:
                     car_cols[1].image(image_url)
         self.car_model = car_model
 
-
 class ArticlePicker:
     def __init__(self):
         self.article_dict = {}
@@ -148,7 +147,13 @@ pages = {
 }
 
 
+article_lines = []
+
 def main():
+    global article_lines
+    article_lines = [ArticleInput()]
+    article_lines = article_lines[-1].add_line(article_lines)
+    
     # Icon
     cols = st.beta_columns([2, 1, 2])
     cols[1].image(icon, use_column_width=True)
@@ -239,7 +244,6 @@ def main():
     plotter_message = st.empty()
     plotter_message.info("Building 3D plot...")
     plotter_return = plot_all(filled_space, package_coordinates, product_names)
-
     st.plotly_chart(plotter_return, use_container_width=True)
     plotter_message.empty()
 
