@@ -1,5 +1,5 @@
 import streamlit as st
-from willitfit.app_utils.pdf_parser import pdf_to_dict
+from willitfit.app_utils.pdf_parser import pdf_to_df, pdf_df_to_dict, pdf_df_to_str_list
 from willitfit.app_utils.form_transformer import form_to_dict
 from willitfit.app_utils.trunk_dimensions import get_volume_space
 from willitfit.app_utils.utils import gen_make_dict, gen_make_list, get_image
@@ -47,15 +47,15 @@ class LanguageSelector:
     def show_page(self):
         # Dropdown for language
         self.lang = st.selectbox(
-            "Select your local IKEA website language:", 
-            [*LANG_CODE], 
+            "Select your local IKEA website language:",
+            [*LANG_CODE],
             index=0
             )
-        
+
 class CarSelector:
     def __init__(self):
         self.car_model = CAR_BRAND_CHOOSE
-    
+
     def show_page(self):
         # Car model selector
         car_make = st.selectbox("Select car brand:", MAKE_LIST)
@@ -75,7 +75,7 @@ class ArticlePicker:
     def __init__(self):
         self.article_dict = {}
         self.pdf_list = []
-    
+
     def show_page(self, pdf_lang):
         # Columns
         pdf_col, manual_col = st.beta_columns(2)
@@ -99,45 +99,40 @@ class ArticlePicker:
         extra_line_empty = manual_col.empty()
         # extra_depth checkbox
         extra_depth = manual_col.checkbox(
-                'Back-seat down/removed if applicable', 
+                'Back-seat down/removed if applicable',
                 value=False
                 )
         self.extra_depth = extra_depth
-        
+
         # Centering 'Generate' button with columns
         cols = st.beta_columns([5,1,5])
-        
+
         if cols[1].button('Generate'):
             # Status message field wich will get overwritten
             unpack_message = st.empty()
             unpack_message.info("Unpacking data...")
             # Parsing uploaded_pdf to article_dict
             if uploaded_pdf:
-                pdf_return = pdf_to_dict(uploaded_pdf, LANG_CODE[pdf_lang])
-                
-                if isinstance(pdf_return,str):
+                pdf_return = pdf_to_df(uploaded_pdf, LANG_CODE[pdf_lang])
+                if isinstance(pdf_return, str):
                     unpack_message.error(pdf_return)
                     st.stop()
-                
                 # Build string list from df
-                self.pdf_list = []
+                self.pdf_list = pdf_df_to_str_list(pdf_return)
                 # Build article_dict from df
-                self.article_dict = pdf_return.set_index("article_num").T.to_dict("index")["n_pieces"]
-                unpack_message.success("Articles extracted from PDF.")
+                self.article_dict = pdf_df_to_dict(pdf_return)
 
             # Or build article_dict from form
             elif articles_str:
                 form_return = form_to_dict(articles_str)
-                if form_return not in ERRORS_INTERFACE:
-                    self.article_dict = form_return
-                    unpack_message.success("Articles extracted from form.")
-                else:
+                if isinstance(form_return, str):
                     unpack_message.error(form_return)
                     st.stop()
+                self.article_dict = form_return
+                unpack_message.success("Articles extracted from form.")
             else:
                 unpack_message.error(NO_DATA_PROVIDED)
                 st.stop()
-
 
 # Individual elements to be displayed sequentially
 # TODO
@@ -185,13 +180,13 @@ def main():
     article_dict = page.article_dict
     # Toggle extra_depth
     extra_depth = page.extra_depth
-    
+
     # Find car trunk dimensions for given car_model
     trunk_message = st.empty()
     trunk_message.info(f"Getting trunk volume for your {car_model}...")
     volume_space = get_volume_space(
         data,
-        car_model, 
+        car_model,
         extra_depth=extra_depth
         )
     trunk_message.success(f"Trunk volume for your {car_model} computed.")
