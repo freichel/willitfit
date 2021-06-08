@@ -74,7 +74,7 @@ class CarSelector:
 class ArticlePicker:
     def __init__(self):
         self.article_dict = {}
-        self.pdf_list = []
+        self.pdf_list = ''
 
     def show_page(self, pdf_lang):
         # Columns
@@ -93,7 +93,7 @@ class ArticlePicker:
         articles_str = manual_col.text_area(
             "Alternatively, list your Article Numbers:",
             help="Delimited by commas. If more than 1 of the same article, denote in brackets as shown. Format: XXX.XXX.XX (>1), XXX.XX.XX ",
-            value=f"{placeholder if self.article_dict == {} else self.pdf_list}"
+            value=f"{self.pdf_list if (self.article_dict != {}) else placeholder}"
             )
         ## Empty line space
         extra_line_empty = manual_col.empty()
