@@ -48,6 +48,18 @@ class CarSelector:
 
         self.car_model = car_model
 
+class ArticleInput:
+    def __init__(self):
+        pass
+    
+    def add_line(self, article_lines):
+        if st.button(str(len(article_lines))):
+            print(article_lines)
+            article_lines.append(ArticleInput())
+            article_lines = article_lines[-1].add_line(article_lines)
+        return article_lines
+                    
+
 class ArticlePicker:
     def __init__(self):
         self.article_dict = {}
@@ -93,7 +105,13 @@ class ArticlePicker:
 # They're labelled "pages" because ideally we'd use individual pages. However, haven't gotten there yet.
 pages={"select_lang": LanguageSelector, "select_car": CarSelector, "pick_art": ArticlePicker}
 
+article_lines = []
+
 def main():
+    global article_lines
+    article_lines = [ArticleInput()]
+    article_lines = article_lines[-1].add_line(article_lines)
+    
     # Icon
     cols = st.beta_columns([2,1,2])
     cols[1].image(icon, use_column_width=True)
@@ -171,7 +189,6 @@ def main():
     plotter_message = st.empty()
     plotter_message.info("Building 3D plot")
     plotter_return = plot_all(filled_space, package_coordinates, product_names)
-
     st.plotly_chart(plotter_return, use_container_width=True)
     plotter_message.empty()
 
