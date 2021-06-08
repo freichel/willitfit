@@ -1,5 +1,5 @@
 import streamlit as st
-from willitfit.app_utils.pdf_parser import pdf_to_dict
+from willitfit.app_utils.pdf_parser import pdf_to_df, pdf_df_to_dict, pdf_df_to_str_list
 from willitfit.app_utils.form_transformer import form_to_dict
 from willitfit.app_utils.trunk_dimensions import get_volume_space
 from willitfit.app_utils.utils import gen_make_dict, gen_make_list, get_image
@@ -113,31 +113,26 @@ class ArticlePicker:
             unpack_message.info("Unpacking data...")
             # Parsing uploaded_pdf to article_dict
             if uploaded_pdf:
-                pdf_return = pdf_to_dict(uploaded_pdf, LANG_CODE[pdf_lang])
-                
-                if isinstance(pdf_return,str):
+                pdf_return = pdf_to_df(uploaded_pdf, LANG_CODE[pdf_lang])
+                if isinstance(pdf_return, str):
                     unpack_message.error(pdf_return)
                     st.stop()
-                
                 # Build string list from df
-                self.pdf_list = []
+                self.pdf_list = pdf_df_to_str_list(pdf_return)
                 # Build article_dict from df
-                self.article_dict = pdf_return.set_index("article_num").T.to_dict("index")["n_pieces"]
-                unpack_message.success("Articles extracted from PDF.")
+                self.article_dict = pdf_df_to_dict(pdf_return)
 
             # Or build article_dict from form
             elif articles_str:
                 form_return = form_to_dict(articles_str)
-                if form_return not in ERRORS_INTERFACE:
-                    self.article_dict = form_return
-                    unpack_message.success("Articles extracted from form.")
-                else:
+                if isinstance(form_return, str):
                     unpack_message.error(form_return)
                     st.stop()
-            else:
-                unpack_message.error(NO_DATA_PROVIDED)
-                st.stop()
-
+                self.article_dict = form_return
+                unpack_message.success("Articles extracted from form.")
+        else:
+            unpack_message.error(NO_DATA_PROVIDED)
+            st.stop()
 
 # Individual elements to be displayed sequentially
 # TODO

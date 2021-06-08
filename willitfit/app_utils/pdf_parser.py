@@ -1,3 +1,7 @@
+"""
+Utilities for parsing article numbers and units of articles from IKEA wishlist PDF's
+"""
+
 from pdfminer.high_level import extract_text
 from pdfminer.layout import LAParams
 from willitfit.params import NOT_PDF, UNABLE_TO_PARSE_LANG
@@ -45,7 +49,7 @@ def _parse_line(line, lang_code):
     # if there are no matches
     return None, None
 
-def pdf_to_dict(uploaded_pdf, lang_code):
+def pdf_to_df(uploaded_pdf, lang_code):
     ## Setup pdf layout params
     laparams = LAParams(
         line_overlap=0.1, 
@@ -55,7 +59,6 @@ def pdf_to_dict(uploaded_pdf, lang_code):
         boxes_flow=.1, 
         detect_vertical=False
         )
-    # Check file type for non-pdf:
     
     ## Preparing to read into submission DataFrame
     pdf_dict = {"n_pieces": [], "article_num": []}
@@ -76,12 +79,21 @@ def pdf_to_dict(uploaded_pdf, lang_code):
         # If language specific units are parsed, build df:
         if match_count > 0:
             df = pd.DataFrame(pdf_dict)
-            # Strip article dots
-            df["article_num"] = df["article_num"].str.replace(".", "", regex=True)
-            # Convert n_pieces column to int
-            df["n_pieces"] = df["n_pieces"].astype(int)
             return df
         else:
             return UNABLE_TO_PARSE_LANG
     except:
         return NOT_PDF
+
+def pdf_df_to_dict(df):
+    # Strip article dots
+    df["article_num"] = df["article_num"].str.replace(".", "", regex=True)
+    # Convert n_pieces column to int
+    df["n_pieces"] = df["n_pieces"].astype(int)
+    return df.set_index('article_num').T.to_dict('index')['n_pieces']
+
+def pdf_df_to_str_list(df):
+    pdf_list = []
+    for item in df.values.tolist():
+        pdf_list.append(f"{item[1]} ({item[0]})")
+    return str(pdf_list).replace('[', '').replace("'", '').replace(']', '')
