@@ -64,7 +64,7 @@ def generate_mesh3d_from_coords(coords_arr):
         z=z,
         alphahull=0,
         # Set unavailable space styling below
-        color="grey",
+        color="lightgrey",
         flatshading=True,
         visible="legendonly",
         showlegend=True,
@@ -134,8 +134,8 @@ def draw_3d_plot(meshes, volume_dimensions):
             zaxis = axis_dict(z_max),
         ),
         width=None,
-        height=None,
-        margin=dict(l=20, r=20, t=20, b=20),
+        height=600,
+        margin=dict(l=20, r=20, t=20, b=0),
         legend=dict(
             borderwidth=2,
             font=dict(size=16),
