@@ -1,6 +1,6 @@
 from pdfminer.high_level import extract_text
 from pdfminer.layout import LAParams
-from willitfit.params import NOT_PDF
+from willitfit.params import NOT_PDF, UNABLE_TO_PARSE_LANG
 import re
 import pandas as pd
 
@@ -55,26 +55,33 @@ def pdf_to_dict(uploaded_pdf, lang_code):
         boxes_flow=.1, 
         detect_vertical=False
         )
-   
+    # Check file type for non-pdf:
+    
     ## Preparing to read into submission DataFrame
     pdf_dict = {"n_pieces": [], "article_num": []}
 
     ## Extracting text
     try:
         pdf = extract_text(uploaded_pdf, laparams=laparams)
+        for line in pdf.splitlines():
+            key, match = _parse_line(line, lang_code=lang_code)
+            if match:
+                pdf_dict[key].append(match[0])
+
+        ## Check for no-match for language-specific units:
+        match_count = 0
+        for i in pdf_dict['n_pieces']:
+            if i is not None:
+                match_count += 1
+        # If language specific units are parsed, build df:
+        if match_count > 0:
+            df = pd.DataFrame(pdf_dict)
+            # Strip article dots
+            df["article_num"] = df["article_num"].str.replace(".", "", regex=True)
+            # Convert n_pieces column to int
+            df["n_pieces"] = df["n_pieces"].astype(int)
+            return df
+        else:
+            return UNABLE_TO_PARSE_LANG
     except:
         return NOT_PDF
-
-    for line in pdf.splitlines():
-        key, match = _parse_line(line, lang_code=lang_code)
-        if match:
-            pdf_dict[key].append(match[0])
-
-    df = pd.DataFrame(pdf_dict)
-
-    # Strip article dots
-    df["article_num"] = df["article_num"].str.replace(".", "", regex=True)
-    # Convert n_pieces column to int
-    df["n_pieces"] = df["n_pieces"].astype(int)
-
-    return df.set_index("article_num").T.to_dict("index")["n_pieces"]
