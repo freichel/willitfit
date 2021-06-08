@@ -141,7 +141,7 @@ def packages_dimensions_weights(page):
                 "span", {"class": "range-revamp-product-details__label"}
             )
         ]
-        print(y_info)
+        #print(y_info)
         # append to dict
         product_info = extract_numeric_product_to_dict(y_info)
         product_info["subarticle_code"] = x.text.replace(".", "")
@@ -217,7 +217,6 @@ def product_info_and_update_csv_database(
     return_list = []
 
     for i, x in enumerate(article_code):
-        print(x)
         # If article exists in database already
         if ikea_database.shape[0] > 0 and (ikea_database["article_code"] == x).any():
             all_ordered_product_df = all_ordered_product_df.append(
@@ -243,7 +242,7 @@ def product_info_and_update_csv_database(
 
     product_names = all_ordered_product_df[["article_code", "product_name"]].set_index(
         ["article_code"]
-    )
+    ).drop_duplicates()
 
     return_list = df_to_list(all_ordered_product_df, article_dict)
     # Append new items and reduce size

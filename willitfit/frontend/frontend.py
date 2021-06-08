@@ -89,7 +89,7 @@ class ArticlePicker:
                 st.write(contents)
         # Article number list
         ## Initial placeholder value
-        placeholder = "904.990.66 (2)"
+        placeholder = "604.845.80, 404.703.29 (3)"
         articles_str = manual_col.text_area(
             "Alternatively, list your Article Numbers:",
             help="Delimited by commas. If more than 1 of the same article, denote in brackets as shown. Format: XXX.XXX.XX (>1), XXX.XX.XX ",
@@ -200,6 +200,7 @@ def main():
     if scraper_return not in ERRORS_SCRAPER:
         article_list = scraper_return[0]
         product_names = scraper_return[1]
+        print(product_names)
         scraper_message.success("All articles found on IKEA.")
     else:
         scraper_message.error(scraper_return)
