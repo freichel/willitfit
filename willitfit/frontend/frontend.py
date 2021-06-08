@@ -2,7 +2,7 @@ import streamlit as st
 from willitfit.app_utils.pdf_parser import pdf_to_dict
 from willitfit.app_utils.form_transformer import form_to_dict
 from willitfit.app_utils.trunk_dimensions import get_volume_space
-from willitfit.app_utils.utils import gen_make_dict, gen_make_list, get_image
+from willitfit.app_utils.utils import gen_make_dict, gen_make_list
 from willitfit.params import (
     OPT_MAX_ATTEMPTS,
     RANDOM_LIST_COUNT,
@@ -10,7 +10,6 @@ from willitfit.params import (
     NO_DATA_PROVIDED,
     ERRORS_SCRAPER,
     ERRORS_OPTIMIZER,
-    ERRORS_INTERFACE,
     PROJECT_NAME,
     PROJECT_DIR,
     DATA_FOLDER,
@@ -18,7 +17,7 @@ from willitfit.params import (
     LANG_CODE,
     CAR_MODEL_CHOOSE,
     CAR_BRAND_CHOOSE,
-    LANG_CHOOSE
+    LANG_CHOOSE,
 )
 from willitfit.app_utils.googlecloud import get_cloud_data
 from willitfit.optimizers.volumeoptimizer import generate_optimizer
@@ -33,12 +32,9 @@ data = get_cloud_data(DATA_FOLDER + "/" + CAR_DATABASE)
 MAKE_LIST = gen_make_list(data)
 MAKE_DICT = gen_make_dict(data)
 
-icon = str(PROJECT_DIR / "resources/icon.png")
-st.set_page_config(
-    page_title="Will It Fit?",
-    page_icon=icon,
-    layout="wide"
-    )
+icon = str(PROJECT_DIR / "resources/icon.jpeg")
+st.set_page_config(page_title="Will It Fit?", page_icon=icon, layout="wide")
+
 
 class LanguageSelector:
     def __init__(self):
@@ -47,45 +43,34 @@ class LanguageSelector:
     def show_page(self):
         # Dropdown for language
         self.lang = st.selectbox(
-            "Select your local IKEA website language:", 
-            [*LANG_CODE], 
-            index=0
-            )
-        
+            "Select your local IKEA website language:", [*LANG_CODE], index=0
+        )
+
+
 class CarSelector:
     def __init__(self):
-        self.car_model = CAR_BRAND_CHOOSE
-    
+        self.car_model = "---Choose a model---"
+
     def show_page(self):
         # Car model selector
         car_make = st.selectbox("Select car brand:", MAKE_LIST)
         if car_make:
             car_model = st.selectbox(
-            "Select model:",
-            MAKE_DICT.get(car_make, [CAR_MODEL_CHOOSE])
+                "Select model:", MAKE_DICT.get(car_make, [CAR_MODEL_CHOOSE])
             )
-            if car_model is not CAR_MODEL_CHOOSE:
-                car_cols = st.beta_columns([1,1,1])
-                image_url = get_image(data, car_model)
-                if type(image_url) is not float:
-                    car_cols[1].image(image_url)
+        # TODO
+        # Display car image
+
         self.car_model = car_model
+
 
 class ArticlePicker:
     def __init__(self):
         self.article_dict = {}
-<<<<<<< HEAD
 
     def show_page(self):
-        
-        pdf_col, num_art_col= st.beta_columns(2)
-=======
-        self.pdf_list = []
-    
-    def show_page(self, pdf_lang):
         # Columns
         pdf_col, manual_col = st.beta_columns(2)
->>>>>>> master
         # Upload pdf
         uploaded_pdf = pdf_col.file_uploader("Upload PDF:")
         ## PDF instructions expandable
@@ -94,107 +79,27 @@ class ArticlePicker:
             with open(PROJECT_DIR / PROJECT_NAME / INTERFACE_INSTRUCTIONS, "r") as f:
                 contents = f.read()
                 st.write(contents)
-<<<<<<< HEAD
-        # Number of article to pack
-        form = num_art_col.form('forma')
-        num_str = form.text_area(
+        # Article number list
+        articles_str = manual_col.text_area(
             "Alternatively, list your Article Numbers:",
-            help="Between 1 and inf ",
-            value="1",
+            help="Delimited by commas. If more than 1 of the same article, denote in brackets as shown. Format: XXX.XXX.XX (>1), ",
+            value="904.990.66 (2)",
         )
-        form.form_submit_button('Submit number of articles to pack')
 
-        #####
-        with st.form('columns_in_forma'): 
-            article_s = []
-            i = 0
-            while i < int(num_str):
-                
-                
-                _, manual_col, amount_col= st.beta_columns([3,1.5,1.5])
-    
-                # Article number list
-                articles_str = manual_col.text_area(
-                    "Product ID:",
-                    help="Delimited by commas. Format: XXX.XXX.XX , ",
-                    value="904.990.66",
-                    key = str(i))
-                # Amount
-                amount_str = amount_col.text_area(
-                    "Amount:",
-                    help="Between 1 and inf ",
-                    value="1",
-                    key = str(i))
-                i+=1
-        form.form_submit_button('Submit information about articles')
-            
-        # Columns
-        # pdf_col, manual_col= st.beta_columns(2)
-        # # Upload pdf
-        # uploaded_pdf = pdf_col.file_uploader("Upload PDF:")
-        # ## PDF instructions expandable
-        # instr_expander = pdf_col.beta_expander("Expand for instructions")
-        # with instr_expander:
-        #     with open(PROJECT_DIR / PROJECT_NAME / INTERFACE_INSTRUCTIONS, "r") as f:
-        #         contents = f.read()
-        #         st.write(contents)
-        # # Article number list
-        # articles_str = manual_col.text_area(
-        #     "Alternatively, list your Article Numbers:",
-        #     help="Delimited by commas. If more than 1 of the same article, denote in brackets as shown. Format: XXX.XXX.XX (>1), ",
-        #     value="904.990.66 (2)",
-        # )
-        
         cols = st.beta_columns([5, 1, 5])
 
         if cols[1].button("Generate"):
-=======
-        # Article number list
-        ## Initial placeholder value
-        placeholder = "904.990.66 (2)"
-        articles_str = manual_col.text_area(
-            "Alternatively, list your Article Numbers:",
-            help="Delimited by commas. If more than 1 of the same article, denote in brackets as shown. Format: XXX.XXX.XX (>1), XXX.XX.XX ",
-            value=f"{placeholder if self.article_dict == {} else self.pdf_list}"
-            )
-        ## Empty line space
-        extra_line_empty = manual_col.empty()
-        # extra_depth checkbox
-        extra_depth = manual_col.checkbox(
-                'Back-seat down/removed if applicable', 
-                value=False
-                )
-        self.extra_depth = extra_depth
-        
-        # Centering 'Generate' button with columns
-        cols = st.beta_columns([5,1,5])
-        
-        if cols[1].button('Generate'):
->>>>>>> master
             # Status message field wich will get overwritten
             unpack_message = st.empty()
             unpack_message.info("Unpacking data...")
             # Parsing uploaded_pdf to article_dict
             if uploaded_pdf:
-                pdf_return = pdf_to_dict(uploaded_pdf, LANG_CODE[pdf_lang])
-                if pdf_return not in ERRORS_INTERFACE:
-                    # Build string list from df
-                    self.pdf_list = []
-                    # Build article_dict from df
-                    self.article_dict = pdf_return.set_index("article_num").T.to_dict("index")["n_pieces"]
-                    unpack_message.success("Articles extracted from PDF.")
-                else:
-                    unpack_message.error(pdf_return)
-                    st.stop()
+                self.article_dict = pdf_to_dict(uploaded_pdf, LANG_CODE[pdf_lang])
+                unpack_message.success("Articles extracted from PDF.")
             # Or build article_dict from form
             elif articles_str:
-                form_return = form_to_dict(articles_str)
-                if form_return not in ERRORS_INTERFACE:
-                    self.article_dict = form_return
-                    unpack_message.success("Articles extracted from form.")
-                else:
-                    unpack_message.error(form_return)
-                    st.stop()
+                self.article_dict = form_to_dict(articles_str)
+                unpack_message.success("Articles extracted from form.")
             else:
                 unpack_message.error(NO_DATA_PROVIDED)
                 st.stop()
@@ -237,24 +142,18 @@ def main():
 
     # Article selection
     page = pages["pick_art"]()
-    page.show_page(pdf_lang)
+    page.show_page()
     # Loop until articles are selected
     while page.article_dict == {}:
         status = st.empty()
         time.sleep(0.5)
     # Assign articles
     article_dict = page.article_dict
-    # Toggle extra_depth
-    extra_depth = page.extra_depth
-    
-    # Find car trunk dimensions for given car_model
+
+    # Find car trunk dimensions for given car_id
     trunk_message = st.empty()
     trunk_message.info(f"Getting trunk volume for your {car_model}...")
-    volume_space = get_volume_space(
-        data,
-        car_model, 
-        extra_depth=extra_depth
-        )
+    volume_space = get_volume_space(car_model)
     trunk_message.success(f"Trunk volume for your {car_model} computed.")
     # Call scraper with article list and website location/language.
     # Receive list of package dimensions and weights for each article.
@@ -299,8 +198,9 @@ def main():
     # Call plotter with package coordinates and filled volume array.
     # Receive plot
     plotter_message = st.empty()
-    plotter_message.info("Building 3D plot...")
+    plotter_message.info("Building 3D plot")
     plotter_return = plot_all(filled_space, package_coordinates, product_names)
+
     st.plotly_chart(plotter_return, use_container_width=True)
     plotter_message.empty()
 
