@@ -98,6 +98,7 @@ ERRORS_SCRAPER = [WEBSITE_UNAVAILABLE, ARTICLE_NOT_FOUND]
 
 # Interface
 NOT_PDF = "Document is not a PDF."
+UNABLE_TO_PARSE_LANG = 'Check that the PDF language matches the language selected.'
 LIST_UNREADABLE = "Unexpected list format."
 NO_DATA_PROVIDED = "Please upload wishlist PDF or add articles to the form."
-ERRORS_INTERFACE = [NOT_PDF, LIST_UNREADABLE, NO_DATA_PROVIDED]
+ERRORS_INTERFACE = [NOT_PDF, UNABLE_TO_PARSE_LANG, LIST_UNREADABLE, NO_DATA_PROVIDED]

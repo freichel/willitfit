@@ -10,6 +10,7 @@ from willitfit.params import (
     NO_DATA_PROVIDED,
     ERRORS_SCRAPER,
     ERRORS_OPTIMIZER,
+    ERRORS_INTERFACE,
     PROJECT_NAME,
     PROJECT_DIR,
     DATA_FOLDER,
@@ -74,6 +75,7 @@ class CarSelector:
 class ArticlePicker:
     def __init__(self):
         self.article_dict = {}
+        self.pdf_list = []
     
     def show_page(self, pdf_lang):
         # Columns
@@ -87,10 +89,12 @@ class ArticlePicker:
                 contents = f.read()
                 st.write(contents)
         # Article number list
+        ## Initial placeholder value
+        placeholder = "904.990.66 (2)"
         articles_str = manual_col.text_area(
             "Alternatively, list your Article Numbers:",
             help="Delimited by commas. If more than 1 of the same article, denote in brackets as shown. Format: XXX.XXX.XX (>1), XXX.XX.XX ",
-            value="904.990.66 (2)"
+            value=f"{placeholder if self.article_dict == {} else self.pdf_list}"
             )
         ## Empty line space
         extra_line_empty = manual_col.empty()
@@ -110,21 +114,24 @@ class ArticlePicker:
             unpack_message.info("Unpacking data...")
             # Parsing uploaded_pdf to article_dict
             if uploaded_pdf:
-                try:
-                    pdf_parsed = pdf_to_dict(uploaded_pdf, LANG_CODE[pdf_lang])
-                    self.article_dict = pdf_parsed
+                pdf_return = pdf_to_dict(uploaded_pdf, LANG_CODE[pdf_lang])
+                if pdf_return not in ERRORS_INTERFACE:
+                    # Build string list from df
+                    self.pdf_list = []
+                    # Build article_dict from df
+                    self.article_dict = pdf_return.set_index("article_num").T.to_dict("index")["n_pieces"]
                     unpack_message.success("Articles extracted from PDF.")
-                except:
-                    unpack_message.error(NOT_PDF)
+                else:
+                    unpack_message.error(pdf_return)
                     st.stop()
             # Or build article_dict from form
             elif articles_str:
-                try:
-                    form_built = form_to_dict(articles_str)
-                    self.article_dict = form_built
+                form_return = form_to_dict(articles_str)
+                if form_return not in ERRORS_INTERFACE:
+                    self.article_dict = form_return
                     unpack_message.success("Articles extracted from form.")
-                except:
-                    unpack_message.error(LIST_UNREADABLE)
+                else:
+                    unpack_message.error(form_return)
                     st.stop()
             else:
                 unpack_message.error(NO_DATA_PROVIDED)
