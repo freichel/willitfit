@@ -210,6 +210,7 @@ def product_info_and_update_csv_database(
     article_code = [*article_dict]
 
     ikea_database = get_cloud_data(path_to_csv)
+    print(ikea_database)
     # Reduce size
     ikea_database = ikea_database.astype(IKEA_DATABASE_DTYPES)
     all_ordered_product_df = pd.DataFrame()
@@ -217,7 +218,6 @@ def product_info_and_update_csv_database(
     return_list = []
 
     for i, x in enumerate(article_code):
-        print(x)
         # If article exists in database already
         if ikea_database.shape[0] > 0 and (ikea_database["article_code"] == x).any():
             all_ordered_product_df = all_ordered_product_df.append(
@@ -256,3 +256,7 @@ def product_info_and_update_csv_database(
         # TODO
         return "Error writing to file"
     return return_list, product_names
+
+if __name__ == "__main__":
+    product_info_and_update_csv_database(
+    {'892.521.17':1}, path_to_csv=DATABASE_PATH, item_count=1)
