@@ -121,6 +121,7 @@ class ArticlePicker:
                 self.pdf_list = pdf_df_to_str_list(pdf_return)
                 # Build article_dict from df
                 self.article_dict = pdf_df_to_dict(pdf_return)
+                unpack_message.success("Articles extracted from PDF.")
 
             # Or build article_dict from form
             elif articles_str:
