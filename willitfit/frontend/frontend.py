@@ -114,15 +114,17 @@ class ArticlePicker:
             # Parsing uploaded_pdf to article_dict
             if uploaded_pdf:
                 pdf_return = pdf_to_dict(uploaded_pdf, LANG_CODE[pdf_lang])
-                if pdf_return not in ERRORS_INTERFACE:
-                    # Build string list from df
-                    self.pdf_list = []
-                    # Build article_dict from df
-                    self.article_dict = pdf_return.set_index("article_num").T.to_dict("index")["n_pieces"]
-                    unpack_message.success("Articles extracted from PDF.")
-                else:
+                
+                if isinstance(pdf_return,str):
                     unpack_message.error(pdf_return)
                     st.stop()
+                
+                # Build string list from df
+                self.pdf_list = []
+                # Build article_dict from df
+                self.article_dict = pdf_return.set_index("article_num").T.to_dict("index")["n_pieces"]
+                unpack_message.success("Articles extracted from PDF.")
+
             # Or build article_dict from form
             elif articles_str:
                 form_return = form_to_dict(articles_str)
