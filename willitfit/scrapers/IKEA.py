@@ -141,7 +141,6 @@ def packages_dimensions_weights(page):
                 "span", {"class": "range-revamp-product-details__label"}
             )
         ]
-        #print(y_info)
         # append to dict
         product_info = extract_numeric_product_to_dict(y_info)
         product_info["subarticle_code"] = x.text.replace(".", "")
