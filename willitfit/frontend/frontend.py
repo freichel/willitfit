@@ -69,8 +69,8 @@ class ArticlePicker:
         self.article_dict = {}
 
     def show_page(self):
-        # Columns
-        pdf_col, manual_col = st.beta_columns(2)
+        
+        pdf_col, num_art_col= st.beta_columns(2)
         # Upload pdf
         uploaded_pdf = pdf_col.file_uploader("Upload PDF:")
         ## PDF instructions expandable
@@ -79,13 +79,56 @@ class ArticlePicker:
             with open(PROJECT_DIR / PROJECT_NAME / INTERFACE_INSTRUCTIONS, "r") as f:
                 contents = f.read()
                 st.write(contents)
-        # Article number list
-        articles_str = manual_col.text_area(
+        # Number of article to pack
+        form = num_art_col.form('forma')
+        num_str = form.text_area(
             "Alternatively, list your Article Numbers:",
-            help="Delimited by commas. If more than 1 of the same article, denote in brackets as shown. Format: XXX.XXX.XX (>1), ",
-            value="904.990.66 (2)",
+            help="Between 1 and inf ",
+            value="1",
         )
+        form.form_submit_button('Submit number of articles to pack')
 
+        #####
+        with st.form('columns_in_forma'): 
+            article_s = []
+            i = 0
+            while i < int(num_str):
+                
+                
+                _, manual_col, amount_col= st.beta_columns([3,1.5,1.5])
+    
+                # Article number list
+                articles_str = manual_col.text_area(
+                    "Product ID:",
+                    help="Delimited by commas. Format: XXX.XXX.XX , ",
+                    value="904.990.66",
+                    key = str(i))
+                # Amount
+                amount_str = amount_col.text_area(
+                    "Amount:",
+                    help="Between 1 and inf ",
+                    value="1",
+                    key = str(i))
+                i+=1
+        form.form_submit_button('Submit information about articles')
+            
+        # Columns
+        # pdf_col, manual_col= st.beta_columns(2)
+        # # Upload pdf
+        # uploaded_pdf = pdf_col.file_uploader("Upload PDF:")
+        # ## PDF instructions expandable
+        # instr_expander = pdf_col.beta_expander("Expand for instructions")
+        # with instr_expander:
+        #     with open(PROJECT_DIR / PROJECT_NAME / INTERFACE_INSTRUCTIONS, "r") as f:
+        #         contents = f.read()
+        #         st.write(contents)
+        # # Article number list
+        # articles_str = manual_col.text_area(
+        #     "Alternatively, list your Article Numbers:",
+        #     help="Delimited by commas. If more than 1 of the same article, denote in brackets as shown. Format: XXX.XXX.XX (>1), ",
+        #     value="904.990.66 (2)",
+        # )
+        
         cols = st.beta_columns([5, 1, 5])
 
         if cols[1].button("Generate"):
