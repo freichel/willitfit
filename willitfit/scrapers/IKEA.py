@@ -239,9 +239,9 @@ def product_info_and_update_csv_database(
             )
             new_product_for_database = new_product_for_database.append(df)
 
-    product_names = all_ordered_product_df[["article_code", "product_name"]].set_index(
+    product_names = all_ordered_product_df[["article_code", "product_name"]].drop_duplicates().set_index(
         ["article_code"]
-    ).drop_duplicates()
+    )
 
     return_list = df_to_list(all_ordered_product_df, article_dict)
     # Append new items and reduce size
