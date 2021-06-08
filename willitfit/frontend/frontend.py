@@ -147,13 +147,7 @@ pages = {
 }
 
 
-article_lines = []
-
 def main():
-    global article_lines
-    article_lines = [ArticleInput()]
-    article_lines = article_lines[-1].add_line(article_lines)
-    
     # Icon
     cols = st.beta_columns([2, 1, 2])
     cols[1].image(icon, use_column_width=True)
