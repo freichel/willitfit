@@ -1,3 +1,4 @@
+import sys
 import streamlit as st
 from willitfit.app_utils.pdf_parser import pdf_to_df, pdf_df_to_dict, pdf_df_to_str_list
 from willitfit.app_utils.form_transformer import form_to_dict
@@ -239,7 +240,6 @@ def main(db='cloud'):
     st.plotly_chart(plotter_return, use_container_width=True)
     plotter_message.empty()
 
-import sys
 if __name__ == "__main__":
     if len(sys.argv) > 1:
         main(sys.argv[1])
