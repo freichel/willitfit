@@ -57,5 +57,14 @@ def get_image(data, car_model):
     
     return model_row["img_url"].values[0]
 
+def dict_to_name_list(article_dict, product_names_df):
+    name_list = []
+    for name in product_names_df['product_name'].values.tolist():
+        name_list.append(name)
+    output_list = []
+    for index, key in enumerate(article_dict):
+        output_list.append(f"{name_list[index]} ({article_dict[key]})")
+    return str(output_list).replace('[', '').replace("'", '').replace(']', '')
+
 if __name__ == "__main__":
     print(get_car_data())

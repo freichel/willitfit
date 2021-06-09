@@ -126,5 +126,29 @@ data = data.apply(remove_make, axis=1)
 ## Drop Duplicates
 data.drop(index=data[data["car_model"].duplicated()].index, inplace=True)
 
+## Fix models with missing configs:
+data.at[58, 'car_model'] = '911 CARRERA CABRIOLET 2DR CONVERTIBLE 2016'
+data.at[394, 'car_model'] = 'CITROEN NEMO 1.4 XLS 5DR MPV 2008'
+data.at[1196, 'car_model'] = 'PEUGEOT BIPPER 75 5DR MPV 2008'
+data.at[1368, 'car_model'] = 'SEAT IBIZA ECOMOTIVE 1.4 TDI 5DR HATCH 2009'
+
+## Function for creating 'config' column
+def create_generic_config(df):
+    CAR_CONFIGURATIONS = {
+        '4X4': 'BOXY', 
+        'CONVERTIBLE': 'BOXY', 
+        'COUPE': 'BOXY', 
+        'ESTATE': 'BOXY', 
+        'HATCH': 'SLANT', 
+        'MPV': 'BOXY', 
+        'SALOON': 'BOXY'
+    }
+    for CONFIG in [*CAR_CONFIGURATIONS]:
+        if CONFIG in df["car_model"]:
+            df["generic_config"] = CAR_CONFIGURATIONS[CONFIG]
+    return df
+
+data = data.apply(create_generic_config, axis=1)
+
 ## Export as csv
 data.to_csv("cars_clean.csv", index=False)
