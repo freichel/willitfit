@@ -98,8 +98,10 @@ def extract_numeric_product_to_dict(product_features):
     info_dict = {}
     new_columns_name = ["width", "height", "length", "weight", "packages"]
     for info in product_features:
+        print(info)
         info_item = info.split()
         for i, x in enumerate(info_item):
+            print(x)
             try:
                 float(x)
                 info_dict[info_item[0]] = float(info_item[1])
