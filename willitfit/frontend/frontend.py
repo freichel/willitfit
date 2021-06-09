@@ -244,6 +244,7 @@ def main(db='cloud'):
     plotter_message.success("YES! IT FITS!")
     optimizer_message.empty()
     scraper_message.empty()
+    trunk_message.empty()
     page.unpack_message.empty()
 
 if __name__ == "__main__":
