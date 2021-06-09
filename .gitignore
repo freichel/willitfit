@@ -8,3 +8,5 @@ raw_data/
 *Zone.Identifier
 willitfit/keys
 willitfit/data/*.csv
+
+*.deb*
