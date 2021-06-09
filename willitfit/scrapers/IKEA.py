@@ -244,19 +244,16 @@ def product_info_and_update_csv_database(
     product_names = all_ordered_product_df[["article_code", "product_name"]].set_index(
         ["article_code"]
     )
-
+    
     return_list = df_to_list(all_ordered_product_df, article_dict)
     # Append new items and reduce size
     ikea_database = ikea_database.append(new_product_for_database).astype(
         IKEA_DATABASE_DTYPES
     )
+    print(product_names)
     # Write to csv
     write_file = send_cloud_data(ikea_database, path_to_csv)
     if write_file != True:
         # TODO
         return "Error writing to file"
     return return_list, product_names
-
-if __name__ == "__main__":
-    product_info_and_update_csv_database(
-    {'892.521.17':1}, path_to_csv=DATABASE_PATH, item_count=1)
