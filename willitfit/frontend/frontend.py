@@ -1,3 +1,4 @@
+import sys
 import streamlit as st
 from willitfit.app_utils.pdf_parser import pdf_to_df, pdf_df_to_dict, pdf_df_to_str_list
 from willitfit.app_utils.form_transformer import form_to_dict
@@ -145,7 +146,7 @@ pages = {
 }
 
 
-def main():
+def main(db='cloud'):
     # Icon
     cols = st.beta_columns([2, 1, 2])
     cols[1].image(icon, use_column_width=True)
@@ -196,7 +197,7 @@ def main():
 
     scraper_message = st.empty()
     scraper_message.info("Browsing IKEA for you...")
-    scraper_return = product_info_and_update_csv_database(article_dict)
+    scraper_return = product_info_and_update_csv_database(article_dict,db)
 
     if scraper_return not in ERRORS_SCRAPER:
         article_list = scraper_return[0]
@@ -239,6 +240,8 @@ def main():
     st.plotly_chart(plotter_return, use_container_width=True)
     plotter_message.empty()
 
-
 if __name__ == "__main__":
-    main()
+    if len(sys.argv) > 1:
+        main(sys.argv[1])
+    else:
+        main()

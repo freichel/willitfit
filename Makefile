@@ -21,6 +21,8 @@ FRONT_END_FILE=willitfit/frontend/frontend.py
 BACK_END_FILE=api.api
 BACK_END_APP=app
 
+DB=cloud
+
 # ----------------------------------
 #          INSTALL & TEST
 # ----------------------------------
@@ -34,7 +36,9 @@ install_requirements:
 # ----------------------------------
 
 start_app:
-	-@streamlit run ${FRONT_END_FILE}
+	@echo "Starting app using "${DB}" database."
+	@echo "Use 'make DB=local start_app' to use local database"
+	-@streamlit run ${FRONT_END_FILE} ${DB}
 
 # ----------------------------------
 #			  DOCKER

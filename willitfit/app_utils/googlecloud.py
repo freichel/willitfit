@@ -8,6 +8,7 @@ from willitfit.params import (
     BUCKET_NAME,
     DATA_FOLDER,
     CAR_DATABASE,
+    DTYPE_DICT,
     GOOGLE_APPLICATION_CREDENTIALS,
     PROJECT_DIR,
     PROJECT_NAME,
@@ -23,19 +24,8 @@ def get_cloud_data(path_to_file=f"{DATA_FOLDER}/{CAR_DATABASE}"):
     # Set environment variable for service account
     set_environment_variable()
 
-    # Make sure the column types are set properly
-    dtype_dict = {
-        "width": int,
-        "height": int,
-        "length": int,
-        "weight": float,
-        "packages": int,
-        "subarticle_code": str,
-        "article_code": str,
-        "product_name": str
-    }
     # Read and return data
-    return pd.read_csv(f"gs://{BUCKET_NAME}/{path_to_file}",dtype=dtype_dict)
+    return pd.read_csv(f"gs://{BUCKET_NAME}/{path_to_file}",dtype=DTYPE_DICT)
 
 
 def send_cloud_data(df, path_to_file="data/test.csv"):
