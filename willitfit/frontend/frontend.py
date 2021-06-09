@@ -110,30 +110,30 @@ class ArticlePicker:
 
         if cols[1].button('Generate'):
             # Status message field wich will get overwritten
-            unpack_message = st.empty()
-            unpack_message.info("Unpacking data...")
+            self.unpack_message = st.empty()
+            self.unpack_message.info("Unpacking data...")
             # Parsing uploaded_pdf to article_dict
             if uploaded_pdf:
                 pdf_return = pdf_to_df(uploaded_pdf, LANG_CODE[pdf_lang])
                 if isinstance(pdf_return, str):
-                    unpack_message.error(pdf_return)
+                    self.unpack_message.error(pdf_return)
                     st.stop()
                 # Build string list from df
                 self.pdf_list = pdf_df_to_str_list(pdf_return)
                 # Build article_dict from df
                 self.article_dict = pdf_df_to_dict(pdf_return)
-                unpack_message.success("Articles extracted from PDF.")
+                self.unpack_message.success("Articles extracted from PDF.")
 
             # Or build article_dict from form
             elif articles_str:
                 form_return = form_to_dict(articles_str)
                 if isinstance(form_return, str):
-                    unpack_message.error(form_return)
+                    self.unpack_message.error(form_return)
                     st.stop()
                 self.article_dict = form_return
-                unpack_message.success("Articles extracted from form.")
+                self.unpack_message.success("Articles extracted from form.")
             else:
-                unpack_message.error(NO_DATA_PROVIDED)
+                self.unpack_message.error(NO_DATA_PROVIDED)
                 st.stop()
 
 # Individual elements to be displayed sequentially
@@ -239,6 +239,11 @@ def main(db='cloud'):
     plotter_return = plot_all(filled_space, package_coordinates, product_names)
     st.plotly_chart(plotter_return, use_container_width=True)
     plotter_message.empty()
+    # Clean up messages
+    plotter_message.success("YES! IT FITS!")
+    optimizer_message.empty()
+    scraper_message.empty()
+    page.unpack_message.empty()
 
 if __name__ == "__main__":
     if len(sys.argv) > 1:
