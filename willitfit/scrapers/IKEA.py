@@ -5,8 +5,11 @@ Returns list of package dimensions and weights.
 """
 
 from willitfit.params import (
+    DTYPE_DICT,
     IKEA_COUNTRY_DOMAIN,
     IKEA_WEBSITE_LANGUAGE,
+    PROJECT_DIR,
+    PROJECT_NAME,
     WEBSITE_UNAVAILABLE,
     ARTICLE_NOT_FOUND,
     DATA_FOLDER,
@@ -198,8 +201,12 @@ def df_to_list(df, article_code):
     return return_list
 
 
+def get_local_data(path_to_csv):
+    # Read and return data
+    return pd.read_csv(PROJECT_DIR / PROJECT_NAME / path_to_csv, dtype=DTYPE_DICT)
+
 def product_info_and_update_csv_database(
-    article_dict, path_to_csv=DATABASE_PATH, item_count=1
+    article_dict, db, path_to_csv=DATABASE_PATH, item_count=1
 ):
     """
     Check if article exists in database, if not scrap it and update
@@ -210,7 +217,12 @@ def product_info_and_update_csv_database(
     # Only use article keys here
     article_code = [*article_dict]
 
-    ikea_database = get_cloud_data(path_to_csv)
+    # Get data from either cloud or locally
+    if db == "cloud":
+        ikea_database = get_cloud_data(path_to_csv)
+    else:
+        ikea_database = get_local_data(path_to_csv)
+
     # Reduce size
     ikea_database = ikea_database.astype(IKEA_DATABASE_DTYPES)
     all_ordered_product_df = pd.DataFrame()
@@ -250,9 +262,14 @@ def product_info_and_update_csv_database(
     ikea_database = ikea_database.append(new_product_for_database).astype(
         IKEA_DATABASE_DTYPES
     )
+
     # Write to csv
-    write_file = send_cloud_data(ikea_database, path_to_csv)
-    if write_file != True:
-        # TODO
-        return "Error writing to file"
+    if db == "cloud":
+        write_file = send_cloud_data(ikea_database, path_to_csv)
+        if write_file != True:
+            # TODO
+            return "Error writing to file"
+    else:
+        ikea_database.to_csv(PROJECT_DIR / PROJECT_NAME / path_to_csv, index=False)
+
     return return_list, product_names

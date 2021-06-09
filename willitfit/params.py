@@ -95,6 +95,16 @@ ERRORS_OPTIMIZER = [
 WEBSITE_UNAVAILABLE = "Website temporarily unavailable."
 ARTICLE_NOT_FOUND = "One or more articles do not exist."
 ERRORS_SCRAPER = [WEBSITE_UNAVAILABLE, ARTICLE_NOT_FOUND]
+DTYPE_DICT = {
+    "width": int,
+    "height": int,
+    "length": int,
+    "weight": float,
+    "packages": int,
+    "subarticle_code": str,
+    "article_code": str,
+    "product_name": str
+}
 
 # Interface
 NOT_PDF = "Document is not a PDF."
