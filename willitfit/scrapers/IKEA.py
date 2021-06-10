@@ -23,7 +23,6 @@ from selenium.webdriver.common.by import By
 from webdriver_manager.chrome import ChromeDriverManager
 from willitfit.app_utils.googlecloud import get_cloud_data, send_cloud_data
 
-import time
 import os
 import requests
 import pandas as pd
@@ -83,13 +82,10 @@ def scrape_product(
     # if article exists return important part of page
     # https://stackoverflow.com/questions/48665001/can-not-click-on-a-element-elementclickinterceptedexception-in-splinter-selen
     driver.execute_script("arguments[0].click();", tag)
-    
-    time.sleep(30)
     soup = BeautifulSoup(driver.page_source, "html.parser")
     important_part_of_page = soup.find_all(
         "div", {"id": "SEC_product-details-packaging"}
     )
-    print(important_part_of_page[0])
     return important_part_of_page[0]
 
 def inch_to_cm(d):
@@ -106,18 +102,14 @@ def extract_numeric_product_to_dict(product_features):
     """
     info_dict = {}
     new_columns_name = ["width", "height", "length", "weight", "packages"]
-    print(product_features)
     for info in product_features:
-        print(info)
         info_item = info.split()
-        print(info_item)
         for i, x in enumerate(info_item):
             try:
                 float(x)
                 info_dict[info_item[0]] = float(info_item[1])
             except:
                 pass
-    print(info_dict)
     # prepare dict for product with only 2 dimensions
     if any(['cm' in x for x in product_features]):
         info_not_all_dimensions_given = {}
@@ -165,10 +157,6 @@ def packages_dimensions_weights(page):
                 "span", {"class": "range-revamp-product-details__label"}
             )
         ]
-        print(y)
-        print(y_info)
-        print(x)
-        
         # append to dict
         product_info = extract_numeric_product_to_dict(y_info)
         product_info["subarticle_code"] = x.text.replace(".", "")
@@ -282,5 +270,4 @@ def product_info_and_update_csv_database(
         # TODO
         return "Error writing to file"
     return return_list, product_names
-
 
