@@ -89,9 +89,14 @@ def scrape_product(
     important_part_of_page = soup.find_all(
         "div", {"id": "SEC_product-details-packaging"}
     )
-
     return important_part_of_page[0]
 
+def inch_to_cm(d):
+    for k,v in d.items():
+        if k in ['width','height','length']:
+            v*2.54
+            d[k] = v*2.54
+    return d
 
 def extract_numeric_product_to_dict(product_features):
     """
@@ -111,17 +116,28 @@ def extract_numeric_product_to_dict(product_features):
             except:
                 pass
     # prepare dict for product with only 2 dimensions
-    info_not_all_dimensions_given = {}
-    if len(info_dict) == 4:
-        info_not_all_dimensions_given[new_columns_name[0]] = list(info_dict.values())[0]
-        info_not_all_dimensions_given[new_columns_name[1]] = list(info_dict.values())[2]
-        info_not_all_dimensions_given[new_columns_name[2]] = list(info_dict.values())[2]
-        info_not_all_dimensions_given[new_columns_name[3]] = list(info_dict.values())[1]
-        info_not_all_dimensions_given[new_columns_name[4]] = list(info_dict.values())[3]
-        return info_not_all_dimensions_given
-
-    info_dict = {x: y for x, y in zip(new_columns_name, info_dict.values())}
-    return info_dict
+    if any(['cm' in x for x in product_features]):
+        info_not_all_dimensions_given = {}
+        if len(info_dict) == 4:
+            info_not_all_dimensions_given[new_columns_name[0]] = list(info_dict.values())[0]
+            info_not_all_dimensions_given[new_columns_name[1]] = list(info_dict.values())[2]
+            info_not_all_dimensions_given[new_columns_name[2]] = list(info_dict.values())[2]
+            info_not_all_dimensions_given[new_columns_name[3]] = list(info_dict.values())[1]
+            info_not_all_dimensions_given[new_columns_name[4]] = list(info_dict.values())[3]
+            return info_not_all_dimensions_given
+        info_dict = {x: y for x, y in zip(new_columns_name, info_dict.values())}
+        return info_dict
+    else:
+        info_not_all_dimensions_given = {}
+        if len(info_dict) == 4:
+            info_not_all_dimensions_given[new_columns_name[0]] = list(info_dict.values())[0]
+            info_not_all_dimensions_given[new_columns_name[1]] = list(info_dict.values())[2]
+            info_not_all_dimensions_given[new_columns_name[2]] = list(info_dict.values())[2]
+            info_not_all_dimensions_given[new_columns_name[3]] = list(info_dict.values())[1]
+            info_not_all_dimensions_given[new_columns_name[4]] = list(info_dict.values())[3]
+            return inch_to_cm(info_not_all_dimensions_given)
+        info_dict = {x: y for x, y in zip(new_columns_name, info_dict.values())}
+        return inch_to_cm(info_dict)
 
 
 def packages_dimensions_weights(page):
@@ -279,3 +295,4 @@ def product_info_and_update_csv_database(
         ikea_database.to_csv(PROJECT_DIR / PROJECT_NAME / path_to_csv, index=False)
 
     return return_list, product_names
+
