@@ -13,7 +13,7 @@ BUCKET_FOLDER=data
 REGION=europe-west3
 PYTHON_VERSION=3.8.6
 PACKAGE_NAME=willitfit
-MEMORY=8G
+MEMORY=8Gi
 CPU=4
 
 # Streamlit/API
@@ -82,7 +82,7 @@ docker_build_run_deploy:
 		@docker build -f Dockerfile -t eu.gcr.io/$(PROJECT_ID)/$(img) .
 		@echo "Image eu.gcr.io/"$(PROJECT_ID)"/"$(img)" built for GC deployment."
 		@docker push eu.gcr.io/$(PROJECT_ID)/$(img)
-		@gcloud run deploy --image eu.gcr.io/$(PROJECT_ID)/$(img) --memory $(MEMORY) --cpu $(CPU) --platform managed --region europe-west3 --port $(PORT)
+		@gcloud run deploy --image eu.gcr.io/$(PROJECT_ID)/$(img) --memory $(MEMORY) --cpu $(CPU) --platform managed --region europe-west1 --port $(PORT)
     else
 		@docker build -f Dockerfile -t $(img) .
 		@echo "Image $(img) built."
