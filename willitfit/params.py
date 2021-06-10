@@ -66,7 +66,7 @@ GEN_SORTERS = ["volume|descending"]
 PROJECT_DIR = Path(os.path.abspath(__file__)).parent.parent.absolute()
 PROJECT_NAME = "willitfit"
 DATA_FOLDER = "data"
-CAR_DATABASE = "cars_clean.csv"
+CAR_DATABASE = "cars_clean_config.csv"
 ARTICLE_DATABASE = "ikea_database.csv"
 INTERFACE_INSTRUCTIONS = "frontend/pdf_frontend_instructions.md"
 
