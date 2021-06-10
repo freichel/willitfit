@@ -30,14 +30,13 @@ import os
 import requests
 import pandas as pd
 import chromedriver_binary
-
+import time
 # Define path to database
 DATABASE_PATH = DATA_FOLDER + "/" + ARTICLE_DATABASE
 
 
 def chrome_settings():
     """ """
-
     chrome_options = Options()
     chrome_options.add_argument("--headless")
     chrome_options.add_argument("--disable-extensions")
@@ -85,6 +84,7 @@ def scrape_product(
     # if article exists return important part of page
     # https://stackoverflow.com/questions/48665001/can-not-click-on-a-element-elementclickinterceptedexception-in-splinter-selen
     driver.execute_script("arguments[0].click();", tag)
+    time.sleep(30)
     soup = BeautifulSoup(driver.page_source, "html.parser")
     important_part_of_page = soup.find_all(
         "div", {"id": "SEC_product-details-packaging"}
