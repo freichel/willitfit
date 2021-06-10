@@ -34,7 +34,9 @@ import time
 # Define path to database
 DATABASE_PATH = DATA_FOLDER + "/" + ARTICLE_DATABASE
 
-
+driver = webdriver.Chrome(
+        ChromeDriverManager().install(), options=chrome_settings()
+    )
 def chrome_settings():
     """ """
     chrome_options = Options()
@@ -47,11 +49,34 @@ def chrome_settings():
 
     return chrome_options
 
-
-def scrape_product(
+def prepare_url(
     article_code,
     country_domain=IKEA_COUNTRY_DOMAIN,
-    website_language=IKEA_WEBSITE_LANGUAGE,
+    website_language=IKEA_WEBSITE_LANGUAGE):
+    """
+    Function prapare url for scraper, which is unique for every article
+    """
+    
+    IKEA_URL = f"https://www.ikea.com/{country_domain}/{website_language}/"
+    IKEA_SEARCH_URL = f"search/products/?q="
+    url = os.path.join(IKEA_URL, IKEA_SEARCH_URL, article_code)
+    return url
+
+def check_if_item_correct(url):
+    """
+    check if item exists on website.
+    If webiste doesn't exists return "Website temporarily unavailable."
+    """
+    r = requests.get(os.path.join(IKEA_URL, IKEA_SEARCH_URL, article_code))
+    if r.status_code == 404:
+        return WEBSITE_UNAVAILABLE
+    
+    
+
+    
+def scrape_product(
+    driver,
+    url
 ):
     """
     Scrape the artikle from Ikea website
@@ -63,17 +88,8 @@ def scrape_product(
     then the respective chromedriver is auto downloaded
     and updated when running tests.
     """
-    # Ikea url
-    IKEA_URL = f"https://www.ikea.com/{country_domain}/{website_language}/"
-    IKEA_SEARCH_URL = f"search/products/?q="
-    # Request to check if website exsist, if not return str
-    r = requests.get(os.path.join(IKEA_URL, IKEA_SEARCH_URL, article_code))
-    if r.status_code == 404:
-        return WEBSITE_UNAVAILABLE
+ 
     # Scrap website and select relevant part of the website
-    driver = webdriver.Chrome(
-        ChromeDriverManager().install(), options=chrome_settings()
-    )
     driver.get(os.path.join(IKEA_URL, IKEA_SEARCH_URL, article_code))
     try:
         important_part_of_page = driver.find_element_by_class_name("results__list")
@@ -84,13 +100,9 @@ def scrape_product(
     # if article exists return important part of page
     # https://stackoverflow.com/questions/48665001/can-not-click-on-a-element-elementclickinterceptedexception-in-splinter-selen
     driver.execute_script("arguments[0].click();", tag)
-    time.sleep(30)
-    soup = BeautifulSoup(driver.page_source, "html.parser")
-    important_part_of_page = soup.find_all(
-        "div", {"id": "SEC_product-details-packaging"}
-    )
-
-    return important_part_of_page[0]
+    time.sleep(60)
+    
+    return driver.page_source
 
 
 def extract_numeric_product_to_dict(product_features):
@@ -124,10 +136,14 @@ def extract_numeric_product_to_dict(product_features):
     return info_dict
 
 
-def packages_dimensions_weights(page):
+def packages_dimensions_weights(html):
     """
     Create data frame with information about subarticles
     """
+    page = BeautifulSoup(html, "html.parser")
+    page = page.find_all(
+        "div", {"id": "SEC_product-details-packaging"}
+    )[0]
     # filter out important info with beautiful soup
     info = page.find_all("div", {"class": "range-revamp-product-details__container"})
     number = page.find_all("span", {"class": "range-revamp-product-identifier__value"})
