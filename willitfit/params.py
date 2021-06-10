@@ -37,7 +37,7 @@ IKEA_COUNTRY_DOMAIN = {
     'sk': 'sk',
     'hr': 'hr',
     'sr': 'rs',
-    'si': 'si', 
+    'si': 'si',
 }
 
 IKEA_WEBSITE_LANGUAGE = (
@@ -79,7 +79,7 @@ LANG_CODE = {
     'Slovenský': 'sk',
     'Hrvatski': 'hr',
     'Srpski': 'sr',
-    'Slovenščina': 'sl', 
+    'Slovenščina': 'sl',
 }
 
 # Volume array settings

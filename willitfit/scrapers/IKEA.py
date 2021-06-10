@@ -58,7 +58,7 @@ def prepare_url(
     """
     Function prapare url for scraper, which is unique for every article
     """
-    
+
     IKEA_URL = f"https://www.ikea.com/{country_domain}/{website_language}/"
     IKEA_SEARCH_URL = f"search/products/?q="
     url = os.path.join(IKEA_URL, IKEA_SEARCH_URL, article_code)
@@ -71,17 +71,19 @@ def check_if_item_exists(url):
     """
     r = requests.get(url)
     if r.status_code == 404:
+        print("404")
+        print(url)
         return WEBSITE_UNAVAILABLE
-    
-    
 
-    
+
+
+
 def scrape_product(driver,url):
     """
     Scrape the article from Ikea website
     Return page source
     """
- 
+
     # Scrap website and select relevant part of the website
     driver.get(url)
     try:
@@ -98,7 +100,7 @@ def scrape_product(driver,url):
 
 
 def extract_inforamtion_from_html(html):
-    
+
     page = BeautifulSoup(html, "html.parser")
     page = page.find_all(
         "div", {"id": "SEC_product-details-packaging"}
@@ -109,7 +111,7 @@ def extract_inforamtion_from_html(html):
     product_name = page.find_all(
         "span", {"class": "range-revamp-product-details__header notranslate"}
     )[0].text
-    
+
     return info, number, product_name
 
 def extract_dimensions_from_bs4(dimension_info):
@@ -123,7 +125,7 @@ def extract_dimensions_from_bs4(dimension_info):
                 "span", {"class": "range-revamp-product-details__label"})
             ]
         dimensions_list.append(y_info)
-    #removed 'Artikelnummer:' string from lists in list. 
+    #removed 'Artikelnummer:' string from lists in list.
     return [[i for i in x if i!='Artikelnummer:'] for x in dimensions_list]
 
 def prepare_unique_list_of_lists(dimensions_list):
@@ -135,8 +137,8 @@ def prepare_unique_list_of_lists(dimensions_list):
         if x not in unique_dimensions_list:
             unique_dimensions_list.append(x)
     return unique_dimensions_list
-    
-    
+
+
 def packages_dimensions_weight_to_df(unique_dimensions_list , number, product_name):
     """
     Create data frame all information about articles
@@ -145,7 +147,7 @@ def packages_dimensions_weight_to_df(unique_dimensions_list , number, product_na
     list_of_products = []
     # create empty dict
     product_info = {}
- 
+
     # extract subarticle code and parameters for all subproducts in product
     for i, (x, y) in enumerate(zip(number, unique_dimensions_list)):
         # append to dict
@@ -255,7 +257,7 @@ def get_local_data(path_to_csv):
     return pd.read_csv(PROJECT_DIR / PROJECT_NAME / path_to_csv, dtype=DTYPE_DICT)
 
 def product_info_and_update_csv_database(
-    article_dict, db, path_to_csv=DATABASE_PATH, item_count=1
+    article_dict, db, path_to_csv=DATABASE_PATH, item_count=1, lang_code="de1"
 ):
     """
     Check if article exists in database, if not scrap it and update
@@ -286,11 +288,14 @@ def product_info_and_update_csv_database(
             )
         # If not
         else:
-            # preapre url
-            url = prepare_url(x,country_domain=IKEA_COUNTRY_DOMAIN,website_language=IKEA_WEBSITE_LANGUAGE)
-            # check if item exists, if not return error
+            # prepare url
+            # lang_code[:2] removes numbers (i.e. de1 > de)...
+            # ... Assumes all language codes are 2 characters
+            url = prepare_url(x,
+                              country_domain=IKEA_COUNTRY_DOMAIN[lang_code],
+                              website_language=lang_code[:2])
 
-            
+            # check if item exists, if not return error
             html = check_if_item_exists(url)
             if html == WEBSITE_UNAVAILABLE:
                 return WEBSITE_UNAVAILABLE
