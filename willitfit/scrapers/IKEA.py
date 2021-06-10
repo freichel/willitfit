@@ -34,9 +34,7 @@ import time
 # Define path to database
 DATABASE_PATH = DATA_FOLDER + "/" + ARTICLE_DATABASE
 
-driver = webdriver.Chrome(
-        ChromeDriverManager().install(), options=chrome_settings()
-    )
+
 def chrome_settings():
     """ """
     chrome_options = Options()
@@ -48,6 +46,11 @@ def chrome_settings():
     chrome_options.add_argument("--disable-dev-shm-usage")
 
     return chrome_options
+
+
+driver = webdriver.Chrome(
+        ChromeDriverManager().install(), options=chrome_settings()
+    )
 
 def prepare_url(
     article_code,
@@ -62,62 +65,107 @@ def prepare_url(
     url = os.path.join(IKEA_URL, IKEA_SEARCH_URL, article_code)
     return url
 
-def check_if_item_correct(url):
+def check_if_item_exists(url):
     """
     check if item exists on website.
     If webiste doesn't exists return "Website temporarily unavailable."
     """
-    r = requests.get(os.path.join(IKEA_URL, IKEA_SEARCH_URL, article_code))
+    r = requests.get(url)
     if r.status_code == 404:
         return WEBSITE_UNAVAILABLE
     
     
 
     
-def scrape_product(
-    driver,
-    url
-):
+def scrape_product(driver,url):
     """
-    Scrape the artikle from Ikea website
-    Filter out part of the site with important informations.
-    When we run the test first time,
-    latest version of chromedriver binary is downloaded and saved in cache
-    and it is reused every time we run tests.
-    If your browser auto updates the version,
-    then the respective chromedriver is auto downloaded
-    and updated when running tests.
+    Scrape the article from Ikea website
+    Return page source
     """
  
     # Scrap website and select relevant part of the website
-    driver.get(os.path.join(IKEA_URL, IKEA_SEARCH_URL, article_code))
+    driver.get(url)
     try:
-        important_part_of_page = driver.find_element_by_class_name("results__list")
+        html = driver.find_element_by_class_name("results__list")
         # Check if the article exists, if not return str
-        tag = important_part_of_page.find_element_by_tag_name("a")
+        html = html.find_element_by_tag_name("a")
     except:
         return ARTICLE_NOT_FOUND
     # if article exists return important part of page
     # https://stackoverflow.com/questions/48665001/can-not-click-on-a-element-elementclickinterceptedexception-in-splinter-selen
-    driver.execute_script("arguments[0].click();", tag)
-<<<<<<< HEAD
+    driver.execute_script("arguments[0].click();", html)
     time.sleep(60)
-    
     return driver.page_source
-=======
-    soup = BeautifulSoup(driver.page_source, "html.parser")
-    important_part_of_page = soup.find_all(
-        "div", {"id": "SEC_product-details-packaging"}
-    )
-    return important_part_of_page[0]
->>>>>>> master
 
-def inch_to_cm(d):
-    for k,v in d.items():
+
+
+def extract_inforamtion_from_html(html):
+    
+    page = BeautifulSoup(html, "html.parser")
+    page = page.find_all(
+        "div", {"id": "SEC_product-details-packaging"}
+    )[0]
+    # filter out important info with beautiful soup
+    info = page.find_all("div", {"class": "range-revamp-product-details__container"})
+    number = page.find_all("span", {"class": "range-revamp-product-identifier__value"})
+    product_name = page.find_all(
+        "span", {"class": "range-revamp-product-details__header notranslate"}
+    )[0].text
+    
+    return info, number, product_name
+
+def extract_dimensions_from_bs4(dimension_info):
+    """
+    Extract string with dimensions from bs4
+    """
+    dimensions_list = []
+    for y in dimension_info:
+        y_info = [d.text
+            for d in y.find_all(
+                "span", {"class": "range-revamp-product-details__label"})
+            ]
+        dimensions_list.append(y_info)
+    #removed 'Artikelnummer:' string from lists in list. 
+    return [[i for i in x if i!='Artikelnummer:'] for x in dimensions_list]
+
+def prepare_unique_list_of_lists(dimensions_list):
+    """
+    Filter out only unique string lists from list of lists
+    """
+    unique_dimensions_list = []
+    for x in dimensions_list:
+        if x not in unique_dimensions_list:
+            unique_dimensions_list.append(x)
+    return unique_dimensions_list
+    
+    
+def packages_dimensions_weight_to_df(unique_dimensions_list , number, product_name):
+    """
+    Create data frame all information about articles
+    """
+    # create empty list
+    list_of_products = []
+    # create empty dict
+    product_info = {}
+ 
+    # extract subarticle code and parameters for all subproducts in product
+    for i, (x, y) in enumerate(zip(number, unique_dimensions_list)):
+        # append to dict
+        product_info = extract_numeric_product_to_dict(y)
+        product_info["subarticle_code"] = x.text.replace(".", "")
+        product_info["product_name"] = product_name
+        # append to list
+        list_of_products.append(product_info)
+    return pd.DataFrame(list_of_products)
+
+
+def inch_to_cm(dimension):
+    "Recalculate inch to cm"
+    for k,v in dimension.items():
         if k in ['width','height','length']:
             v*2.54
-            d[k] = v*2.54
-    return d
+            dimension[k] = v*2.54
+    return dimension
 
 def extract_numeric_product_to_dict(product_features):
     """
@@ -158,48 +206,6 @@ def extract_numeric_product_to_dict(product_features):
         info_dict = {x: y for x, y in zip(new_columns_name, info_dict.values())}
         return inch_to_cm(info_dict)
 
-
-def packages_dimensions_weights(html):
-    """
-    Create data frame with information about subarticles
-    """
-    page = BeautifulSoup(html, "html.parser")
-    page = page.find_all(
-        "div", {"id": "SEC_product-details-packaging"}
-    )[0]
-    # filter out important info with beautiful soup
-    info = page.find_all("div", {"class": "range-revamp-product-details__container"})
-    number = page.find_all("span", {"class": "range-revamp-product-identifier__value"})
-    product_name = page.find_all(
-        "span", {"class": "range-revamp-product-details__header notranslate"}
-    )[0].text
-    lista_dim = []
-    for y in info :
-        y_info = [d.text
-            for d in y.find_all(
-                "span", {"class": "range-revamp-product-details__label"})
-            ]
-        lista_dim.append(y_info)
-    #removed 'Artikelnummer:' string from lists in list. 
-    lista_dim_new = [[i for i in x if i!='Artikelnummer:'] for x in lista_dim]
-    #add only unique list from list of lists 
-    unique_lista_dim = []
-    for x in lista_dim_new:
-        if x not in unique_lista_dim:
-            unique_lista_dim.append(x)
-    # create empty list
-    list_of_products = []
-    # create empty dict
-    product_info = {}
-    #extract subarticle code and parameters for all subproducts in product
-    for i, (x, y) in enumerate(zip(number, unique_lista_dim)):
-        # append to dict
-        product_info = extract_numeric_product_to_dict(y)
-        product_info["subarticle_code"] = x.text.replace(".", "")
-        product_info["product_name"] = product_name
-        # append to list
-        list_of_products.append(product_info)
-    return pd.DataFrame(list_of_products)
 
 def df_to_list(df, article_code):
     """
@@ -282,16 +288,21 @@ def product_info_and_update_csv_database(
             )
         # If not
         else:
-            page = scrape_product(
-                x,
-                country_domain=IKEA_COUNTRY_DOMAIN,
-                website_language=IKEA_WEBSITE_LANGUAGE,
-            )
-            if page == WEBSITE_UNAVAILABLE:
+            # preapre url
+            url = prepare_url(x,country_domain=IKEA_COUNTRY_DOMAIN,website_language=IKEA_WEBSITE_LANGUAGE)
+            # check if item exists, if not return error
+
+            
+            html = check_if_item_exists(url)
+            if html == WEBSITE_UNAVAILABLE:
                 return WEBSITE_UNAVAILABLE
-            if page == ARTICLE_NOT_FOUND:
+            html = scrape_product(driver,url)
+            if html == ARTICLE_NOT_FOUND:
                 return ARTICLE_NOT_FOUND
-            df = packages_dimensions_weights(page)
+            info, number, product_name = extract_inforamtion_from_html(html)
+            dimensions_list = extract_dimensions_from_bs4(info)
+            unique_dimensions_list = prepare_unique_list_of_lists(dimensions_list)
+            df = packages_dimensions_weight_to_df(unique_dimensions_list , number, product_name)
             df["article_code"] = x
             all_ordered_product_df = all_ordered_product_df.append(df).astype(
                 IKEA_DATABASE_DTYPES
