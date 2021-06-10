@@ -106,10 +106,8 @@ def extract_numeric_product_to_dict(product_features):
     info_dict = {}
     new_columns_name = ["width", "height", "length", "weight", "packages"]
     for info in product_features:
-        print(info)
         info_item = info.split()
         for i, x in enumerate(info_item):
-            print(x)
             try:
                 float(x)
                 info_dict[info_item[0]] = float(info_item[1])
@@ -295,4 +293,3 @@ def product_info_and_update_csv_database(
         ikea_database.to_csv(PROJECT_DIR / PROJECT_NAME / path_to_csv, index=False)
 
     return return_list, product_names
-
