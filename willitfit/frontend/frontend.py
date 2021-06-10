@@ -107,7 +107,7 @@ class ArticlePicker:
         # Centering 'Generate' button with columns
         cols = st.beta_columns([5,1,5])
 
-        if cols[1].button('Generate'):
+        if cols[1].button('Will It Fit?'):
             # Status message field wich will get overwritten
             self.unpack_message = st.empty()
             self.unpack_message.info("Unpacking data...")

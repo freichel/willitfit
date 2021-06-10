@@ -58,7 +58,7 @@ def generate_mesh3d_from_coords(coords_arr):
     """
     x, y, z = coords_arr
     mesh = go.Mesh3d(
-        name="Unavailable space",
+        name="Show back window",
         x=x,
         y=y,
         z=z,
@@ -138,7 +138,7 @@ def draw_3d_plot(meshes, volume_dimensions):
         legend=dict(
             borderwidth=2,
             font=dict(size=16),
-            title=dict(side="top", text="Article List", font=dict(size=16)),
+            title=dict(side="top", text="Click items in legend to show/hide!\n", font=dict(size=16)),
             y=0.9,
             itemsizing="constant",
         ),
