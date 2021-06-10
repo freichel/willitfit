@@ -1,9 +1,9 @@
 import sys
 import streamlit as st
-from willitfit.app_utils.pdf_parser import pdf_to_df, pdf_df_to_dict, pdf_df_to_str_list
+from willitfit.app_utils.pdf_parser import pdf_to_df, pdf_df_to_dict
 from willitfit.app_utils.form_transformer import form_to_dict
 from willitfit.app_utils.trunk_dimensions import get_volume_space
-from willitfit.app_utils.utils import gen_make_dict, gen_make_list, get_image
+from willitfit.app_utils.utils import gen_make_dict, gen_make_list, get_image, dict_to_name_list
 from willitfit.params import (
     OPT_MAX_ATTEMPTS,
     RANDOM_LIST_COUNT,
@@ -75,7 +75,7 @@ class CarSelector:
 class ArticlePicker:
     def __init__(self):
         self.article_dict = {}
-        self.pdf_list = ''
+        self.placeholder = "604.845.80, 404.703.29 (3)"
 
     def show_page(self, pdf_lang):
         # Columns
@@ -90,11 +90,10 @@ class ArticlePicker:
                 st.write(contents)
         # Article number list
         ## Initial placeholder value
-        placeholder = "604.845.80, 404.703.29 (3)"
         articles_str = manual_col.text_area(
             "Alternatively, list your Article Numbers:",
             help="Delimited by commas. If more than 1 of the same article, denote in brackets as shown. Format: XXX.XXX.XX (>1), XXX.XX.XX ",
-            value=f"{self.pdf_list if (self.article_dict != {}) else placeholder}"
+            value=f"{self.placeholder}"
             )
         ## Empty line space
         extra_line_empty = manual_col.empty()
@@ -110,30 +109,28 @@ class ArticlePicker:
 
         if cols[1].button('Generate'):
             # Status message field wich will get overwritten
-            unpack_message = st.empty()
-            unpack_message.info("Unpacking data...")
+            self.unpack_message = st.empty()
+            self.unpack_message.info("Unpacking data...")
             # Parsing uploaded_pdf to article_dict
             if uploaded_pdf:
                 pdf_return = pdf_to_df(uploaded_pdf, LANG_CODE[pdf_lang])
                 if isinstance(pdf_return, str):
-                    unpack_message.error(pdf_return)
+                    self.unpack_message.error(pdf_return)
                     st.stop()
-                # Build string list from df
-                self.pdf_list = pdf_df_to_str_list(pdf_return)
                 # Build article_dict from df
                 self.article_dict = pdf_df_to_dict(pdf_return)
-                unpack_message.success("Articles extracted from PDF.")
+                self.unpack_message.success("Articles extracted from PDF.")
 
             # Or build article_dict from form
             elif articles_str:
                 form_return = form_to_dict(articles_str)
                 if isinstance(form_return, str):
-                    unpack_message.error(form_return)
+                    self.unpack_message.error(form_return)
                     st.stop()
                 self.article_dict = form_return
-                unpack_message.success("Articles extracted from form.")
+                self.unpack_message.success("Articles extracted from form.")
             else:
-                unpack_message.error(NO_DATA_PROVIDED)
+                self.unpack_message.error(NO_DATA_PROVIDED)
                 st.stop()
 
 # Individual elements to be displayed sequentially
@@ -180,21 +177,24 @@ def main(db='cloud'):
         time.sleep(0.5)
     # Assign articles
     article_dict = page.article_dict
+
     # Toggle extra_depth
     extra_depth = page.extra_depth
 
     # Find car trunk dimensions for given car_model
     trunk_message = st.empty()
     trunk_message.info(f"Getting trunk volume for your {car_model}...")
-    volume_space = get_volume_space(
+    volume_space, trunk_dims = get_volume_space(
         data,
         car_model,
         extra_depth=extra_depth
         )
     trunk_message.success(f"Trunk volume for your {car_model} computed.")
+    st.success(f"Your trunk dimensions are {trunk_dims[0]}cm x {trunk_dims[1]}cm x {trunk_dims[2]}cm")
     # Call scraper with article list and website location/language.
     # Receive list of package dimensions and weights for each article.
 
+    # Scraper function and feedback
     scraper_message = st.empty()
     scraper_message.info("Browsing IKEA for you...")
     scraper_return = product_info_and_update_csv_database(article_dict,db)
@@ -202,7 +202,8 @@ def main(db='cloud'):
     if scraper_return not in ERRORS_SCRAPER:
         article_list = scraper_return[0]
         product_names = scraper_return[1]
-        scraper_message.success("All articles found on IKEA.")
+        scraper_message.success("All articles found on IKEA:")
+        st.success(dict_to_name_list(article_dict, product_names))
     else:
         scraper_message.error(scraper_return)
         st.stop()
@@ -239,6 +240,12 @@ def main(db='cloud'):
     plotter_return = plot_all(filled_space, package_coordinates, product_names)
     st.plotly_chart(plotter_return, use_container_width=True)
     plotter_message.empty()
+    # Clean up messages
+    plotter_message.success("YES! IT FITS!")
+    optimizer_message.empty()
+    scraper_message.empty()
+    trunk_message.empty()
+    page.unpack_message.empty()
 
 if __name__ == "__main__":
     if len(sys.argv) > 1:
