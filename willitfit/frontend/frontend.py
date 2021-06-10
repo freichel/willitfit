@@ -17,6 +17,7 @@ from willitfit.params import (
     DATA_FOLDER,
     INTERFACE_INSTRUCTIONS,
     LANG_CODE,
+    IKEA_COUNTRY_DOMAIN,
     CAR_MODEL_CHOOSE,
     CAR_BRAND_CHOOSE,
     LANG_CHOOSE
@@ -107,7 +108,7 @@ class ArticlePicker:
         # Centering 'Generate' button with columns
         cols = st.beta_columns([5,1,5])
 
-        if cols[1].button('Generate'):
+        if cols[1].button('Will It Fit?'):
             # Status message field wich will get overwritten
             self.unpack_message = st.empty()
             self.unpack_message.info("Unpacking data...")
@@ -197,7 +198,8 @@ def main(db='cloud'):
     # Scraper function and feedback
     scraper_message = st.empty()
     scraper_message.info("Browsing IKEA for you...")
-    scraper_return = product_info_and_update_csv_database(article_dict,db)
+
+    scraper_return = product_info_and_update_csv_database(article_dict,db,lang_code=LANG_CODE[pdf_lang])
 
     if scraper_return not in ERRORS_SCRAPER:
         article_list = scraper_return[0]

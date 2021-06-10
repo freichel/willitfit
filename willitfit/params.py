@@ -12,7 +12,34 @@ CAR_BRAND_CHOOSE = "---Choose a brand---"
 CAR_MODEL_CHOOSE = "---Choose a model---"
 
 # IKEA website scraper settings
-IKEA_COUNTRY_DOMAIN = "de"  # domain used
+IKEA_COUNTRY_DOMAIN = {
+    'de1': 'de',
+    'de2': 'at',
+    'de3': 'ch',
+    'en1': 'us',
+    'en2': 'ca',
+    'en3': 'gb',
+    'en4': 'au',
+    'fr': 'fr',
+    'nl1': 'nl',
+    'nl2': 'be',
+    'da': 'dk',
+    'no': 'no',
+    'no': 'fi',
+    'sv': 'se',
+    'cs': 'cz',
+    'es': 'es',
+    'it': 'it',
+    'hu': 'hu',
+    'pl': 'pl',
+    'pt': 'pt',
+    'ro': 'ro',
+    'sk': 'sk',
+    'hr': 'hr',
+    'sr': 'rs',
+    'si': 'si',
+}
+
 IKEA_WEBSITE_LANGUAGE = (
     "de"  # language used, often same as IKEA_COUNTRY_DOMAIN but may be different
 )
@@ -28,25 +55,31 @@ IKEA_DATABASE_DTYPES = {
 # Humanised language codes
 LANG_CODE = {
     LANG_CHOOSE: LANG_CHOOSE,
-    "Deutsch": "de",
-    "English": "en",
-    "Français": "fr",
-    "Nederlands": "nl",
-    "Dansk": "da",
-    "Norsk": "no",
-    "Suomi": "fi",
-    "Svenska": "se",
-    "Česky": "cs",
-    "Español": "es",
-    "Italiano": "it",
-    "Magyar": "hu",
-    "Polski": "pl",
-    "Português": "pt",
-    "Romȃna": "ro",
-    "Slovenský": "sk",
-    "Hrvatski": "hr",
-    "Srpski": "sr",
-    "Slovenščina": "sl",
+    'Deutsch (DE)': 'de1',
+    'Deutsch (AT)': 'de2',
+    'Deutsch (CH)': 'de3',
+    'English (US)': 'en1',
+    'English (CA)': 'en2',
+    'English (UK)': 'en3',
+    'English (AU)': 'en4',
+    'Français': 'fr',
+    'Nederlands (NL)': 'nl1',
+    'Nederlands (BE)': 'nl2',
+    'Dansk': 'da',
+    'Norsk': 'no',
+    'Suomi': 'fi',
+    'Svenska': 'se',
+    'Česky': 'cs',
+    'Español': 'es',
+    'Italiano': 'it',
+    'Magyar': 'hu',
+    'Polski': 'pl',
+    'Português': 'pt',
+    'Romȃna': 'ro',
+    'Slovenský': 'sk',
+    'Hrvatski': 'hr',
+    'Srpski': 'sr',
+    'Slovenščina': 'sl',
 }
 
 # Volume array settings
@@ -66,7 +99,7 @@ GEN_SORTERS = ["volume|descending"]
 PROJECT_DIR = Path(os.path.abspath(__file__)).parent.parent.absolute()
 PROJECT_NAME = "willitfit"
 DATA_FOLDER = "data"
-CAR_DATABASE = "cars_clean.csv"
+CAR_DATABASE = "cars_clean_config.csv"
 ARTICLE_DATABASE = "ikea_database.csv"
 INTERFACE_INSTRUCTIONS = "frontend/pdf_frontend_instructions.md"
 

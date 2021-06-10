@@ -13,7 +13,7 @@ def get_volume_space(data, car_model, extra_depth=False):
 
     # Trunk dimensions
     model_row = data[data["car_model"] == car_model]
-    
+
     ## extra_depth
     if extra_depth:
         trunk_dims = model_row[extra_depth_cols].to_numpy(int)[0]
@@ -25,15 +25,14 @@ def get_volume_space(data, car_model, extra_depth=False):
 
     # Unavailable space according to config
     ## 2 Types: BOXY, SLANT
-    # car_config = model_row['generic_config'].values
-    car_config = 'BOXY'
+    car_config = model_row['generic_config'].values
     if car_config == 'BOXY':
         ratio_height = 0.7
         slant = 4
     else:
         ratio_height = 0.5
         slant = 2
-        
+
     height_block = int(trunk_dims[2] * ratio_height)
     for i in range(height_block):
         volume_space[trunk_dims[0]-(i+1),:,height_block+(slant*i):] = VOL_UNAVAILABLE

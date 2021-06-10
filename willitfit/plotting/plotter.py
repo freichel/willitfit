@@ -58,7 +58,7 @@ def generate_mesh3d_from_coords(coords_arr):
     """
     x, y, z = coords_arr
     mesh = go.Mesh3d(
-        name="Unavailable space",
+        name="Show back window",
         x=x,
         y=y,
         z=z,
@@ -100,6 +100,25 @@ def get_unavailable_mesh(volume_space):
 
     return mesh
 
+def generate_scale_mesh(volume_dimensions):
+    """Generate an invisible plotly.go.Scatter3d mesh of the (0,0,0) point and the (x_max,y_max,z_max) to fill the whole space
+    Args:
+        volume_dimensions - a tuple of 3 integers (x,y,z) referring to the dimensions of the volume
+    Returns:
+        mesh - plotly.go.Scatter3d object"""
+
+    mesh = go.Scatter3d(name="",
+        visible=True,
+        showlegend=False,
+        opacity=0,
+        hoverinfo='none',
+        x=[0,volume_dimensions[0]],
+        y=[0,volume_dimensions[1]],
+        z=[0,volume_dimensions[2]]
+    )
+
+    return mesh
+
 
 def draw_3d_plot(meshes, volume_dimensions):
     """Draw a 3D plotly.go plot of meshes
@@ -126,8 +145,7 @@ def draw_3d_plot(meshes, volume_dimensions):
 
     layout = go.Layout(
         scene = dict(
-            aspectmode="manual",
-            aspectratio=dict(x=1,y=1,z=1),
+            aspectmode="data",
             xaxis = axis_dict(x_max),
             yaxis = axis_dict(y_max),
             zaxis = axis_dict(z_max),
@@ -138,13 +156,12 @@ def draw_3d_plot(meshes, volume_dimensions):
         legend=dict(
             borderwidth=2,
             font=dict(size=16),
-            title=dict(side="top", text="Article List", font=dict(size=16)),
+            title=dict(side="top", text="Click items in legend to show/hide!\n", font=dict(size=16)),
             y=0.9,
             itemsizing="constant",
         ),
     )
     fig = go.Figure(data=meshes, layout=layout)
-
     return fig
 
 
@@ -166,6 +183,10 @@ def plot_all(volume_space, package_coordinates, product_names, plot_unavailable=
         meshes.append(unavailable_mesh)
 
     volume_dimensions = volume_space.shape
+
+    # Add invisible mesh for even scaling
+    meshes.append(generate_scale_mesh(volume_dimensions))
+
     fig = draw_3d_plot(meshes, volume_dimensions)
 
     return fig
