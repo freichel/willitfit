@@ -30,7 +30,6 @@ import os
 import requests
 import pandas as pd
 import chromedriver_binary
-import time
 # Define path to database
 DATABASE_PATH = DATA_FOLDER + "/" + ARTICLE_DATABASE
 
@@ -94,7 +93,6 @@ def scrape_product(driver,url):
     # if article exists return important part of page
     # https://stackoverflow.com/questions/48665001/can-not-click-on-a-element-elementclickinterceptedexception-in-splinter-selen
     driver.execute_script("arguments[0].click();", html)
-    time.sleep(60)
     return driver.page_source
 
 
