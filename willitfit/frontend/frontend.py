@@ -17,6 +17,7 @@ from willitfit.params import (
     DATA_FOLDER,
     INTERFACE_INSTRUCTIONS,
     LANG_CODE,
+    IKEA_COUNTRY_DOMAIN,
     CAR_MODEL_CHOOSE,
     CAR_BRAND_CHOOSE,
     LANG_CHOOSE

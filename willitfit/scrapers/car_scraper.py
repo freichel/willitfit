@@ -151,4 +151,4 @@ def create_generic_config(df):
 data = data.apply(create_generic_config, axis=1)
 
 ## Export as csv
-data.to_csv("cars_clean.csv", index=False)
+data.to_csv("cars_clean_config.csv", index=False)
