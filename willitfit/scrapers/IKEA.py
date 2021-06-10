@@ -71,8 +71,6 @@ def check_if_item_exists(url):
     """
     r = requests.get(url)
     if r.status_code == 404:
-        print("404")
-        print(url)
         return WEBSITE_UNAVAILABLE
 
 
