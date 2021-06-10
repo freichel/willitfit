@@ -148,27 +148,33 @@ def packages_dimensions_weights(page):
     product_name = page.find_all(
         "span", {"class": "range-revamp-product-details__header notranslate"}
     )[0].text
+    lista_dim = []
+    for y in info :
+        y_info = [d.text
+            for d in y.find_all(
+                "span", {"class": "range-revamp-product-details__label"})
+            ]
+        lista_dim.append(y_info)
+    #removed 'Artikelnummer:' string from lists in list. 
+    lista_dim_new = [[i for i in x if i!='Artikelnummer:'] for x in lista_dim]
+    #add only unique list from list of lists 
+    unique_lista_dim = []
+    for x in lista_dim_new:
+        if x not in unique_lista_dim:
+            unique_lista_dim.append(x)
     # create empty list
     list_of_products = []
     # create empty dict
     product_info = {}
-    # extract subarticle code and parameters for all subproducts in product
-    for i, (x, y) in enumerate(zip(number, info)):
-        y_info = [
-            info.text
-            for info in y.find_all(
-                "span", {"class": "range-revamp-product-details__label"}
-            )
-        ]
+    #extract subarticle code and parameters for all subproducts in product
+    for i, (x, y) in enumerate(zip(number, unique_lista_dim)):
         # append to dict
-        product_info = extract_numeric_product_to_dict(y_info)
+        product_info = extract_numeric_product_to_dict(y)
         product_info["subarticle_code"] = x.text.replace(".", "")
         product_info["product_name"] = product_name
         # append to list
         list_of_products.append(product_info)
-
     return pd.DataFrame(list_of_products)
-
 
 def df_to_list(df, article_code):
     """
@@ -287,4 +293,3 @@ def product_info_and_update_csv_database(
         ikea_database.to_csv(PROJECT_DIR / PROJECT_NAME / path_to_csv, index=False)
 
     return return_list, product_names
-
