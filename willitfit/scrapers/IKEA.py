@@ -137,26 +137,6 @@ def prepare_unique_list_of_lists(dimensions_list):
     return unique_dimensions_list
 
 
-def packages_dimensions_weight_to_df(unique_dimensions_list , number, product_name):
-    """
-    Create data frame all information about articles
-    """
-    # create empty list
-    list_of_products = []
-    # create empty dict
-    product_info = {}
-
-    # extract subarticle code and parameters for all subproducts in product
-    for i, (x, y) in enumerate(zip(number, unique_dimensions_list)):
-        # append to dict
-        product_info = extract_numeric_product_to_dict(y)
-        product_info["subarticle_code"] = x.text.replace(".", "")
-        product_info["product_name"] = product_name
-        # append to list
-        list_of_products.append(product_info)
-    return pd.DataFrame(list_of_products)
-
-
 def inch_to_cm(dimension):
     "Recalculate inch to cm"
     for k,v in dimension.items():
@@ -165,13 +145,13 @@ def inch_to_cm(dimension):
             dimension[k] = v*2.54
     return dimension
 
-def extract_numeric_product_to_dict(product_features):
+
+def create_dict_with_dimensions(product_features):
     """
     Extract features from string and save it in dict
     with following keys ['width','high','length','weight','packages']
     """
     info_dict = {}
-    new_columns_name = ["width", "height", "length", "weight", "packages"]
     for info in product_features:
         info_item = info.split()
         for i, x in enumerate(info_item):
@@ -180,29 +160,64 @@ def extract_numeric_product_to_dict(product_features):
                 info_dict[info_item[0]] = float(info_item[1])
             except:
                 pass
+    return info_dict
+
+def create_dict_rename_keys(info_dict):
+    """
+    create dict and rename keys from every langauge to english
+    """
+    
+    columns_name = ["width", "height", "length", "weight", "packages"]
+    
+    info_not_all_dimensions_given = {}
+    if len(info_dict) == 4:
+        info_not_all_dimensions_given[columns_name[0]] = list(info_dict.values())[0]
+        info_not_all_dimensions_given[columns_name[1]] = list(info_dict.values())[2]
+        info_not_all_dimensions_given[columns_name[2]] = list(info_dict.values())[2]
+        info_not_all_dimensions_given[columns_name[3]] = list(info_dict.values())[1]
+        info_not_all_dimensions_given[columns_name[4]] = list(info_dict.values())[3]
+        return info_not_all_dimensions_given
+    info_dict = {x: y for x, y in zip(columns_name, info_dict.values())}
+    return info_dict
+
+def recalculate_inch_to_cm(product_features):
+    """
+    check if 'cm' in product features. If not recalculate to cm
+    """
+    
+    info_dict = create_dict_with_dimensions(product_features)
     # prepare dict for product with only 2 dimensions
     if any(['cm' in x for x in product_features]):
-        info_not_all_dimensions_given = {}
-        if len(info_dict) == 4:
-            info_not_all_dimensions_given[new_columns_name[0]] = list(info_dict.values())[0]
-            info_not_all_dimensions_given[new_columns_name[1]] = list(info_dict.values())[2]
-            info_not_all_dimensions_given[new_columns_name[2]] = list(info_dict.values())[2]
-            info_not_all_dimensions_given[new_columns_name[3]] = list(info_dict.values())[1]
-            info_not_all_dimensions_given[new_columns_name[4]] = list(info_dict.values())[3]
-            return info_not_all_dimensions_given
-        info_dict = {x: y for x, y in zip(new_columns_name, info_dict.values())}
+        info_dict = create_dict_rename_keys(info_dict)
         return info_dict
     else:
-        info_not_all_dimensions_given = {}
-        if len(info_dict) == 4:
-            info_not_all_dimensions_given[new_columns_name[0]] = list(info_dict.values())[0]
-            info_not_all_dimensions_given[new_columns_name[1]] = list(info_dict.values())[2]
-            info_not_all_dimensions_given[new_columns_name[2]] = list(info_dict.values())[2]
-            info_not_all_dimensions_given[new_columns_name[3]] = list(info_dict.values())[1]
-            info_not_all_dimensions_given[new_columns_name[4]] = list(info_dict.values())[3]
-            return inch_to_cm(info_not_all_dimensions_given)
-        info_dict = {x: y for x, y in zip(new_columns_name, info_dict.values())}
+        info_dict = create_dict_rename_keys(info_dict)
         return inch_to_cm(info_dict)
+    
+
+def packages_dimensions_weight_to_df(unique_dimensions_list , number, product_name):
+    """
+    Create data frame all information about articles
+    """
+    # create empty list
+    list_of_products = []
+    # create empty dict
+    product_info = {}
+ 
+    # extract subarticle code and parameters for all subproducts in product
+    for i, (x, y) in enumerate(zip(number, unique_dimensions_list)):
+        # append to dict
+        
+        print(y)
+        product_info = recalculate_inch_to_cm(y)
+        product_info["subarticle_code"] = x.text.replace(".", "")
+        product_info["product_name"] = product_name
+        # append to list
+        list_of_products.append(product_info)
+    return pd.DataFrame(list_of_products)
+
+
+
 
 
 def df_to_list(df, article_code):
