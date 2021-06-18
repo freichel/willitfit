@@ -35,19 +35,18 @@ After the minimum working product is complete, the above components will be refi
         * Pass filled trunk space and list of package coordinates to plotter, receive plot.
 ### Inputs
 * By user:
+    * Choose IKEA website language/location (important for country-specific IKEA scraping as well as PDF parsing) 
     * Car make and model from selection boxes
-    * Upload user's IKEA wishlist pdf or specify article codes and counts
-    * Choose if trunk should be plotted too
+    * Upload user's IKEA wishlist pdf _or_ specify article codes and counts
+    * Choose if back-seat is to be moved for extra space
 ### Outputs
+* Visual feedback of every step in the process, Car Image when a specific model is chosen (if it exists in the database), including error messages and computational steps.
 * 3D interactive plot in user interface. 
 ### Potential further enhancements
 * Article data collection:
     * Log into IKEA website using user login details and extract shopping basket data directly.
 * Language selection:
     * Offer interface in user language.
-    * Initially hardcoded (see `params.py`) but could be pre-populated based on user location/browser language, with user ability to change.
-* Car display:
-    * Show picture of chosen car.
 
 ## IKEA Web Scraper (`scrapers/IKEA.py`)
 * Receives dict of article codes and article counts.
@@ -166,6 +165,7 @@ These are parameters which can be set before project deployment. Ideally, most r
 * `make docker_build_run_deploy img=IMAGE_NAME mode=MODE` builds and then runs or deploys (*mode=GC*) the image with the specified *IMAGE_NAME*.
 
 # Change Log
+* 18/06/2021: User interface description updated (proxvision)
 * 06/06/2021: Added parameter description (freichel)
 * 05/06/2021: Clean-up and added useful commands section (freichel)
 * 03/06/2021: User interface section updated (proxvision)
