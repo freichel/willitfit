@@ -5,7 +5,6 @@ setuptools>=26
 # Data
 numpy
 pandas
-scikit-image
 
 # API
 streamlit
