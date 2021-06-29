@@ -32,8 +32,7 @@ from willitfit.params import (
 import numpy as np
 import math
 from scipy.ndimage.measurements import label
-from threading import Thread
-from queue import Queue
+import multiprocessing
 import time
 
 """
@@ -582,7 +581,7 @@ def generate_optimizer(
     #print("Package lists generated")
     # Set up threads
     threads = []
-    queue = Queue()
+    queue = multiprocessing.Queue()
     # Set up an empty list
     return_vals = []
     # Also copy the volume_space once, so that each optimizer thread has a point it can start from again if needed
@@ -592,7 +591,7 @@ def generate_optimizer(
         # Set up new threads
         # One for each defined bias in params.py
         for bias in BIAS_STACKS:
-            optimizer_thread = Thread(
+            optimizer_thread = multiprocessing.Process(
                 target=optimizer,
                 args=(
                     package_list,
@@ -608,15 +607,11 @@ def generate_optimizer(
             # Append to thread list
             threads.append(optimizer_thread)
             # Start thread
-            #print("Thread starting")
             optimizer_thread.start()
-
     # Receive return values back for each thread
-    for idx, thread in enumerate(threads):
+    for thread in threads:
         response = queue.get()
         return_vals.append(response)
-        thread.join()
-        #print("Thread closed")
     # Find lowest score
     scores = [
         return_val[0]
