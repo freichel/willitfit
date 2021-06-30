@@ -372,7 +372,7 @@ def find_first_space(package_x, package_y, package_z, volume_space):
     """
     # Binarize volume space - empty areas shown as ones
     bin_space = binarize_space(volume_space)
-    
+
     start_time = time.time()
     # Original shape
     orig_x, orig_y, orig_z = bin_space.shape
@@ -380,9 +380,9 @@ def find_first_space(package_x, package_y, package_z, volume_space):
     # That is, where the first and nth (as defined by the package_ dimensions) element are ones, i.e. empty.
     # It's not ideal but a good enough approximation.
     # The slicing at the end makes sure the arrays have the same dimensions, which is important for the following np.where step.
-    potential_x = ((bin_space[int(package_x/2):-int(package_x/2),:,:] == 1) & (bin_space[:-package_x,:,:] == 1) & (bin_space[package_x:,:,:] == 1))[:orig_x-package_x,:orig_y-package_y,:orig_z-package_z]
-    potential_y = ((bin_space[:,int(package_y/2):-int(package_y/2),:] == 1) & (bin_space[:,:-package_y,:] == 1) & (bin_space[:,package_y:,:] == 1))[:orig_x-package_x,:orig_y-package_y,:orig_z-package_z]
-    potential_z = ((bin_space[:,:,int(package_z/2):-int(package_z/2)] == 1) & (bin_space[:,:,:-package_z] == 1) & (bin_space[:,:,package_z:] == 1))[:orig_x-package_x,:orig_y-package_y,:orig_z-package_z]
+    potential_x = ((bin_space[int(np.floor(package_x/2)):-int(np.ceil(package_x/2)),:,:] == 1) & (bin_space[:-package_x,:,:] == 1) & (bin_space[package_x:,:,:] == 1))[:orig_x-package_x,:orig_y-package_y,:orig_z-package_z]
+    potential_y = ((bin_space[:,int(np.floor(package_y/2)):-int(np.ceil(package_y/2)),:] == 1) & (bin_space[:,:-package_y,:] == 1) & (bin_space[:,package_y:,:] == 1))[:orig_x-package_x,:orig_y-package_y,:orig_z-package_z]
+    potential_z = ((bin_space[:,:,int(np.floor(package_z/2)):-int(np.ceil(package_z/2))] == 1) & (bin_space[:,:,:-package_z] == 1) & (bin_space[:,:,package_z:] == 1))[:orig_x-package_x,:orig_y-package_y,:orig_z-package_z]
     #print(f"Occurrence search {time.time()-start_time}")
     # Find all matches between the three dimensions searched in.
     potentials = np.transpose(np.nonzero((potential_x == potential_y) & (potential_x == potential_z) & potential_x))
@@ -611,13 +611,10 @@ def generate_optimizer(
     # Receive return values back for each thread
     for thread in threads:
         response = queue.get()
-        return_vals.append(response)
+        if response not in ERRORS_OPTIMIZER:
+            return_vals.append(response)
     # Find lowest score
-    scores = [
-        return_val[0]
-        for return_val in return_vals
-        if return_val not in ERRORS_OPTIMIZER
-    ]
+    scores = [return_val[0] for return_val in return_vals]
     print(f"Scores: {scores}")
     if len(scores) == 0:
         return OPT_UNSUCCESSFUL
