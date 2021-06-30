@@ -76,7 +76,7 @@ class CarSelector:
 class ArticlePicker:
     def __init__(self):
         self.article_dict = {}
-        self.placeholder = "604.845.80, 404.703.29 (3)"
+        self.placeholder = "604.845.80 (10), 404.703.29 (15)"
 
     def show_page(self, pdf_lang):
         # Columns
@@ -144,7 +144,7 @@ pages = {
 }
 
 
-def main(db='cloud'):
+def main(db="cloud"):
     # Icon
     cols = st.beta_columns([2, 1, 2])
     cols[1].image(icon, use_column_width=True)

@@ -1,5 +1,4 @@
 import pandas as pd
-import os
 from willitfit.params import (
     CAR_DATABASE,
     PROJECT_DIR,
@@ -9,7 +8,6 @@ from willitfit.params import (
     CAR_MODEL_CHOOSE,
 )
 from pathlib import Path
-import os
 
 
 def get_car_data():

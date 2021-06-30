@@ -32,9 +32,7 @@ from willitfit.params import (
 import numpy as np
 import math
 from scipy.ndimage.measurements import label
-from threading import Thread
-from queue import Queue
-from skimage.feature import match_template
+import multiprocessing
 import time
 
 """
@@ -198,25 +196,13 @@ def find_open_surfaces(volume_space):
     )
     surfaces += len(
         np.where(
-            (
-                binarize_space(volume_space)[
-                    :,
-                    :-1:,
-                ]
-                == EDGE_STRUCTURE[0]
-            )
+            (binarize_space(volume_space)[:, :-1 ,:] == EDGE_STRUCTURE[0])
             & (binarize_space(volume_space)[:, 1:, :] == EDGE_STRUCTURE[1])
         )[0]
     )
     surfaces += len(
         np.where(
-            (
-                binarize_space(volume_space)[
-                    :,
-                    :-1:,
-                ]
-                == EDGE_STRUCTURE[1]
-            )
+            (binarize_space(volume_space)[:, :-1, :] == EDGE_STRUCTURE[1])
             & (binarize_space(volume_space)[:, 1:, :] == EDGE_STRUCTURE[0])
         )[0]
     )
@@ -306,9 +292,7 @@ def hash_list(article_list):
     return [hash(article.tobytes()) for article in article_list]
 
 
-def generate_package_lists(
-    article_list, sorters=GEN_SORTERS, random_lists=RANDOM_LIST_COUNT
-):
+def generate_package_lists(article_list, sorters=GEN_SORTERS, random_lists=RANDOM_LIST_COUNT):
     """
     Returns list of package lists for the optimizer.
     Lists can be pre-defined or randomized.
@@ -339,6 +323,7 @@ def generate_package_lists(
     else:
         starter_list = np.copy(package_lists[0])
 
+    #TODO - verify this actually works
     # What is the actual maximum number of unique lists?
     max_permut = np.math.factorial(len(starter_list))
 
@@ -350,6 +335,7 @@ def generate_package_lists(
         # Check if this particular permutation exists already by looking at hashes
         if hash_list([new_list])[0] not in hash_list(package_lists):
             package_lists.append(new_list)
+        #TODO - see above
         # Check if length requirement (smaller of pre-defined lists + random_lists and max_permut) is fulfilled
         if len(package_lists) >= min(len(sorters) + random_lists, max_permut - 2):
             break
@@ -357,9 +343,7 @@ def generate_package_lists(
     return package_lists
 
 
-def choose_orientation(
-    package_length, package_width, package_height, biased=False, bias_tendency=0.8
-):
+def choose_orientation(package_length, package_width, package_height, biased=False, bias_tendency=0.8):
     """
     A 3-dimensional object (with exceptions like cubes) that needs to align...
     ...with the grid can have six degrees of freedom.
@@ -369,28 +353,16 @@ def choose_orientation(
     # Get dimensions
     dimensions = [package_length, package_width, package_height]
 
+    # If there is a bias to the orientation
     if biased == True:
+        # Check if the threshold for using the biased orientation has been reached
         if np.random.uniform(0, 1) <= bias_tendency:
+            # Flat stacking
             return sorted(dimensions, reverse=True)
+    # Otherwise, choose a truly random orientation
     np.random.shuffle(dimensions)
+    #TODO - can this be done as a single return value?
     return (dimensions[0], dimensions[1], dimensions[2])
-
-
-def first_free_space_locator(bin_space, result):
-    """
-    Returns the first free space that is actually free.
-    match_template sometimes returns matches that do not actually work.
-    """
-    # Combine tuple of x,y,z arrays into single numpy array
-    result = np.stack(result)
-    # Sort by y, then z plane. This ensure packages will be stacked first along the z and then y plane.
-    result = result[:, np.lexsort((result[0, :], result[1, :], result[2, :]))]
-    # Iterate over list of found spaces and return the first one that is empty
-    for i, _ in enumerate(result[0]):
-        if bin_space[result[0][i], result[1][i], result[2][i]] == 1:
-            return (result[0][i], result[1][i], result[2][i])
-    # If the package cannot be placed, return error code
-    return OPT_INSUFFICIENT_SPACE
 
 
 def find_first_space(package_x, package_y, package_z, volume_space):
@@ -400,62 +372,34 @@ def find_first_space(package_x, package_y, package_z, volume_space):
     """
     # Binarize volume space - empty areas shown as ones
     bin_space = binarize_space(volume_space)
-    # Initialize template shape, to be used to find in bin_space
-    template_shape = np.ones((package_x, package_y, package_z))
-    # No idea why that is required (maybe otherwise similarity is too high?)
-    template_shape[1, 1, 1] = 1.01
-    # Use skimage's match_template to process a sliding window over bin_space...
-    # ...and find the first location of zero, which indicates the starting point
 
-    # Search more efficiently
-    # Try within current maximum space first, i.e. where there are already items
     start_time = time.time()
-    try:
-        search_space = np.max(np.where(volume_space == VOL_BORDER), axis=1)
-    except:
-        search_space = np.zeros((3), dtype=int)
-    try:
-        result = np.where(
-            match_template(
-                bin_space[: search_space[0], : search_space[1], : search_space[2]],
-                template_shape,
-            )
-            == 0
-        )
-        return_val = first_free_space_locator(bin_space, result)
-        if return_val == OPT_INSUFFICIENT_SPACE:
-            raise ValueError
-        print(f"Done in smallest. This took {time.time()-start_time}.")
-        return return_val
-    except ValueError:
-        # Next, try within package dimensions limited to smallest
-        try:
-            additional_space = np.max(template_shape.shape)
-            result = np.where(
-                match_template(
-                    bin_space[
-                        : search_space[0] + additional_space + 1,
-                        : search_space[1] + additional_space + 1,
-                        : search_space[2] + additional_space + 1,
-                    ],
-                    template_shape,
-                )
-                == 0
-            )
-            return_val = first_free_space_locator(bin_space, result)
-            if return_val == OPT_INSUFFICIENT_SPACE:
-                raise ValueError
-            print(f"Done in second. This took {time.time()-start_time}.")
-            return return_val
-        except ValueError:
-            # Then try whole space
-            try:
-                result = np.where(match_template(bin_space, template_shape) == 0)
-                print(f"Done in full. This took {time.time()-start_time}.")
-                return first_free_space_locator(bin_space, result)
-            # If still no fit, then the package cannot be placed
-            except ValueError:
-                return OPT_INSUFFICIENT_SPACE
+    # Original shape
+    orig_x, orig_y, orig_z = bin_space.shape
+    # Find all occurrences in all three dimensions where package COULD fit.
+    # That is, where the first and nth (as defined by the package_ dimensions) element are ones, i.e. empty.
+    # It's not ideal but a good enough approximation.
+    # The slicing at the end makes sure the arrays have the same dimensions, which is important for the following np.where step.
+    potential_x = ((bin_space[int(np.floor(package_x/2)):-int(np.ceil(package_x/2)),:,:] == 1) & (bin_space[:-package_x,:,:] == 1) & (bin_space[package_x:,:,:] == 1))[:orig_x-package_x,:orig_y-package_y,:orig_z-package_z]
+    potential_y = ((bin_space[:,int(np.floor(package_y/2)):-int(np.ceil(package_y/2)),:] == 1) & (bin_space[:,:-package_y,:] == 1) & (bin_space[:,package_y:,:] == 1))[:orig_x-package_x,:orig_y-package_y,:orig_z-package_z]
+    potential_z = ((bin_space[:,:,int(np.floor(package_z/2)):-int(np.ceil(package_z/2))] == 1) & (bin_space[:,:,:-package_z] == 1) & (bin_space[:,:,package_z:] == 1))[:orig_x-package_x,:orig_y-package_y,:orig_z-package_z]
+    #print(f"Occurrence search {time.time()-start_time}")
+    # Find all matches between the three dimensions searched in.
+    potentials = np.transpose(np.nonzero((potential_x == potential_y) & (potential_x == potential_z) & potential_x))
+    # Now sort along the three dimensions/axes to ensure we stack from the correct corner of the trunk.
+    potentials = potentials[np.lexsort((potentials[:,1], potentials[:,0], potentials[:,2])), :]
+    #print(f"Identify potentials {time.time()-start_time}")
+    # Loop through one by one until we find an appropriate solution
+    i = 0
+    for potential in potentials:
+        x,y,z = potential
+        i += 1
+        # Verify if entire space is empty
+        test_section = bin_space[x:x+package_x, y:y+package_y, z:z+package_z]
+        if np.all(test_section == 1) and (test_section.shape == (package_x, package_y, package_z)):
+            #print(f"Done. This took {time.time()-start_time}. (Attempt {i})")
+            return x,y,z
+    return OPT_INSUFFICIENT_SPACE
 
 
 def place_package(package_dimensions, volume_space):
@@ -532,7 +476,7 @@ def optimizer(
     package_coordinates = []
     # Loop while there are still packages to place
     while True:
-        print(f"attempts_counter {attempts_counter}")
+        #print(f"attempts_counter {attempts_counter}")
         # Pick up first package
         package = package_list[package_counter]
         # Find article index
@@ -594,7 +538,7 @@ def optimizer(
                 package_coordinates = []
                 volume_space = np.copy(empty_space)
                 continue
-        print(f"package_counter {package_counter}")
+        #print(f"package_counter {package_counter}")
         # Increase counter to move to next package
         package_counter += 1
         # Once all packages have been placed
@@ -625,19 +569,19 @@ def generate_optimizer(
     # Check if package volume is smaller than or equal to available space, otherwise return error
     if not is_space_sufficient(article_list, volume_space):
         return INSUFFICIENT_SPACE
-    # print("Space sufficient")
+    #print("Space sufficient")
     # Check if longest package dimension is smaller than or equal to longest space dimension, otherwise return error
     if not is_longest_dimension_sufficient(article_list, volume_space):
         return INSUFFICIENT_DIMENSION
-    # print("Dimension sufficient")
+    #print("Dimension sufficient")
     # Generate list of package lists
     package_lists = generate_package_lists(
         article_list, sorters=generator_sorters, random_lists=generator_random_lists
     )
-    # print("Package lists generated")
+    #print("Package lists generated")
     # Set up threads
     threads = []
-    queue = Queue()
+    queue = multiprocessing.Queue()
     # Set up an empty list
     return_vals = []
     # Also copy the volume_space once, so that each optimizer thread has a point it can start from again if needed
@@ -647,7 +591,7 @@ def generate_optimizer(
         # Set up new threads
         # One for each defined bias in params.py
         for bias in BIAS_STACKS:
-            optimizer_thread = Thread(
+            optimizer_thread = multiprocessing.Process(
                 target=optimizer,
                 args=(
                     package_list,
@@ -663,21 +607,14 @@ def generate_optimizer(
             # Append to thread list
             threads.append(optimizer_thread)
             # Start thread
-            print("Thread starting")
             optimizer_thread.start()
-
     # Receive return values back for each thread
-    for idx, thread in enumerate(threads):
+    for thread in threads:
         response = queue.get()
-        return_vals.append(response)
-        thread.join()
-        print("Thread closed")
+        if response not in ERRORS_OPTIMIZER:
+            return_vals.append(response)
     # Find lowest score
-    scores = [
-        return_val[0]
-        for return_val in return_vals
-        if return_val not in ERRORS_OPTIMIZER
-    ]
+    scores = [return_val[0] for return_val in return_vals]
     print(f"Scores: {scores}")
     if len(scores) == 0:
         return OPT_UNSUCCESSFUL

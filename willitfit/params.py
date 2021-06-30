@@ -2,9 +2,9 @@
 Defines global variables
 """
 
-import numpy as np
 from pathlib import Path
 import os
+
 
 # Interface settings
 LANG_CHOOSE = "---Choose a language---"
@@ -89,9 +89,8 @@ VOL_INTERIOR = -2
 VOL_EMPTY = 0
 
 # Optimizer settings
-# BIAS_STACKS = [(False, 0), (True, 0.8), (True, 1)]
-BIAS_STACKS = [(True, 0.8)]
-RANDOM_LIST_COUNT = 8
+BIAS_STACKS = [(False, 0), (True, 0.8), (True, 1)]
+RANDOM_LIST_COUNT = 3
 OPT_MAX_ATTEMPTS = 10
 GEN_SORTERS = ["volume|descending"]
 
@@ -141,7 +140,7 @@ DTYPE_DICT = {
 
 # Interface
 NOT_PDF = "Document is not a PDF."
-UNABLE_TO_PARSE_LANG = 'Check that the PDF language matches the language selected.'
+UNABLE_TO_PARSE_LANG = "Check that the PDF language matches the language selected."
 LIST_UNREADABLE = "Unexpected list format."
 NO_DATA_PROVIDED = "Please upload wishlist PDF or add articles to the form."
 ERRORS_INTERFACE = [NOT_PDF, UNABLE_TO_PARSE_LANG, LIST_UNREADABLE, NO_DATA_PROVIDED]
