@@ -372,7 +372,7 @@ def find_first_space(package_x, package_y, package_z, volume_space):
     """
     # Binarize volume space - empty areas shown as ones
     bin_space = binarize_space(volume_space)
-    
+
     start_time = time.time()
     # Original shape
     orig_x, orig_y, orig_z = bin_space.shape
@@ -611,13 +611,10 @@ def generate_optimizer(
     # Receive return values back for each thread
     for thread in threads:
         response = queue.get()
-        return_vals.append(response)
+        if response not in ERRORS_OPTIMIZER:
+            return_vals.append(response)
     # Find lowest score
-    scores = [
-        return_val[0]
-        for return_val in return_vals
-        if return_val not in ERRORS_OPTIMIZER
-    ]
+    scores = [return_val[0] for return_val in return_vals]
     print(f"Scores: {scores}")
     if len(scores) == 0:
         return OPT_UNSUCCESSFUL
