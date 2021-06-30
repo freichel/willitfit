@@ -47,10 +47,6 @@ def chrome_settings():
     return chrome_options
 
 
-driver = webdriver.Chrome(
-        ChromeDriverManager().install(), options=chrome_settings()
-    )
-
 def prepare_url(
     article_code,
     country_domain=IKEA_COUNTRY_DOMAIN,
@@ -61,7 +57,7 @@ def prepare_url(
 
     IKEA_URL = f"https://www.ikea.com/{country_domain}/{website_language}/"
     IKEA_SEARCH_URL = f"search/products/?q="
-    url = os.path.join(IKEA_URL, IKEA_SEARCH_URL, article_code)
+    url = os.path.join(IKEA_URL, IKEA_SEARCH_URL + article_code)
     return url
 
 def check_if_item_exists(url):
@@ -74,15 +70,18 @@ def check_if_item_exists(url):
         return WEBSITE_UNAVAILABLE
 
 
-
-
-def scrape_product(driver,url):
+def scrape_product(url):
     """
     Scrape the article from Ikea website
     Return page source
     """
 
-    # Scrap website and select relevant part of the website
+    # Setup driver
+    driver = webdriver.Chrome(
+        ChromeDriverManager().install(), options=chrome_settings()
+    )
+
+    # Scrape website and select relevant part of the website
     driver.get(url)
     try:
         html = driver.find_element_by_class_name("results__list")
@@ -312,7 +311,7 @@ def product_info_and_update_csv_database(
             html = check_if_item_exists(url)
             if html == WEBSITE_UNAVAILABLE:
                 return WEBSITE_UNAVAILABLE
-            html = scrape_product(driver,url)
+            html = scrape_product(url)
             if html == ARTICLE_NOT_FOUND:
                 return ARTICLE_NOT_FOUND
             info, number, product_name = extract_inforamtion_from_html(html)
