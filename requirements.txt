@@ -5,6 +5,7 @@ setuptools>=26
 # Data
 numpy
 pandas
+scipy
 
 # API
 streamlit
