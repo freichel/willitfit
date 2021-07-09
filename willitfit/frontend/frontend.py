@@ -5,22 +5,23 @@ from willitfit.app_utils.form_transformer import form_to_dict
 from willitfit.app_utils.trunk_dimensions import get_volume_space
 from willitfit.app_utils.utils import gen_make_dict, gen_make_list, get_image, dict_to_name_list
 from willitfit.params import (
+    BIAS_STACKS,
     OPT_MAX_ATTEMPTS,
     RANDOM_LIST_COUNT,
     CAR_DATABASE,
     NO_DATA_PROVIDED,
     ERRORS_SCRAPER,
     ERRORS_OPTIMIZER,
-    ERRORS_INTERFACE,
     PROJECT_NAME,
     PROJECT_DIR,
     DATA_FOLDER,
     INTERFACE_INSTRUCTIONS,
     LANG_CODE,
-    IKEA_COUNTRY_DOMAIN,
     CAR_MODEL_CHOOSE,
     CAR_BRAND_CHOOSE,
-    LANG_CHOOSE
+    LANG_CHOOSE,
+    OPTIMIZER_OPTIONS,
+    STACKING_OPTIONS
 )
 from willitfit.app_utils.googlecloud import get_cloud_data
 from willitfit.optimizers.volumeoptimizer import generate_optimizer
@@ -104,11 +105,21 @@ class ArticlePicker:
                 value=False
                 )
         self.extra_depth = extra_depth
-
-        # Centering 'Generate' button with columns
+        
+        cols = st.beta_columns([1, 2, 1])
+        expander = cols[1].beta_expander("Advanced Optimizer Settings")
+        # TODO - please advise on the preferred style: .info or help. Or a mix, as currently implemented?
+        self.optimizer_setting = expander.select_slider(label="Overall - You can further customize individual settings below.", options=list(OPTIMIZER_OPTIONS.keys()), value="Standard")
+        expander.info(OPTIMIZER_OPTIONS[self.optimizer_setting][0])
+        #TODO - cannot get the line break properly displayed in the help argument
+        self.bias_setting = expander.select_slider(label="Stacking - How strictly will the optimizer attempt to place packages as flat as possible?", options=list(STACKING_OPTIONS.keys()), value=OPTIMIZER_OPTIONS[self.optimizer_setting][1], help=chr(10).join([f"{key}: {value[0]}" for key, value in list(STACKING_OPTIONS.items())]))
+        self.random_list_setting = expander.number_input(label="Random lists - Increasing this might yield better results, but it will also take longer.", min_value=0, max_value=20, value=OPTIMIZER_OPTIONS[self.optimizer_setting][2])
+        self.attempts_setting = expander.number_input(label="Number of attempts - When it runs out of space, the optimizer tries a new approach up to the defined number of attempts.", min_value=1, max_value=10, value=OPTIMIZER_OPTIONS[self.optimizer_setting][3])
+        
+        # Centering Generate button with columns
         cols = st.beta_columns([5,1,5])
-
-        if cols[1].button('Will It Fit?'):
+        
+        if cols[1].button("Will It Fit?"):
             # Status message field wich will get overwritten
             self.unpack_message = st.empty()
             self.unpack_message.info("Unpacking data...")
@@ -135,7 +146,6 @@ class ArticlePicker:
                 st.stop()
 
 # Individual elements to be displayed sequentially
-# TODO
 # They're labelled "pages" because ideally we'd use individual pages. However, haven't gotten there yet.
 pages = {
     "select_lang": LanguageSelector,
@@ -148,7 +158,7 @@ def main(db="cloud"):
     # Icon
     cols = st.beta_columns([2, 1, 2])
     cols[1].image(icon, use_column_width=True)
-
+    
     # Language selection
     page = pages["select_lang"]()
     page.show_page()
@@ -178,10 +188,16 @@ def main(db="cloud"):
         time.sleep(0.5)
     # Assign articles
     article_dict = page.article_dict
+    
+    # Assign optimizer settings
+    bias_setting = BIAS_STACKS[STACKING_OPTIONS[page.bias_setting[1]][1]:STACKING_OPTIONS[page.bias_setting[0]][1]+1]
+    RANDOM_LIST_COUNT = page.random_list_setting
+    OPT_MAX_ATTEMPTS = page.attempts_setting
+
 
     # Toggle extra_depth
     extra_depth = page.extra_depth
-
+    
     # Find car trunk dimensions for given car_model
     trunk_message = st.empty()
     trunk_message.info(f"Getting trunk volume for your {car_model}...")
@@ -192,9 +208,9 @@ def main(db="cloud"):
         )
     trunk_message.success(f"Trunk volume for your {car_model} computed.")
     st.success(f"Your trunk dimensions are {trunk_dims[0]}cm x {trunk_dims[1]}cm x {trunk_dims[2]}cm")
+    
     # Call scraper with article list and website location/language.
     # Receive list of package dimensions and weights for each article.
-
     # Scraper function and feedback
     scraper_message = st.empty()
     scraper_message.info("Browsing IKEA for you...")
@@ -225,6 +241,7 @@ def main(db="cloud"):
         np.copy(volume_space),
         generator_random_lists=RANDOM_LIST_COUNT,
         optimizer_max_attempts=OPT_MAX_ATTEMPTS,
+        bias_options=bias_setting
     )
     if optimizer_return not in ERRORS_OPTIMIZER:
         filled_space, package_coordinates = optimizer_return

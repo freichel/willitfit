@@ -550,6 +550,7 @@ def generate_optimizer(
     generator_sorters=GEN_SORTERS,
     generator_random_lists=RANDOM_LIST_COUNT,
     optimizer_max_attempts=OPT_MAX_ATTEMPTS,
+    bias_options=BIAS_STACKS
 ):
     """
     Main function to run this module.
@@ -583,7 +584,7 @@ def generate_optimizer(
     for package_list in package_lists:
         # Set up new threads
         # One for each defined bias in params.py
-        for bias in BIAS_STACKS:
+        for bias in bias_options:
             optimizer_thread = multiprocessing.Process(
                 target=optimizer,
                 args=(
