@@ -30,8 +30,8 @@ from willitfit.params import (
     BIAS_STACKS,
 )
 import numpy as np
-import math
 from scipy.ndimage.measurements import label
+from scipy.special import factorial as fctrl
 import multiprocessing
 import time
 
@@ -57,7 +57,7 @@ def calculate_package_volume(package):
     """
     Returns volume in cm cubed for package
     """
-    return math.prod(package)
+    return np.prod(package)
 
 
 def find_total_package_volume(article_list):
@@ -298,12 +298,6 @@ def generate_package_lists(article_list, sorters=GEN_SORTERS, random_lists=RANDO
     Lists can be pre-defined or randomized.
     """
 
-    # TODO
-    """
-    IMPROVEMENT OPTIONS:
-    - if random_lists is larger than maximum number of permutations, just use permutations directly
-    - other sorting options
-    """
     package_lists = []
     # First generate pre-defined lists
     sorters = set(sorters)
@@ -323,10 +317,11 @@ def generate_package_lists(article_list, sorters=GEN_SORTERS, random_lists=RANDO
     else:
         starter_list = np.copy(package_lists[0])
 
-    #TODO - verify this actually works
     # What is the actual maximum number of unique lists?
-    max_permut = np.math.factorial(len(starter_list))
-
+    # It's the factorial of the number of packages divided by the product of the factorials for each package's count
+    # Hoorray for high school mathematics
+    max_permut = int(np.round(fctrl(len(starter_list))/np.prod(fctrl(np.unique(np.array(starter_list)[:,0], return_counts=True)[1])),0))
+    
     # Now add as many random lists as needed
     while True:
         # Shuffle starter list and copy data
@@ -335,7 +330,6 @@ def generate_package_lists(article_list, sorters=GEN_SORTERS, random_lists=RANDO
         # Check if this particular permutation exists already by looking at hashes
         if hash_list([new_list])[0] not in hash_list(package_lists):
             package_lists.append(new_list)
-        #TODO - see above
         # Check if length requirement (smaller of pre-defined lists + random_lists and max_permut) is fulfilled
         if len(package_lists) >= min(len(sorters) + random_lists, max_permut - 2):
             break
@@ -361,7 +355,6 @@ def choose_orientation(package_length, package_width, package_height, biased=Fal
             return sorted(dimensions, reverse=True)
     # Otherwise, choose a truly random orientation
     np.random.shuffle(dimensions)
-    #TODO - can this be done as a single return value?
     return (dimensions[0], dimensions[1], dimensions[2])
 
 
