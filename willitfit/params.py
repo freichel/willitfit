@@ -135,7 +135,7 @@ ERRORS_OPTIMIZER = [
 
 # Scraper
 WEBSITE_UNAVAILABLE = "Website temporarily unavailable."
-ARTICLE_NOT_FOUND = "One or more articles do not exist."
+ARTICLE_NOT_FOUND = "One or more articles could not be found."
 ERRORS_SCRAPER = [WEBSITE_UNAVAILABLE, ARTICLE_NOT_FOUND]
 DTYPE_DICT = {
     "width": int,
