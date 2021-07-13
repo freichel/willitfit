@@ -25,6 +25,7 @@ from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.common.by import By
 from webdriver_manager.chrome import ChromeDriverManager
 from willitfit.app_utils.googlecloud import get_cloud_data, send_cloud_data
+from willitfit.app_utils.utils import get_local_data
 
 import os
 import requests
@@ -165,9 +166,9 @@ def create_dict_rename_keys(info_dict):
     """
     create dict and rename keys from every langauge to english
     """
-    
+
     columns_name = ["width", "height", "length", "weight", "packages"]
-    
+
     info_not_all_dimensions_given = {}
     if len(info_dict) == 4:
         info_not_all_dimensions_given[columns_name[0]] = list(info_dict.values())[0]
@@ -183,7 +184,7 @@ def recalculate_inch_to_cm(product_features):
     """
     check if 'cm' in product features. If not recalculate to cm
     """
-    
+
     info_dict = create_dict_with_dimensions(product_features)
     # prepare dict for product with only 2 dimensions
     if any(['cm' in x for x in product_features]):
@@ -192,7 +193,7 @@ def recalculate_inch_to_cm(product_features):
     else:
         info_dict = create_dict_rename_keys(info_dict)
         return inch_to_cm(info_dict)
-    
+
 
 def packages_dimensions_weight_to_df(unique_dimensions_list , number, product_name):
     """
@@ -202,11 +203,11 @@ def packages_dimensions_weight_to_df(unique_dimensions_list , number, product_na
     list_of_products = []
     # create empty dict
     product_info = {}
- 
+
     # extract subarticle code and parameters for all subproducts in product
     for i, (x, y) in enumerate(zip(number, unique_dimensions_list)):
         # append to dict
-        
+
         print(y)
         product_info = recalculate_inch_to_cm(y)
         product_info["subarticle_code"] = x.text.replace(".", "")
@@ -264,10 +265,6 @@ def df_to_list(df, article_code):
     return return_list
 
 
-def get_local_data(path_to_csv):
-    # Read and return data
-    return pd.read_csv(PROJECT_DIR / PROJECT_NAME / path_to_csv, dtype=DTYPE_DICT)
-
 def product_info_and_update_csv_database(
     article_dict, db, path_to_csv=DATABASE_PATH, item_count=1, lang_code="de1"
 ):
@@ -284,7 +281,7 @@ def product_info_and_update_csv_database(
     if db == "cloud":
         ikea_database = get_cloud_data(path_to_csv)
     else:
-        ikea_database = get_local_data(path_to_csv)
+        ikea_database = get_local_data(path_to_csv, DTYPE_DICT)
 
     # Reduce size
     ikea_database = ikea_database.astype(IKEA_DATABASE_DTYPES)

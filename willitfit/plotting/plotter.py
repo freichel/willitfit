@@ -4,7 +4,7 @@ Returns interactive 3D plot of packages
 """
 
 from re import M
-from willitfit.params import VOL_INTERIOR, VOL_UNAVAILABLE, VOL_BORDER, VOL_EMPTY
+from willitfit.params import VOL_UNAVAILABLE
 import numpy as np
 import pandas as pd
 import plotly.graph_objects as go

@@ -3,7 +3,6 @@ Module for interaction with Google Cloud Storage
 """
 
 from google.cloud import storage
-from numpy.lib import index_tricks
 from willitfit.params import (
     BUCKET_NAME,
     DATA_FOLDER,
@@ -43,7 +42,6 @@ def send_cloud_data(df, path_to_file="data/test.csv"):
     bucket = storage_client.bucket(BUCKET_NAME)
 
     # Write dataframe
-
     df.to_csv(PROJECT_DIR / PROJECT_NAME / path_to_file, index=False)
 
     # Create blob
