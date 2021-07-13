@@ -38,6 +38,7 @@ st.set_page_config(
     )
 
 class CarData:
+    """Class for loading car data and generating car make list & dicts"""
     def __init__(self, db):
         self.data = self.get_car_data(db)
         self.make_list = gen_make_list(self.data)
