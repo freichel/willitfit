@@ -2,7 +2,13 @@ import pandas as pd
 from willitfit.params import (
     CAR_BRAND_CHOOSE,
     CAR_MODEL_CHOOSE,
+    PROJECT_DIR,
+    PROJECT_NAME,
 )
+
+def get_local_data(path_to_csv, dtypes=None):
+    """Read and return local csv"""
+    return pd.read_csv(PROJECT_DIR / PROJECT_NAME / path_to_csv, dtype=dtypes)
 
 def gen_make_list(data):
     """
@@ -37,7 +43,7 @@ def gen_make_dict(data):
 
 def get_image(data, car_model):
     model_row = data[data["car_model"] == car_model]
-    
+
     return model_row["img_url"].values[0]
 
 def dict_to_name_list(article_dict, product_names_df):

@@ -3,7 +3,7 @@ import streamlit as st
 from willitfit.app_utils.pdf_parser import pdf_to_df, pdf_df_to_dict
 from willitfit.app_utils.form_transformer import form_to_dict
 from willitfit.app_utils.trunk_dimensions import get_volume_space
-from willitfit.app_utils.utils import gen_make_dict, gen_make_list, get_image, dict_to_name_list
+from willitfit.app_utils.utils import get_local_data, gen_make_dict, gen_make_list, get_image, dict_to_name_list
 from willitfit.params import (
     BIAS_STACKS,
     OPT_MAX_ATTEMPTS,
@@ -31,10 +31,23 @@ import plotly
 import numpy as np
 import time
 
-# Get car data from cloud CSV file
-data = get_cloud_data(DATA_FOLDER + "/" + CAR_DATABASE)
-MAKE_LIST = gen_make_list(data)
-MAKE_DICT = gen_make_dict(data)
+# # Get car data from cloud CSV file
+# data = get_cloud_data(DATA_FOLDER + "/" + CAR_DATABASE)
+# MAKE_LIST = gen_make_list(data)
+# MAKE_DICT = gen_make_dict(data)
+
+class CarData:
+    def __init__(self, db):
+        self.data = self.get_car_data(db)
+        self.make_list = gen_make_list(self.data)
+        self.make_dict = gen_make_dict(self.data)
+
+    def get_car_data(self, db):
+        if db == "cloud":
+            return get_cloud_data(DATA_FOLDER + "/" + CAR_DATABASE)
+        else:
+            return get_local_data(DATA_FOLDER + "/" + CAR_DATABASE)
+
 
 icon = str(PROJECT_DIR / "resources/icon.png")
 st.set_page_config(
@@ -59,17 +72,17 @@ class CarSelector:
     def __init__(self):
         self.car_model = CAR_BRAND_CHOOSE
 
-    def show_page(self):
+    def show_page(self, carDB):
         # Car model selector
-        car_make = st.selectbox("Select car brand:", MAKE_LIST)
+        car_make = st.selectbox("Select car brand:", carDB.make_list)
         if car_make:
             car_model = st.selectbox(
             "Select model:",
-            MAKE_DICT.get(car_make, [CAR_MODEL_CHOOSE])
+            carDB.make_dict.get(car_make, [CAR_MODEL_CHOOSE])
             )
             if car_model is not CAR_MODEL_CHOOSE:
                 car_cols = st.beta_columns([1,1,1])
-                image_url = get_image(data, car_model)
+                image_url = get_image(carDB.data, car_model)
                 if type(image_url) is not float:
                     car_cols[1].image(image_url)
         self.car_model = car_model
@@ -105,7 +118,7 @@ class ArticlePicker:
                 value=False
                 )
         self.extra_depth = extra_depth
-        
+
         cols = st.beta_columns([1, 2, 1])
         expander = cols[1].beta_expander("Advanced Optimizer Settings")
         # TODO - please advise on the preferred style: .info or help. Or a mix, as currently implemented?
@@ -115,10 +128,10 @@ class ArticlePicker:
         self.bias_setting = expander.select_slider(label="Stacking - How strictly will the optimizer attempt to place packages as flat as possible?", options=list(STACKING_OPTIONS.keys()), value=OPTIMIZER_OPTIONS[self.optimizer_setting][1], help=chr(10).join([f"{key}: {value[0]}" for key, value in list(STACKING_OPTIONS.items())]))
         self.random_list_setting = expander.number_input(label="Random lists - Increasing this might yield better results, but it will also take longer.", min_value=0, max_value=20, value=OPTIMIZER_OPTIONS[self.optimizer_setting][2])
         self.attempts_setting = expander.number_input(label="Number of attempts - When it runs out of space, the optimizer tries a new approach up to the defined number of attempts.", min_value=1, max_value=10, value=OPTIMIZER_OPTIONS[self.optimizer_setting][3])
-        
+
         # Centering Generate button with columns
         cols = st.beta_columns([5,1,5])
-        
+
         if cols[1].button("Will It Fit?"):
             # Status message field wich will get overwritten
             self.unpack_message = st.empty()
@@ -158,7 +171,10 @@ def main(db="cloud"):
     # Icon
     cols = st.beta_columns([2, 1, 2])
     cols[1].image(icon, use_column_width=True)
-    
+
+    # Get car database
+    CarDB = CarData(db)
+
     # Language selection
     page = pages["select_lang"]()
     page.show_page()
@@ -171,7 +187,7 @@ def main(db="cloud"):
 
     # Car selection
     page = pages["select_car"]()
-    page.show_page()
+    page.show_page(CarDB)
     # Loop until a car is selected
     while page.car_model == CAR_MODEL_CHOOSE:
         status = st.empty()
@@ -188,7 +204,7 @@ def main(db="cloud"):
         time.sleep(0.5)
     # Assign articles
     article_dict = page.article_dict
-    
+
     # Assign optimizer settings
     bias_setting = BIAS_STACKS[STACKING_OPTIONS[page.bias_setting[1]][1]:STACKING_OPTIONS[page.bias_setting[0]][1]+1]
     RANDOM_LIST_COUNT = page.random_list_setting
@@ -197,18 +213,18 @@ def main(db="cloud"):
 
     # Toggle extra_depth
     extra_depth = page.extra_depth
-    
+
     # Find car trunk dimensions for given car_model
     trunk_message = st.empty()
     trunk_message.info(f"Getting trunk volume for your {car_model}...")
     volume_space, trunk_dims = get_volume_space(
-        data,
+        CarDB.data,
         car_model,
         extra_depth=extra_depth
         )
     trunk_message.success(f"Trunk volume for your {car_model} computed.")
     st.success(f"Your trunk dimensions are {trunk_dims[0]}cm x {trunk_dims[1]}cm x {trunk_dims[2]}cm")
-    
+
     # Call scraper with article list and website location/language.
     # Receive list of package dimensions and weights for each article.
     # Scraper function and feedback
