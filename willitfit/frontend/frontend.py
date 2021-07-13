@@ -27,14 +27,15 @@ from willitfit.app_utils.googlecloud import get_cloud_data
 from willitfit.optimizers.volumeoptimizer import generate_optimizer
 from willitfit.scrapers.IKEA import product_info_and_update_csv_database
 from willitfit.plotting.plotter import plot_all
-import plotly
 import numpy as np
 import time
 
-# # Get car data from cloud CSV file
-# data = get_cloud_data(DATA_FOLDER + "/" + CAR_DATABASE)
-# MAKE_LIST = gen_make_list(data)
-# MAKE_DICT = gen_make_dict(data)
+icon = str(PROJECT_DIR / "resources/icon.png")
+st.set_page_config(
+    page_title="Will It Fit?",
+    page_icon=icon,
+    layout="wide"
+    )
 
 class CarData:
     def __init__(self, db):
@@ -45,16 +46,7 @@ class CarData:
     def get_car_data(self, db):
         if db == "cloud":
             return get_cloud_data(DATA_FOLDER + "/" + CAR_DATABASE)
-        else:
-            return get_local_data(DATA_FOLDER + "/" + CAR_DATABASE)
-
-
-icon = str(PROJECT_DIR / "resources/icon.png")
-st.set_page_config(
-    page_title="Will It Fit?",
-    page_icon=icon,
-    layout="wide"
-    )
+        return get_local_data(DATA_FOLDER + "/" + CAR_DATABASE)
 
 class LanguageSelector:
     def __init__(self):
@@ -172,7 +164,7 @@ def main(db="cloud"):
     cols = st.beta_columns([2, 1, 2])
     cols[1].image(icon, use_column_width=True)
 
-    # Get car database
+    # Load car database
     CarDB = CarData(db)
 
     # Language selection
