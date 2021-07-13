@@ -70,12 +70,6 @@ def check_if_item_exists(url):
     if r.status_code == 404:
         return WEBSITE_UNAVAILABLE
 
-def page_has_loaded(driver):
-    print("Checking if {} page is loaded.".format(driver.current_url))
-    page_state = driver.execute_script('return document.readyState;')
-    print(page_state)
-    return page_state == 'complete'
-
 def scrape_product(url):
     """
     Scrape the article from Ikea website
