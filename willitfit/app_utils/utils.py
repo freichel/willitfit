@@ -1,23 +1,14 @@
 import pandas as pd
 from willitfit.params import (
-    CAR_DATABASE,
-    PROJECT_DIR,
-    PROJECT_NAME,
-    DATA_FOLDER,
     CAR_BRAND_CHOOSE,
     CAR_MODEL_CHOOSE,
+    PROJECT_DIR,
+    PROJECT_NAME,
 )
-from pathlib import Path
 
-
-def get_car_data():
-    """
-    Read CSV into DataFrame
-    """
-    data = pd.read_csv(PROJECT_DIR / PROJECT_NAME / DATA_FOLDER / CAR_DATABASE)
-
-    return data
-
+def get_local_data(path_to_csv, dtypes=None):
+    """Read and return local csv"""
+    return pd.read_csv(PROJECT_DIR / PROJECT_NAME / path_to_csv, dtype=dtypes)
 
 def gen_make_list(data):
     """
@@ -52,7 +43,7 @@ def gen_make_dict(data):
 
 def get_image(data, car_model):
     model_row = data[data["car_model"] == car_model]
-    
+
     return model_row["img_url"].values[0]
 
 def dict_to_name_list(article_dict, product_names_df):
@@ -63,6 +54,3 @@ def dict_to_name_list(article_dict, product_names_df):
     for index, key in enumerate(article_dict):
         output_list.append(f"{name_list[index]} ({article_dict[key]})")
     return str(output_list).replace('[', '').replace("'", '').replace(']', '')
-
-if __name__ == "__main__":
-    print(get_car_data())

@@ -34,13 +34,11 @@ def form_to_dict(articles_list):
                 df_dict["article_num"].append(item)
             else:
                 errors += 1
-        if errors > 0:
-            return LIST_UNREADABLE
-        else:
+        if errors == 0:
             df = pd.DataFrame(df_dict)
             # Strip article dots
             df["article_num"] = df["article_num"].str.replace(".", "", regex=True)
             # Convert n_pieces column to int
             df["n_pieces"] = df["n_pieces"].astype(int)
             return df.set_index("article_num").T.to_dict("index")["n_pieces"]
-        return LIST_UNREADABLE
+    return LIST_UNREADABLE

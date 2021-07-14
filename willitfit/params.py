@@ -93,6 +93,16 @@ BIAS_STACKS = [(False, 0), (True, 0.8), (True, 1)]
 RANDOM_LIST_COUNT = 3
 OPT_MAX_ATTEMPTS = 10
 GEN_SORTERS = ["volume|descending"]
+OPTIMIZER_OPTIONS = {
+    "Efficient" : ["Very fast, but may miss more optimal results.", ["Rigid", "Rigid"], 0, 1],
+    "Standard" : ["Usually the most appropriate setting for most users. Provides a balance between speed and performance.", ["Rigid", "Biased"], 3, 5],
+    "Thorough" : ["Much longer processing time, but may find a better result through brute force.", ["Rigid", "Flexible"], 10, 10]
+}
+STACKING_OPTIONS = {
+    "Rigid" : ["Packages are placed as flat as possible.", 2],
+    "Biased" : ["Packages will most likely be placed as flat as possible, but there is some randomness", 1],
+    "Flexible" : ["Packages can be placed in any orientation at random.", 0]
+}
 
 # Deployment variables
 PROJECT_DIR = Path(os.path.abspath(__file__)).parent.parent.absolute()
@@ -125,7 +135,7 @@ ERRORS_OPTIMIZER = [
 
 # Scraper
 WEBSITE_UNAVAILABLE = "Website temporarily unavailable."
-ARTICLE_NOT_FOUND = "One or more articles do not exist."
+ARTICLE_NOT_FOUND = "One or more articles could not be found."
 ERRORS_SCRAPER = [WEBSITE_UNAVAILABLE, ARTICLE_NOT_FOUND]
 DTYPE_DICT = {
     "width": int,
