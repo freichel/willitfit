@@ -70,7 +70,6 @@ def check_if_item_exists(url):
     if r.status_code == 404:
         return WEBSITE_UNAVAILABLE
 
-
 def scrape_product(url):
     """
     Scrape the article from Ikea website
@@ -84,12 +83,16 @@ def scrape_product(url):
 
     # Scrape website and select relevant part of the website
     driver.get(url)
+
     try:
-        html = driver.find_element_by_class_name("results__list")
-        # Check if the article exists, if not return str
-        html = html.find_element_by_tag_name("a")
-    except:
+        # Wait 1 second for WebDriver to properly load
+        html = WebDriverWait(driver, 1).until(EC.presence_of_element_located((By.XPATH, '//*[@id="search-results"]/div/div[2]/a')))
+
+        # html = driver.find_element_by_class_name("results__list")
+        # html = html.find_element_by_css_selector("a")
+    except (EC.NoSuchElementException, TimeoutException):
         return ARTICLE_NOT_FOUND
+
     # if article exists return important part of page
     # https://stackoverflow.com/questions/48665001/can-not-click-on-a-element-elementclickinterceptedexception-in-splinter-selen
     driver.execute_script("arguments[0].click();", html)
